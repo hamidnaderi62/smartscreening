@@ -1,0 +1,471 @@
+{% extends 'base_raw_fa.html' %}
+{% load static %}
+{% block content %}
+
+
+<!-- Plugins CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/font-awesome/css/all.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/choices/css/choices.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/apexcharts/css/apexcharts.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/overlay-scrollbar/css/overlayscrollbars.min.css' %}">
+
+<!-- Theme CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/style-rtl.css' %}">
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+<!-- Page content START -->
+<div class="page-content">
+
+	<!-- Page main content START -->
+	<div class="page-content-wrapper border">
+
+		<!-- Title -->
+		<div class="row mb-3">
+			<div class="col-12 d-sm-flex justify-content-between align-items-center">
+				<h1 class="h3 mb-2 mb-sm-0 fs-5">جزئیات دوره</h1>
+				<a href="admin-edit-course-detail.html" class="btn btn-sm btn-primary mb-0">ویرایش دوره</a>
+			</div>
+		</div>
+
+		<div class="row g-4">
+
+			<!-- Course information START -->
+			<div class="col-xxl-6">
+				<div class="card bg-transparent border rounded-3 h-100">
+
+					<!-- Catd header -->
+					<div class="card-header bg-light border-bottom">
+						<h5 class="card-header-title">آموزش رایگان Blazor WebAssembly</h5>
+					</div>
+
+					<!-- Card body START -->
+					<div class="card-body">
+
+						<!-- Course image and info START -->
+						<div class="row g-4">
+							<!-- Course image -->
+							<div class="col-md-6">
+								<img src="{% static 'images/courses/4by3/01.jpg' %}" class="rounded" alt="">
+							</div>
+							<!-- Course info and avatar -->
+							<div class="col-md-6">
+								<!-- Info -->
+								<p class="mb-3">می توان امید داشت که تمام و دشواری موجود در ارائه راهکارها و شرایط سخت تایپ به پایان رسد وزمان مورد نیاز شامل حروفچینی دستاوردهای اصلی و جوابگوی سوالات پیوسته اهل دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.</p>
+
+								<!-- Price -->
+								<h5 class="mb-3">70,000 تومان</h5>
+
+								<!-- Avatar -->
+								<div class="d-sm-flex align-items-center">
+									<!-- Avatar image -->
+									<div class="avatar avatar-md">
+										<img class="avatar-img rounded-circle" src="{% static 'images/avatar/05.jpg' %}" alt="avatar">
+									</div>
+									<div class="ms-sm-3 mt-2 mt-sm-0">
+										<h6 class="mb-0"><a href="#">لیندا محمدی</a></h6>
+										<p class="mb-0 small">مدرس آکادمی صدف</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- Course image and info END -->
+
+						<!-- Information START -->
+						<div class="row mt-3">
+
+							<!-- Information item -->
+							<div class="col-md-6">
+								<ul class="list-group list-group-borderless">
+									<li class="list-group-item">
+										<span>تاریخ انتشار:</span>
+										<span class="mb-0">29 دی 1400</span>
+									</li>
+
+									<li class="list-group-item">
+										<span>مدت زمان دوره:</span>
+										<span class="mb-0">13:37:00</span>
+									</li>
+
+									<li class="list-group-item">
+										<span>شرکت کنندگان:</span>
+										<span class="mb-0">872</span>
+									</li>
+
+									<li class="list-group-item">
+										<span>مجوز:</span>
+										<span class="mb-0">دارد</span>
+									</li>
+								</ul>
+							</div>
+
+							<!-- Information item -->
+							<div class="col-md-6">
+								<ul class="list-group list-group-borderless">
+									<li class="list-group-item">
+										<span>سطح دوره:</span>
+										<span class="mb-0">متوسطه</span>
+									</li>
+
+									<li class="list-group-item">
+										<span>تعداد ویدیو:</span>
+										<span class="mb-0">30</span>
+									</li>
+
+									<li class="list-group-item">
+										<span>زبان:</span>
+										<span class="mb-0">فارسی</span>
+									</li>
+
+									<li class="list-group-item">
+										<span>امتیاز:</span>
+										<span class="mb-0">4.5<i class="fas fa-star text-warning ms-1"></i></span>
+									</li>
+
+								</ul>
+							</div>
+						</div>
+						<!-- Information END -->
+					</div>
+					<!-- Card body END -->
+				</div>
+			</div>
+			<!-- Course information END -->
+
+			<!-- Chart START -->
+			<div class="col-xxl-6">
+				<div class="row g-4">
+
+					<!-- Active student START -->
+					<div class="col-md-6 col-xxl-12">
+						<div class="card bg-transparent border overflow-hidden">
+							<!-- Card header -->
+							<div class="card-header bg-light border-bottom">
+								<h5 class="card-header-title mb-0">آمار فروش</h5>
+							</div>
+							<!-- Card body -->
+							<div class="card-body p-0">
+								<div class="d-sm-flex justify-content-between p-4">
+									<h4 class="text-blue mb-0 ff-vb fs-5">270,000 تومان</h4>
+									<p class="mb-0"><span class="text-success me-1">0.20%<i class="bi bi-arrow-up"></i></span>نسبت با هفته گذشته</p>
+								</div>
+								<!-- Apex chart -->
+								<div id="activeChartstudent"></div>
+							</div>
+						</div>
+					</div>
+					<!-- Active student END -->
+
+					<!-- Enrolled START -->
+					<div class="col-md-6 col-xxl-12">
+						<div class="card bg-transparent border overflow-hidden">
+							<!-- Card header -->
+							<div class="card-header bg-light border-bottom">
+								<h5 class="card-header-title mb-0">ثبت نام جدید این ماه</h5>
+							</div>
+							<!-- Card body -->
+							<div class="card-body p-0">
+								<div class="d-sm-flex justify-content-between p-4">
+									<h4 class="text-blue mb-0 ff-vb fs-5">186</h4>
+									<p class="mb-0"><span class="text-success me-1">0.35%<i class="bi bi-arrow-up"></i></span>نسبت با هفته گذشته</p>
+								</div>
+								<!-- Apex chart -->
+								<div id="activeChartstudent2"></div>
+							</div>
+						</div>
+					</div>
+					<!-- Enrolled END -->
+
+				</div>
+			</div>
+			<!-- Chart END -->
+
+			<!-- Student review START -->
+			<div class="col-12">
+				<div class="card bg-transparent border">
+
+					<!-- Card header START -->
+					<div class="card-header bg-light border-bottom">
+						<h5 class="mb-0">نظرات کاربران</h5>
+					</div>
+					<!-- Card header END -->
+
+					<!-- Card body START -->
+					<div class="card-body pb-0">
+						<!-- Table START -->
+						<div class="table-responsive border-0">
+							<table class="table table-dark-gray align-middle p-4 mb-0 table-hover">
+								<!-- Table head -->
+								<thead>
+									<tr>
+										<th scope="col" class="border-0 rounded-start">نام</th>
+										<th scope="col" class="border-0">تاریخ</th>
+										<th scope="col" class="border-0">امتیاز</th>
+										<th scope="col" class="border-0 rounded-end">عملیات</th>
+									</tr>
+								</thead>
+
+								<!-- Table body START -->
+								<tbody>
+									<!-- Table row -->
+									<tr>
+										<!-- Table data -->
+										<td>
+											<div class="d-flex align-items-center position-relative">
+												<!-- Image -->
+												<div class="avatar avatar-xs mb-2 mb-md-0">
+													<img src="{% static 'images/avatar/09.jpg' %}" class="rounded-circle" alt="">
+												</div>
+												<div class="mb-0 ms-2">
+													<!-- Title -->
+													<h6 class="mb-0 fw-normal"><a href="#" class="stretched-link">نیلوفر جلیلی</a></h6>
+												</div>
+											</div>
+										</td>
+
+										<!-- Table data -->
+										<td class="text-center text-sm-start">
+											<h6 class="mb-0 fw-normal">29 خرداد 1400</h6>
+										</td>
+
+										<!-- Table data -->
+										<td>
+											<ul class="list-inline mb-0">
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+											</ul>
+										</td>
+
+										<!-- Table data -->
+										<td>
+											<a href="#" class="btn btn-sm btn-info-soft mb-0" data-bs-toggle="modal" data-bs-target="#viewReview">مشاهده</a>
+											<button class="btn btn-sm btn-danger-soft me-1 mb-1 mb-md-0">حذف</button>
+										</td>
+									</tr>
+
+									<!-- Table row -->
+									<tr>
+										<!-- Table data -->
+										<td>
+											<div class="d-flex align-items-center position-relative">
+												<!-- Image -->
+												<div class="avatar avatar-xs mb-2 mb-md-0">
+													<img src="{% static 'images/avatar/01.jpg' %}" class="rounded-circle" alt="">
+												</div>
+												<div class="mb-0 ms-2">
+													<!-- Title -->
+													<h6 class="mb-0 fw-normal"><a href="#" class="stretched-link">الهام حسینی</a></h6>
+												</div>
+											</div>
+										</td>
+
+										<!-- Table data -->
+										<td class="text-center text-sm-start">
+											<h6 class="mb-0 fw-normal">15 بهمن 1400</h6>
+										</td>
+
+										<!-- Table data -->
+										<td>
+											<ul class="list-inline mb-0">
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+											</ul>
+										</td>
+
+										<!-- Table data -->
+										<td>
+											<a href="#" class="btn btn-sm btn-info-soft mb-0" data-bs-toggle="modal" data-bs-target="#viewReview">مشاهده</a>
+											<button class="btn btn-sm btn-danger-soft me-1 mb-1 mb-md-0">حذف</button>
+										</td>
+									</tr>
+
+									<!-- Table row -->
+									<tr>
+										<!-- Table data -->
+										<td>
+											<div class="d-flex align-items-center position-relative">
+												<!-- Image -->
+												<div class="avatar avatar-xs mb-2 mb-md-0">
+													<img src="{% static 'images/avatar/03.jpg' %}" class="rounded-circle" alt="">
+												</div>
+												<div class="mb-0 ms-2">
+													<!-- Title -->
+													<h6 class="mb-0 fw-normal"><a href="#" class="stretched-link">پوریا احمدی</a></h6>
+												</div>
+											</div>
+										</td>
+
+										<!-- Table data -->
+										<td class="text-center text-sm-start">
+											<h6 class="mb-0 fw-normal">28 مرداد 1400</h6>
+										</td>
+
+										<!-- Table data -->
+										<td>
+											<ul class="list-inline mb-0">
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star-half-alt text-warning"></i></li>
+											</ul>
+										</td>
+										<!-- Table data -->
+										<td>
+											<a href="#" class="btn btn-sm btn-info-soft mb-0" data-bs-toggle="modal" data-bs-target="#viewReview">مشاهده</a>
+											<button class="btn btn-sm btn-danger-soft me-1 mb-1 mb-md-0">حذف</button>
+										</td>
+									</tr>
+
+									<!-- Table row -->
+									<tr>
+										<!-- Table data -->
+										<td>
+											<div class="d-flex align-items-center position-relative">
+												<!-- Image -->
+												<div class="avatar avatar-xs mb-2 mb-md-0">
+													<img src="{% static 'images/avatar/04.jpg' %}" class="rounded-circle" alt="">
+												</div>
+												<div class="mb-0 ms-2">
+													<!-- Title -->
+													<h6 class="mb-0 fw-normal"><a href="#" class="stretched-link">مهدی علیزاده</a></h6>
+												</div>
+											</div>
+										</td>
+
+										<!-- Table data -->
+										<td class="text-center text-sm-start">
+											<h6 class="mb-0 fw-normal"><a href="#">12 خرداد 1400</a></h6>
+										</td>
+
+										<!-- Table data -->
+										<td>
+											<ul class="list-inline mb-0">
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star-half-alt text-warning"></i></li>
+											</ul>
+										</td>
+
+										<!-- Table data -->
+										<td>
+											<a href="#" class="btn btn-sm btn-info-soft mb-0" data-bs-toggle="modal" data-bs-target="#viewReview">مشاهده</a>
+											<button class="btn btn-sm btn-danger-soft me-1 mb-1 mb-md-0">حذف</button>
+										</td>
+									</tr>
+
+									<!-- Table row -->
+									<tr>
+										<!-- Table data -->
+										<td>
+											<div class="d-flex align-items-center position-relative">
+												<!-- Image -->
+												<div class="avatar avatar-xs mb-2 mb-md-0">
+													<img src="{% static 'images/avatar/05.jpg' %}" class="rounded-circle" alt="">
+												</div>
+												<div class="mb-0 ms-2">
+													<!-- Title -->
+													<h6 class="mt-2 fw-normal"><a href="#" class="stretched-link">لیندا محمدی</a></h6>
+												</div>
+											</div>
+										</td>
+
+										<!-- Table data -->
+										<td class="text-center text-sm-start">
+											<h6 class="mb-0 fw-normal"><a href="#">31 بهمن 1400</a></h6>
+										</td>
+
+										<!-- Table data -->
+										<td>
+											<ul class="list-inline mb-0">
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
+												<li class="list-inline-item me-0 small"><i class="far fa-star text-warning"></i></li>
+											</ul>
+										</td>
+
+										<!-- Table data -->
+										<td>
+											<a href="#" class="btn btn-sm btn-info-soft mb-0" data-bs-toggle="modal" data-bs-target="#viewReview">مشاهده</a>
+											<button class="btn btn-sm btn-danger-soft me-1 mb-1 mb-md-0">حذف</button>
+										</td>
+									</tr>
+								</tbody>
+								<!-- Table body END -->
+							</table>
+						</div>
+						<!-- Table END -->
+					</div>
+					<!-- Card body END -->
+
+					<!-- Card footer START -->
+					<div class="card-footer bg-transparent">
+						<!-- Pagination START -->
+						<div class="d-sm-flex justify-content-sm-between align-items-sm-center">
+							<!-- Content -->
+							<p class="mb-0 text-center text-sm-start">نمایش 1 تا 8 از 20</p>
+							<!-- Pagination -->
+							<nav class="d-flex justify-content-center mb-0" aria-label="navigation">
+								<ul class="pagination pagination-sm pagination-primary-soft d-inline-block d-md-flex rounded mb-0">
+									<li class="page-item mb-0"><a class="page-link" href="#" tabindex="-1"><i class="fas fa-angle-right"></i></a></li>
+									<li class="page-item mb-0"><a class="page-link" href="#">1</a></li>
+									<li class="page-item mb-0 active"><a class="page-link" href="#">2</a></li>
+									<li class="page-item mb-0"><a class="page-link" href="#">3</a></li>
+									<li class="page-item mb-0"><a class="page-link" href="#"><i class="fas fa-angle-left"></i></a></li>
+								</ul>
+							</nav>
+						</div>
+						<!-- Pagination END -->
+					</div>
+					<!-- Card footer END -->
+				</div>
+			</div>
+			<!-- Student review END -->
+
+		</div> <!-- Row END -->
+	</div>
+	<!-- Page main content END -->
+
+</div>
+<!-- Page content END -->
+
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+
+<script>
+document.getElementById('assessmentsForm').addEventListener('submit', function(e) {
+    // Get all checked assessments
+    const checkedItems = Array.from(document.querySelectorAll('.assessment-check:checked')).map(el => el.value);
+
+    // You could do something with them here if needed
+    console.log("Selected assessments:", checkedItems);
+
+    // Form will submit normally with all checked values
+});
+</script>
+
+<!-- Bootstrap JS -->
+<script src="{% static 'vendor/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+
+<!-- Vendors -->
+<script src="{% static 'vendor/choices/js/choices.min.js' %}"></script>
+<script src="{% static 'vendor/apexcharts/js/apexcharts.min.js' %}"></script>
+<script src="{% static 'vendor/overlay-scrollbar/js/overlayscrollbars.min.js' %}"></script>
+
+<!-- Template Functions -->
+<script src="{% static 'js/functions.js' %}"></script>
+
+{% endblock %}

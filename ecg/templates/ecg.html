@@ -1,0 +1,220 @@
+{% extends 'base_raw_fa.html' %}
+{% load static %}
+{% block content %}
+
+
+<!-- Plugins CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/font-awesome/css/all.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}">
+
+<!-- Theme CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/style-rtl.css' %}">
+
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+<!-- =======================
+Page Banner START -->
+<section class="pt-5 pb-0" style="background-image:url({% static 'images/element/map.svg' %}); background-position: center left; background-size: cover;">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-8 col-xl-6 text-center mx-auto">
+				<!-- Title -->
+				<h6 class="text-primary">بصورت آنلاین</h6>
+				<h1 class="mb-4 fs-4">تحلیل هوشمند تصاویر نوار قلب</h1>
+			</div>
+		</div>
+
+		<!-- Contact info box -->
+		<div class="row g-4 g-md-5 mt-0 mt-lg-3">
+			<!-- Box item -->
+			<div class="col-lg-4 mt-lg-0">
+				<div class="card card-body bg-primary shadow py-5 text-center h-100">
+					<!-- Title -->
+					<h5 class="text-white mb-3 fw-normal">طبق گزارش سازمان بهاشت جهانی</h5>
+					<ul class="list-inline mb-0">
+						<li class="list-item mb-3">
+							<a href="#" class="text-white">
+                                بیماری های قلبی-عروقی عامل
+                                <div class="text-white h4 mb-2 mt-2">
+                                32 درصد
+                                </div>
+                                از کل مرگ و میر جهانی هستند
+                            </a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			<!-- Box item -->
+			<div class="col-lg-4 mt-lg-0">
+				<div class="card card-body bg-primary shadow py-5 text-center h-100">
+					<!-- Title -->
+					<h5 class="text-white mb-3 fw-normal">طبق تحقیقات انجام شده</h5>
+					<ul class="list-inline mb-0">
+						<li class="list-item mb-3">
+							<a href="#" class="text-white">
+                                 هوش مصنوعی قادر است
+                                تا
+                                <div class="text-white h4 mb-2 mt-2">
+                                 80 درصد
+                                </div>
+                                از حملات قلبی را 48 ساعت
+                                قبل از وقوع پیش بینی کند.
+                            </a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			<!-- Box item -->
+			<div class="col-lg-4 mt-lg-0">
+				<div class="card card-body bg-primary shadow py-5 text-center h-100">
+					<!-- Title -->
+					<h5 class="text-white mb-3 fw-normal">حتی در دورترین نقاط</h5>
+					<ul class="list-inline mb-0">
+						<li class="list-item mb-3">
+							<a href="#" class="text-white">
+                               تحلیل نوار قلب در کمتر از
+                                <div class="text-white h4 mb-2 mt-2">
+                                1 دقیقه
+                                </div>
+                                و ارائه نتایج به شما
+                            </a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</section>
+<!-- =======================
+Page Banner END -->
+
+<!-- =======================
+Image and contact form START -->
+<section >
+	<div class="container">
+        {% if image_url == none %}
+            <form action="ecg_analyse" method="post" enctype="multipart/form-data" >
+                {% csrf_token %}
+                <div class="row g-4 g-lg-0 align-items-center">
+
+                    <div class="col-md-6 align-items-center text-center">
+                        <!-- Image -->
+                        <img src="{% static 'images/element/contact.svg' %}" class="h-400px" alt="">
+                    </div>
+
+                    <!-- Contact form START -->
+                    <div class="col-md-6">
+                        <!-- Title -->
+                        <h2 class="mt-4 mt-md-0 fs-4">ارسال نوار قلب</h2>
+                        <p>
+                            فایل تصویر نوار قلب خود را انتخاب و ارسال نمایید.
+                        </p>
+
+
+                            <div class="mb-4 bg-light-input">
+                                <label for="yourName" class="form-label">کد *</label>
+                                <input type="text" class="form-control form-control-lg" name="code" id="code">
+                            </div>
+                            <div class="mb-4 bg-light-input">
+                                <label for="emailInput" class="form-label">تصویر نوار قلب *</label>
+                                <input type="file" class="form-control form-control-lg" name="image_input" id="image_input">
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-lg btn-primary mb-0" type="submit">ارسال</button>
+                            </div>
+
+                    </div>
+                    <!-- Contact form END -->
+                </div>
+            </form>
+        {% else %}
+            <div class="row g-4 g-lg-0 align-items-center">
+
+                    <div class="col-md-6 align-items-center text-center">
+                        <!-- Image -->
+                        <img src="{{ image_url }}" class="h-400px" alt="">
+                    </div>
+
+                     <!-- Contact form START -->
+                    <div class="col-md-6">
+                        <!-- Title -->
+                        <h2 class="mt-4 mt-md-0 fs-4">نتیجه تحلیل نوار قلب</h2>
+                        <p>
+
+                        </p>
+
+                            <!-- Box item -->
+			                <div class="col-lg-12 mt-lg-0 mb-4">
+                                {% if prediction_class == 'Normal' %}
+                                    <div class="card card-body bg-success shadow py-5 text-center h-100">
+                                    <!-- Title -->
+                                    <h5 class="text-white mb-3 fw-normal"></h5>
+                                    <ul class="list-inline mb-0">
+                                        <li class="list-item mb-3">
+                                            <a href="#" class="text-white">
+                                                <div class="text-white h4 mb-2 mt-2">
+                                                {{ prediction_class }}
+                                                </div>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                {% else %}
+                                    <div class="card card-body bg-warning shadow py-5 text-center h-100">
+                                    <!-- Title -->
+                                    <h5 class="text-white mb-3 fw-normal"></h5>
+                                    <ul class="list-inline mb-0">
+                                        <li class="list-item mb-3">
+                                            <a href="#" class="text-white">
+                                                <div class="text-white h4 mb-2 mt-2">
+                                                {{ prediction_class }}
+                                                </div>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="d-grid">
+								<a href="{% url "ecg:ecg_questions" %}" class="btn btn-outline-primary mb-0"> بازگشت </a>
+                            </div>
+
+                    </div>
+                    <!-- Contact form END -->
+                </div>
+        {% endif %}
+	</div>
+</section>
+<!-- =======================
+Image and contact form END -->
+
+
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+
+<script>
+document.getElementById('assessmentsForm').addEventListener('submit', function(e) {
+    // Get all checked assessments
+    const checkedItems = Array.from(document.querySelectorAll('.assessment-check:checked')).map(el => el.value);
+
+    // You could do something with them here if needed
+    console.log("Selected assessments:", checkedItems);
+
+    // Form will submit normally with all checked values
+});
+</script>
+
+<!-- Bootstrap JS -->
+<script src="{% static 'vendor/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+
+<!-- Template Functions -->
+<script src="{% static 'js/functions.js' %}"></script>
+
+{% endblock %}
