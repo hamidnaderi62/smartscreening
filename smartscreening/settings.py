@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'account.apps.AccountConfig',
     'my_model.apps.MyModelConfig',
     'ecg.apps.EcgConfig',
+    'pedigree',
 ]
 
 MIDDLEWARE = [
@@ -58,6 +59,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'my_model.context_processors.base_url',
             ],
         },
     },

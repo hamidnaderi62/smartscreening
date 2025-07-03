@@ -12,6 +12,7 @@ urlpatterns = [
     path('account/', include('account.urls', namespace='account')),
     path('my_model/', include('my_model.urls', namespace='my_model')),
     path('ecg/', include('ecg.urls', namespace='ecg')),
+    path('pedigree/', include('pedigree.urls', namespace='pedigree')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

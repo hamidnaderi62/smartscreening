@@ -42,6 +42,13 @@ def get_history_item(history_list,idx):
 @register.filter
 def get_history_change(history_list):
     try:
-        return history_list[-1]-history_list[-2]
+        return round(history_list[-1]-history_list[-2], 2)
     except (IndexError, TypeError):
         return None
+
+@register.filter(name='mul')
+def mul(value, arg):
+    try:
+        return float(value) * float(arg)
+    except (ValueError, TypeError):
+        return value

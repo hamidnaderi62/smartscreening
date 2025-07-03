@@ -1,0 +1,67 @@
+<!-- pedigree/templates/pedigree/index.html -->
+{% extends 'pedigree/base.html' %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-12">
+        <h1 class="text-center">اپلیکیشن پیشرفته رسم شجره ژنتیکی سرطان</h1>
+
+        <div class="alert alert-info mt-4">
+            <p>این اپلیکیشن به شما کمک می‌کند تا شجره ژنتیکی خانواده را به همراه وضعیت سرطان و ژن‌های جهش‌یافته رسم کنید.</p>
+            <ul>
+                <li>فیلدها را برای هر فرد پر کنید</li>
+                <li>شناسه والدین را انتخاب کنید</li>
+                <li>روی دکمه رسم کلیک کنید</li>
+            </ul>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2>افزودن عضو جدید</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">ذخیره</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h2>اعضای خانواده</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>شناسه</th>
+                        <th>نام</th>
+                        <th>جنسیت</th>
+                        <th>وضعیت بیماری</th>
+                        <th>سن</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in members %}
+                    <tr>
+                        <td>{{ member.id }}</td>
+                        <td>{{ member.name }}</td>
+                        <td>{{ member.get_gender_display }}</td>
+                        <td>{{ member.get_affected_display }}</td>
+                        <td>{{ member.age }}</td>
+                        <td>
+                            <a href="#" class="btn btn-sm btn-warning">ویرایش</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4 text-center">
+            <a href="{% url 'pedigree:generate_pedigree' %}" class="btn btn-success btn-lg">رسم شجره پیشرفته</a>
+            <a href="{% url 'pedigree:clear_data' %}" class="btn btn-danger btn-lg">پاک کردن همه داده‌ها</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

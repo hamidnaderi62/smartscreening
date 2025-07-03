@@ -26,10 +26,10 @@ transform = transforms.Compose([
                          std=[0.229, 0.224, 0.225])
 ])
 
-def ecg_questions(request):
-    return render(request, 'ecg.html', context={})
+def ecg_questions_fa(request):
+    return render(request, 'ecg_fa.html', context={})
 
-def ecg_analyse(request):
+def ecg_analyse_fa(request):
     if request.method == 'POST' and request.FILES['image_input']:
         # Save uploaded image
         uploaded_file = request.FILES['image_input']
@@ -74,4 +74,4 @@ def ecg_analyse(request):
             'prediction_class_desc': prediction_class_desc
         })
 
-    return render(request, 'ecg.html', context={})
+    return render(request, 'ecg_fa.html', context={})

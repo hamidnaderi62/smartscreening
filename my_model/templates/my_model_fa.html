@@ -193,6 +193,44 @@ Page content START -->
                                                 <div class="mb-4">
                                                   <div class="d-flex justify-content-between align-items-center mb-2">
                                                     <div class="container px-0">
+                                                      <label for="waist_size" class="form-label fw-bold text-dark mb-3">
+                                                        اندازه دور کمر(سانتیمتر)
+                                                        <span class="text">            محل صحیح اندازه گیری کمر، نیمه راه بین پایین ترین دنده و بالای استخوان لگن است، تقریباً در راستای ناف. مستقیماً روی پوست خود اندازه گیری کنید، به طور معمول نفس خود را بیرون دهید، مطمئن شوید که متر به بدن چسبیده است، بدون اینکه پوست را فشرده کنید.</span>
+                                                      </label>
+                                                      <!-- Slider -->
+                                                      <div class="position-relative mb-3">
+                                                        <input
+                                                          class="form-range custom-range"
+                                                          type="range"
+                                                          required
+                                                          name="waist_size"
+                                                          id="waist_size"
+                                                          min="100"
+                                                          value="100"
+                                                          max="250"
+                                                          step="5"
+                                                        >
+                                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                                          <small class="text-muted">100</small>
+                                                          <small class="text-muted">150</small>
+                                                          <small class="text-muted">200</small>
+                                                          <small class="text-muted">250</small>
+                                                        </div>
+                                                      </div>
+                                                      <!-- Value Display Box (now below slider) -->
+                                                      <div class="d-flex justify-content-center">
+                                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                                          <span id="waist_size_value_display" class="d-block fw-bold">100</span>
+                                                          <small class="d-block">سانتیمتر</small>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+
+                                                <div class="mb-4">
+                                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <div class="container px-0">
                                                       <label for="education" class="form-label fw-bold text-dark mb-3">
                                                        میزان تحصیلات (تعداد سال بین 6 تا 20)
                                                       </label>
@@ -227,26 +265,26 @@ Page content START -->
                                                 </div>
 
                                                 <div class="col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                         <div class="container">
-                                             <label for="born_place" class="form-label fw-bold text-dark mb-3">محل تولد</label>
-                                             <div class="vstack gap-2">
-                                                 <div>
-                                                     <input type="radio" class="btn-check" value="1" checked name="born_place" id="born_place_1">
-                                                     <label class="btn btn-outline-primary w-100" for="born_place_1">آسیا، شمال آفریقا، اروپا </label>
-                                                 </div>
-                                                 <div>
-                                                     <input type="radio" class="btn-check" value="2"  name="born_place" id="born_place_2">
-                                                     <label class="btn btn-outline-primary w-100" for="born_place_2">دیگر</label>
-                                                 </div>
-                                            </div>
-                                         </div>
-                                    </div>
-                                </div>
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                         <div class="container">
+                                                             <label for="born_place" class="form-label fw-bold text-dark mb-3">محل تولد</label>
+                                                             <div class="vstack gap-2">
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="1" checked name="born_place" id="born_place_1">
+                                                                     <label class="btn btn-outline-primary w-100" for="born_place_1">آسیا، شمال آفریقا، اروپا </label>
+                                                                 </div>
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="2"  name="born_place" id="born_place_2">
+                                                                     <label class="btn btn-outline-primary w-100" for="born_place_2">دیگر</label>
+                                                                 </div>
+                                                            </div>
+                                                         </div>
+                                                    </div>
+                                                </div>
 
                                                 <div class="col-md-6">
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                                     <div class="container">
+                                                        <div class="container">
                                                          <label for="ethnicity" class="form-label fw-bold text-dark mb-3">نژاد</label>
                                                          <div class="vstack gap-2">
                                                              <div>
@@ -287,7 +325,55 @@ Page content START -->
                                                              </div>
                                                         </div>
                                                      </div>
+                                                    </div>
                                                 </div>
+
+                                                 <div class="col-md-6">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                         <div class="container">
+                                                             <label for="blood_group" class="form-label fw-bold text-dark mb-3">
+															 گروه خونی
+                                                             </label>
+                                                             <div class="vstack gap-2">
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="A+" name="blood_group" id="blood_group_1">
+                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_1">A+</label>
+                                                                 </div>
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="A-"  name="blood_group" id="blood_group_2">
+                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_2">A-</label>
+                                                                 </div>
+																 <div>
+                                                                     <input type="radio" class="btn-check" value="B+"  name="blood_group" id="blood_group_3">
+                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_3">B+</label>
+                                                                 </div>
+																  <div>
+                                                                     <input type="radio" class="btn-check" value="B-"  name="blood_group" id="blood_group_4">
+                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_4">B- </label>
+                                                                 </div>
+																  <div>
+                                                                     <input type="radio" class="btn-check" value="AB+"  name="blood_group" id="blood_group_5">
+                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_5">AB+</label>
+                                                                 </div>
+																 <div>
+                                                                     <input type="radio" class="btn-check" value="AB-"  name="blood_group" id="blood_group_6">
+                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_6">AB-</label>
+                                                                 </div>
+																 <div>
+                                                                     <input type="radio" class="btn-check" value="O+"  name="blood_group" id="blood_group_7">
+                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_7">O+</label>
+                                                                 </div>
+																 <div>
+                                                                     <input type="radio" class="btn-check" value="O-"  name="blood_group" id="blood_group_8">
+                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_8">O-</label>
+                                                                 </div>
+																 <div>
+                                                                     <input type="radio" class="btn-check" value="Dont Know" checked name="blood_group" id="blood_group_8">
+                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_8">نمیدانم</label>
+                                                                 </div>
+                                                            </div>
+                                                         </div>
+                                                    </div>
                                                 </div>
 
                                             </div>
@@ -469,66 +555,24 @@ Page content START -->
                                                   </div>
                                                 </div>
 
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                            </div>
-                            <!-- Accordion END -->
-
-                            <!-- Accordion START -->
-                            {% with diabetes_assessments=selected_assessments|filter_assessment_title:'Diabetes' %}
-                            <div class="accordion accordion-icon accordion-bg-light {% if not diabetes_assessments %}d-none{% endif %}" id="accordion-diabetes">
-                                <div class="accordion-item mb-3">
-                                    <h6 class="accordion-header font-base" id="heading-1">
-                                        <a class="accordion-button fw-bold rounded collapsed d-block pe-4" href="#collapse-diabetes" data-bs-toggle="collapse" data-bs-target="#collapse-diabetes" aria-expanded="false" aria-controls="collapse-diabetes">
-
-                                            <span class="mb-0">دیابت</span>
-                                            <span class="small d-block mt-1"></span>
-                                        </a>
-                                    </h6>
-                                    <div id="collapse-diabetes" class="accordion-collapse collapse" aria-labelledby="heading-1" data-bs-parent="#accordion_diabetes">
-                                        <div class="accordion-body mt-3">
-                                            <div class="vstack gap-3">
-
-                                                <div class="mb-4">
-                                                  <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <div class="container px-0">
-                                                      <label for="waist_size" class="form-label fw-bold text-dark mb-3">
-                                                        اندازه دور کمر(سانتیمتر)
-                                                        <span class="text">            محل صحیح اندازه گیری کمر، نیمه راه بین پایین ترین دنده و بالای استخوان لگن است، تقریباً در راستای ناف. مستقیماً روی پوست خود اندازه گیری کنید، به طور معمول نفس خود را بیرون دهید، مطمئن شوید که متر به بدن چسبیده است، بدون اینکه پوست را فشرده کنید.</span>
-                                                      </label>
-                                                      <!-- Slider -->
-                                                      <div class="position-relative mb-3">
-                                                        <input
-                                                          class="form-range custom-range"
-                                                          type="range"
-                                                          required
-                                                          name="waist_size"
-                                                          id="waist_size"
-                                                          min="100"
-                                                          value="100"
-                                                          max="250"
-                                                          step="5"
-                                                        >
-                                                        <div class="d-flex justify-content-between mt-1 px-2">
-                                                          <small class="text-muted">100</small>
-                                                          <small class="text-muted">150</small>
-                                                          <small class="text-muted">200</small>
-                                                          <small class="text-muted">250</small>
-                                                        </div>
-                                                      </div>
-                                                      <!-- Value Display Box (now below slider) -->
-                                                      <div class="d-flex justify-content-center">
-                                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
-                                                          <span id="waist_size_value_display" class="d-block fw-bold">100</span>
-                                                          <small class="d-block">سانتیمتر</small>
-                                                        </div>
-                                                      </div>
+                                                <div class="col-md-6">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                         <div class="container">
+                                                             <label for="cereal" class="form-label fw-bold text-dark mb-3">
+                                                               بیشتر روزها غلات صبحانه غنی‌شده می‌خورم.
+                                                             </label>
+                                                             <div class="vstack gap-2">
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="Yes"  name="cereal" id="cereal_1">
+                                                                     <label class="btn btn-outline-primary w-100" for="cereal_1">بلی</label>
+                                                                 </div>
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="No" checked  name="cereal" id="cereal_2">
+                                                                     <label class="btn btn-outline-primary w-100" for="cereal_2">خیر</label>
+                                                                 </div>
+                                                            </div>
+                                                         </div>
                                                     </div>
-                                                  </div>
                                                 </div>
 
                                                 <div class="col-md-6">
@@ -548,6 +592,73 @@ Page content START -->
                                                          </div>
                                                     </div>
                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                         <div class="container">
+                                                             <label for="dairy" class="form-label fw-bold text-dark mb-3">
+                                                               در بیشتر روزها چند وعده شیر یا لبنیات مصرف می‌کنید
+                                                             </label>
+                                                             <div class="vstack gap-2">
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="1" checked name="dairy" id="dairy_1">
+                                                                     <label class="btn btn-outline-primary w-100" for="dairy_1">کمتر از یک وعده</label>
+                                                                 </div>
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="2"  name="dairy" id="dairy_2">
+                                                                     <label class="btn btn-outline-primary w-100" for="dairy_2">بین 1 تا 2 وعده</label>
+                                                                 </div>
+																 <div>
+                                                                     <input type="radio" class="btn-check" value="3"  name="dairy" id="dairy_3">
+                                                                     <label class="btn btn-outline-primary w-100" for="dairy_3">بیشتر از 2 وعده</label>
+                                                                 </div>
+                                                            </div>
+                                                         </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                         <div class="container">
+                                                             <label for="multivitamin" class="form-label fw-bold text-dark mb-3">استفاده منظم از مولتی ویتامین ها</label>
+                                                             <div class="vstack gap-2">
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="Yes" name="multivitamin" id="multivitamin_1">
+                                                                     <label class="btn btn-outline-primary w-100" for="multivitamin_1">بلی </label>
+                                                                 </div>
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="No" checked name="multivitamin" id="multivitamin_2">
+                                                                     <label class="btn btn-outline-primary w-100" for="multivitamin_2">خیر</label>
+                                                                 </div>
+                                                            </div>
+                                                         </div>
+                                                    </div>
+                                               </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <!-- Accordion END -->
+
+
+                            <!-- Accordion START -->
+                            <div class="accordion accordion-icon accordion-bg-light" id="accordion_medical">
+                                <!-- Item -->
+                                <div class="accordion-item mb-3">
+                                    <h6 class="accordion-header font-base" id="heading-medical">
+                                        <a class="accordion-button fw-bold rounded collapsed d-block pe-4" href="#collapse-medical" data-bs-toggle="collapse" data-bs-target="#collapse-medical" aria-expanded="false" aria-controls="collapse-medical">
+
+                                            <span class="mb-0">سوابق پزشکی</span>
+                                            <span class="small d-block mt-1"></span>
+                                        </a>
+                                    </h6>
+                                    <div id="collapse-medical" class="accordion-collapse collapse" aria-labelledby="heading-1" data-bs-parent="#accordion_medical">
+                                        <div class="accordion-body mt-3">
+                                            <div class="vstack gap-3">
 
                                                 <div class="col-md-6">
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -584,6 +695,85 @@ Page content START -->
                                                          </div>
                                                     </div>
                                                </div>
+
+                                                 <div class="mb-4">
+                                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <div class="container px-0">
+                                                      <label for="totchol" class="form-label fw-bold text-dark mb-3">
+                                                        میزان کلسترول (mg/dL)؟
+                                                      </label>
+                                                      <!-- Slider -->
+                                                      <div class="position-relative mb-3">
+                                                        <input
+                                                          class="form-range custom-range"
+                                                          type="range"
+                                                          required
+                                                          name="totchol"
+                                                          id="totchol"
+                                                          min="100"
+                                                          value="200"
+                                                          max="400"
+                                                          step="1"
+                                                        >
+                                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                                          <small class="text-muted">100</small>
+                                                          <small class="text-muted">200</small>
+                                                          <small class="text-muted">300</small>
+                                                          <small class="text-muted">400</small>
+                                                        </div>
+                                                      </div>
+                                                      <!-- Value Display Box (now below slider) -->
+                                                      <div class="d-flex justify-content-center">
+                                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                                          <span id="totchol_value_display" class="d-block fw-bold">200</span>
+                                                          <small class="d-block">mg/dL</small>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                         <div class="container">
+                                                             <label for="previous_cancer" class="form-label fw-bold text-dark mb-3">          آیا سابقه ابتلا به سرطان دارید؟</label>
+                                                             <div class="vstack gap-2">
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="Yes"  name="previous_cancer" id="previous_cancer_1">
+                                                                     <label class="btn btn-outline-primary w-100" for="previous_cancer_1">بلی </label>
+                                                                 </div>
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="No" checked  name="previous_cancer" id="previous_cancer_2">
+                                                                     <label class="btn btn-outline-primary w-100" for="previous_cancer_2">خیر</label>
+                                                                 </div>
+                                                            </div>
+                                                         </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <!-- Accordion END -->
+
+                            <!-- Accordion START -->
+                            {% with diabetes_assessments=selected_assessments|filter_assessment_title:'Diabetes' %}
+                            <div class="accordion accordion-icon accordion-bg-light {% if not diabetes_assessments %}d-none{% endif %}" id="accordion-diabetes">
+                                <div class="accordion-item mb-3">
+                                    <h6 class="accordion-header font-base" id="heading-1">
+                                        <a class="accordion-button fw-bold rounded collapsed d-block pe-4" href="#collapse-diabetes" data-bs-toggle="collapse" data-bs-target="#collapse-diabetes" aria-expanded="false" aria-controls="collapse-diabetes">
+
+                                            <span class="mb-0">دیابت</span>
+                                            <span class="small d-block mt-1"></span>
+                                        </a>
+                                    </h6>
+                                    <div id="collapse-diabetes" class="accordion-collapse collapse" aria-labelledby="heading-1" data-bs-parent="#accordion_diabetes">
+                                        <div class="accordion-body mt-3">
+                                            <div class="vstack gap-3">
 
                                                 <div class="col-md-6">
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -1080,43 +1270,6 @@ Page content START -->
                                                 <div class="mb-4">
                                                   <div class="d-flex justify-content-between align-items-center mb-2">
                                                     <div class="container px-0">
-                                                      <label for="totchol" class="form-label fw-bold text-dark mb-3">
-                                                        میزان کلسترول (mg/dL)؟
-                                                      </label>
-                                                      <!-- Slider -->
-                                                      <div class="position-relative mb-3">
-                                                        <input
-                                                          class="form-range custom-range"
-                                                          type="range"
-                                                          required
-                                                          name="totchol"
-                                                          id="totchol"
-                                                          min="100"
-                                                          value="200"
-                                                          max="400"
-                                                          step="1"
-                                                        >
-                                                        <div class="d-flex justify-content-between mt-1 px-2">
-                                                          <small class="text-muted">100</small>
-                                                          <small class="text-muted">200</small>
-                                                          <small class="text-muted">300</small>
-                                                          <small class="text-muted">400</small>
-                                                        </div>
-                                                      </div>
-                                                      <!-- Value Display Box (now below slider) -->
-                                                      <div class="d-flex justify-content-center">
-                                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
-                                                          <span id="totchol_value_display" class="d-block fw-bold">200</span>
-                                                          <small class="d-block">mg/dL</small>
-                                                        </div>
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                </div>
-
-                                                <div class="mb-4">
-                                                  <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <div class="container px-0">
                                                       <label for="hdl" class="form-label fw-bold text-dark mb-3">
                                                         میزان HDL کلسترول (mg/dL)؟
                                                       </label>
@@ -1594,23 +1747,6 @@ Page content START -->
                                                     </div>
                                                </div>
 
-                                                <div class="col-md-6">
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                         <div class="container">
-                                                             <label for="multivitamin" class="form-label fw-bold text-dark mb-3">استفاده منظم از مولتی ویتامین ها</label>
-                                                             <div class="vstack gap-2">
-                                                                 <div>
-                                                                     <input type="radio" class="btn-check" value="Yes" name="multivitamin" id="multivitamin_1">
-                                                                     <label class="btn btn-outline-primary w-100" for="multivitamin_1">بلی </label>
-                                                                 </div>
-                                                                 <div>
-                                                                     <input type="radio" class="btn-check" value="No" checked name="multivitamin" id="multivitamin_2">
-                                                                     <label class="btn btn-outline-primary w-100" for="multivitamin_2">خیر</label>
-                                                                 </div>
-                                                            </div>
-                                                         </div>
-                                                    </div>
-                                               </div>
 
                                                 <div class="col-md-6">
                                                   <div class="d-flex justify-content-between align-items-center mb-2">
@@ -2476,49 +2612,6 @@ Page content START -->
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-6">
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                         <div class="container">
-                                                             <label for="cereal" class="form-label fw-bold text-dark mb-3">
-                                                               بیشتر روزها غلات صبحانه غنی‌شده می‌خورم.
-                                                             </label>
-                                                             <div class="vstack gap-2">
-                                                                 <div>
-                                                                     <input type="radio" class="btn-check" value="Yes"  name="cereal" id="cereal_1">
-                                                                     <label class="btn btn-outline-primary w-100" for="cereal_1">بلی</label>
-                                                                 </div>
-                                                                 <div>
-                                                                     <input type="radio" class="btn-check" value="No" checked  name="cereal" id="cereal_2">
-                                                                     <label class="btn btn-outline-primary w-100" for="cereal_2">خیر</label>
-                                                                 </div>
-                                                            </div>
-                                                         </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                         <div class="container">
-                                                             <label for="dairy" class="form-label fw-bold text-dark mb-3">
-                                                               در بیشتر روزها چند وعده شیر یا لبنیات مصرف می‌کنید
-                                                             </label>
-                                                             <div class="vstack gap-2">
-                                                                 <div>
-                                                                     <input type="radio" class="btn-check" value="1" checked name="dairy" id="dairy_1">
-                                                                     <label class="btn btn-outline-primary w-100" for="dairy_1">کمتر از یک وعده</label>
-                                                                 </div>
-                                                                 <div>
-                                                                     <input type="radio" class="btn-check" value="2"  name="dairy" id="dairy_2">
-                                                                     <label class="btn btn-outline-primary w-100" for="dairy_2">بین 1 تا 2 وعده</label>
-                                                                 </div>
-																 <div>
-                                                                     <input type="radio" class="btn-check" value="3"  name="dairy" id="dairy_3">
-                                                                     <label class="btn btn-outline-primary w-100" for="dairy_3">بیشتر از 2 وعده</label>
-                                                                 </div>
-                                                            </div>
-                                                         </div>
-                                                    </div>
-                                                </div>
 
                                                 <div class="col-md-6">
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -2910,53 +3003,6 @@ Page content START -->
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-6">
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                         <div class="container">
-                                                             <label for="blood_group" class="form-label fw-bold text-dark mb-3">
-															 گروه خونی
-                                                             </label>
-                                                             <div class="vstack gap-2">
-                                                                 <div>
-                                                                     <input type="radio" class="btn-check" value="A+" name="blood_group" id="blood_group_1">
-                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_1">A+</label>
-                                                                 </div>
-                                                                 <div>
-                                                                     <input type="radio" class="btn-check" value="A-"  name="blood_group" id="blood_group_2">
-                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_2">A-</label>
-                                                                 </div>
-																 <div>
-                                                                     <input type="radio" class="btn-check" value="B+"  name="blood_group" id="blood_group_3">
-                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_3">B+</label>
-                                                                 </div>
-																  <div>
-                                                                     <input type="radio" class="btn-check" value="B-"  name="blood_group" id="blood_group_4">
-                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_4">B- </label>
-                                                                 </div>
-																  <div>
-                                                                     <input type="radio" class="btn-check" value="AB+"  name="blood_group" id="blood_group_5">
-                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_5">AB+</label>
-                                                                 </div>
-																 <div>
-                                                                     <input type="radio" class="btn-check" value="AB-"  name="blood_group" id="blood_group_6">
-                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_6">AB-</label>
-                                                                 </div>
-																 <div>
-                                                                     <input type="radio" class="btn-check" value="O+"  name="blood_group" id="blood_group_7">
-                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_7">O+</label>
-                                                                 </div>
-																 <div>
-                                                                     <input type="radio" class="btn-check" value="O-"  name="blood_group" id="blood_group_8">
-                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_8">O-</label>
-                                                                 </div>
-																 <div>
-                                                                     <input type="radio" class="btn-check" value="Dont Know" checked name="blood_group" id="blood_group_8">
-                                                                     <label class="btn btn-outline-primary w-100" for="blood_group_8">نمیدانم</label>
-                                                                 </div>
-                                                            </div>
-                                                         </div>
-                                                    </div>
-                                                </div>
 
                                             </div>
                                         </div>

@@ -4,8 +4,8 @@ from . import views
 app_name = "ecg"
 
 urlpatterns = [
-    path('ecg_questions', views.ecg_questions, name="ecg_questions"),
-    path('ecg_analyse', views.ecg_analyse, name="ecg_analyse"),
+    path('ecg_questions_fa', views.ecg_questions_fa, name="ecg_questions_fa"),
+    path('ecg_analyse_fa', views.ecg_analyse_fa, name="ecg_analyse_fa"),
 
 
     #path('upload', views.pneumonia_classification_upload, name="upload"),

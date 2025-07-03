@@ -26,8 +26,8 @@
 										<div class="col-11 col-lg-6">
 											<!-- Image -->
 											<!-- Title -->
-											<h1 class="mb-0 text-white display-6">پیشگیری هوشمندانه  <br>
-												<span class="position-relative"> زندگی بهتر
+											<h1 class="mb-0 text-white display-6">همراه هوشمند  <br>
+												<span class="position-relative">سلامت شما
 													<!-- SVG START -->
 													<span class="position-absolute top-50 start-50 translate-middle ms-4 z-index-n1">
 														<svg style="transform: scale(-1,1)" width="366px" height="62.1px" enable-background="new 0 0 366 62.1" viewBox="0 0 366 62.1" xmlns="http://www.w3.org/2000/svg">
@@ -44,25 +44,6 @@
 						</div>
 						<!-- Card item END -->
 
-                        <!-- Card item START -->
-						<div class="card overflow-hidden h-500px h-md-600px text-center rounded-0" style="background-image:url({% static 'images/bg/bg2.png' %}); background-position: center left; background-size: cover;">
-							<!-- Background dark overlay -->
-							<div class="bg-overlay bg-dark opacity-6"></div>
-							<!-- Card image overlay -->
-							<div class="card-img-overlay d-flex align-items-center p-2 p-sm-4">
-								<div class="w-100 my-auto">
-									<div class="row justify-content-center">
-										<div class="col-11 col-lg-7">
-											<!-- Title -->
-											<h1 class="text-white display-6">زندگی سالم، آینده‌ای روشن</h1>
-											<p class="text-white"></p>
-											<!-- Button -->
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<!-- Card item END -->
 					</div>
 				</div>
 				<!-- Slider END -->
@@ -73,7 +54,7 @@
 <!--Main Banner END -->
 
 <!--SmartCancer START -->
-<section class="py-0">
+<section class="py-0" id="screening">
 	<div class="container">
 		<div class="row g-4">
 			<!-- Action box item -->
@@ -87,8 +68,26 @@
 					<div class="row">
 						<div class="col-sm-8 position-relative">
 							<h2 class="mb-1 h4">غربالگری هوشمند سلامت</h2>
-							<p class="mb-3 h5 fw-light">آیا می دانید خود ارزیابی و اصلاح سبک زندگی خطر ابتلا به سرطان هایی مانند سرطان سینه، پروستات، کلورکتال، سرطان دهانه رحم و تخمدان، بیماری های قلبی و همچنین دیابت نوع 2 به میزان قابل توجهی کاهش می دهد.</p>
-							<a href="https://www.smartcancer.ir/home_fa" target="_blank" class="btn btn-primary mb-0">رایگان انجام دهید</a>
+							<p class="mb-3 h5 fw-light">آیا می دانید خود ارزیابی و اصلاح سبک زندگی خطر ابتلا به اغلب سرطان ها ، بیماری های قلبی و همچنین دیابت نوع 2 به میزان قابل توجهی کاهش می دهد.</p>
+							<ul class="list-group list-group-borderless mt-4">
+                                <li class="list-group-item h6 d-flex fw-normal mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>غربالگری سرطان سینه</li>
+                                <li class="list-group-item h6 d-flex fw-normal mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>غربالگری سرطان کلورکتال</li>
+                                <li class="list-group-item h6 d-flex fw-normal mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>غربالگری سرطان پروستات </li>
+                                <li class="list-group-item h6 d-flex fw-normal mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>غربالگری سرطان دهانه رحم</li>
+                                <li class="list-group-item h6 d-flex fw-normal mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>غربالگری سرطان تخمدان</li>
+                                <li class="list-group-item h6 d-flex fw-normal mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>غربالگری سرطان پوست</li>
+                                <li class="list-group-item h6 d-flex fw-normal mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>غربالگری سرطان معده </li>
+                                <li class="list-group-item h6 d-flex fw-normal mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>غربالگری سرطان پانکراس</li>
+                                <li class="list-group-item h6 d-flex fw-normal mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>غربالگری ریسک سکته مغزی</li>
+                                <li class="list-group-item h6 d-flex fw-normal mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>غربالگری دیابت نوع 2 </li>
+                                <li class="list-group-item h6 d-flex fw-normal mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>غربالگری پوکی استخوان</li>
+                                <li class="list-group-item h6 d-flex fw-normal mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>غربالگری قلبی-عروقی</li>
+                            </ul>
+                            {% if request.user.is_authenticated %}
+                                <a href="{% url 'my_model:screening_list_fa' %}"  class="btn btn-primary mb-0 mt-4">ورود به غربالگری هوشمند</a>
+                            {% else %}
+                                <a href="{% url 'account:login_fa' %}"  class="btn btn-primary mb-0 mt-4">ورود به غربالگری هوشمند</a>
+                            {% endif %}
 						</div>
 					</div>
 				</div>
@@ -98,6 +97,235 @@
 </section>
 <!--SmartCancer END -->
 
+<!--  Blog START -->
+<section class="pt-0 mt-4" id="blog">
+    <div class="container">
+        <!-- Title -->
+        <div class="row mb-4">
+			<div class="d-md-flex justify-content-md-between align-items-center">
+				<h2 class="mb-2 mb-md-0 fs-3">مقالات و اخبار</h2>
+				<div>
+					<a href="{% url "home:blog_list_fa" %}" class="btn btn-sm btn-primary-soft mb-0"> بیشتر <i class="fas fa-angle-left ms-2"></i></a>
+				</div>
+			</div>
+		</div>
+        <div class="row">
+            <!-- Slider START -->
+            <div class="tiny-slider arrow-round arrow-creative arrow-blur">
+                <div class="tiny-slider-inner" data-autoplay="false" data-arrow="true" data-dots="false" data-items="4" data-items-lg="3" data-items-md="2" data-items-xs="1">
+
+                    {% for blog in blogs  %}
+                        <!-- Card item START -->
+                        <div class="card bg-transparent">
+                            <div class="position-relative">
+                                <img src="{{ blog.image_file.url }}" class="card-img" alt="course image">
+                                <!-- Overlay -->
+                                <div class="card-img-overlay d-flex align-items-start flex-column p-3">
+                                    <!-- Card overlay Top -->
+                                    <div class="w-100 mb-auto d-flex justify-content-end">
+                                        <!-- Favorite icon -->
+                                        <a href="#" class="icon-sm bg-white rounded-2"><i class="fas fa-heart text-danger"></i></a>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- Card body -->
+                            <div class="card-body px-2">
+                                <!-- Title -->
+                                <h5 class="card-title"><a href="{% url "home:blog_detail_fa" pk=blog.id %}">{{ blog.title }}</a></h5>
+                                <p class="mb-0 text-truncate-2 small">{{ blog.desc |safe | slice:":100"  }} ...  </p>
+                            </div>
+                        </div>
+                        <!-- Card item END -->
+                    {% endfor %}
+
+                </div>
+            </div>
+            <!-- Slider END -->
+        </div>
+    </div>
+</section>
+<!-- Content_video END -->
+
+<!--Team START -->
+<section id="team">
+	<div class="container" >
+		<!-- Title -->
+		<div class="row mb-4">
+			<div class="col-12">
+				<h2 class="fs-3 fw-bold">
+					<span class="position-relative z-index-9">تیم</span>
+					<span class="position-relative z-index-1">ما
+						<!-- SVG START -->
+						<span class="position-absolute top-50 start-50 translate-middle z-index-n1">
+							<svg width="205.3px" height="63.3px">
+								<path class="fill-warning" d="M204,26.9c-0.1-0.5-0.2-1.1-0.4-1.6c-0.1-0.3-0.3-0.6-0.5-0.9c-0.3-0.5-0.8-0.9-1.6-1.2l0.1-0.1l-0.1,0.1 c0.1-0.5-0.2-0.6-0.6-0.7c-0.1,0-0.1,0-0.2,0c-0.1-0.1-0.3-0.2-0.4-0.4c0-0.4,0-0.7-0.3-0.9c-0.1-0.1-0.4-0.2-0.7-0.2 c0-0.3-0.1-0.6-0.3-0.7c-0.2-0.1-0.4-0.2-0.6-0.2c-0.1,0-0.2,0-0.3,0c-0.6-0.5-1.2-1-1.8-1.4c0-0.1,0-0.1,0-0.1 c-0.1-0.1-0.2-0.2-0.4-0.2c-1.1-0.6-2.2-1.2-3.3-1.9c-7.6-4.5-16.6-5.5-25-7.9c-5.1-1.5-10.6-1.8-15.9-2.5 c-7.1-0.9-14.3-0.8-21.4-1.3c-2.9-0.2-5.8-0.4-8.6-0.4c-1.5,0-3-0.3-4.5-0.1c-3.1,0.5-6.2,0.8-9.3,0.9c-1,0.1-2.1,0.1-3.1,0.1 c-0.1,0-0.2,0-0.3,0c-0.1,0-0.2,0-0.3,0c-1.1,0-2.3,0.1-3.4,0.1c-1.1,0-2.3,0-3.4,0c-6.9-0.4-13.6,0.9-20.2,1.9 c-3.2,0.5-6.4,1.2-9.6,1.9c-3.5,0.8-7.1,0.9-10.6,1.7c-5.1,1.2-10.3,2.3-15.6,3.2c-5.1,0.9-10.1,2.1-15.1,3.4 c-4.6,1.2-8.7,3.2-12.7,5.2c-2.4,1.2-4.8,2.2-6.6,4.1c-2.2,2.3-3.5,5-5.4,7.5c-1.2,1.7-0.9,3.2,0.2,4.9c2.5,3.9,6.9,5.5,11.4,7.2 c2.2,0.8,4.6,1.3,6.7,2.3c2.9,1.4,5.8,2.9,8.9,4.1c6.6,2.5,13.4,4.3,20.4,5.6c3.8,0.7,7.8,1.1,11.7,1.4c6,0.4,12,1.3,18.1,1 c0.4,0.4,0.8,0.4,1.1-0.1c0.9-0.4,1.8,0.1,2.7-0.1c4.7-0.8,9.5-0.4,14.3-0.3c2.7,0,5.4,0.4,8.1,0.3c5-0.2,10.1-0.6,15.1-1 c6.9-0.6,13.8-1.3,20.4-2.8c0.2,0.2,0.3,0.1,0.3-0.1c0.6-0.1,1.2-0.2,1.8-0.3c0.1,0.2,0.3,0.1,0.3,0c0.7-0.1,1.3-0.3,2-0.4 c4.2-0.4,8.4-0.7,12.6-1.3c2.6-0.3,5.2-1,7.8-1.5c0.2,0.1,0.4,0.2,0.6,0.1c0.1,0,0.2-0.1,0.2-0.1c0,0,0.1-0.1,0.1-0.1 c0,0,0.1-0.1,0.1-0.1c0.3-0.1,0.5-0.2,0.8-0.2c0.1,0,0.1,0,0.2,0c0.2,0,0.3-0.1,0.3-0.2c0,0,0,0,0,0l0,0c0,0,0,0,0,0 c0.2,0,0.5-0.1,0.7-0.1c0,0,0,0,0,0c0.1,0,0.2,0,0.3,0c0.2,0,0.4-0.1,0.4-0.4c0.6-0.2,1.2-0.4,1.7-0.7c0.1,0,0.2,0,0.3,0 c0,0,0.1,0,0.1-0.1c0,0,0.1-0.1,0.1-0.1c0,0,0.1,0,0.1-0.1c0,0,0.1,0,0.1,0c0.3,0.1,0.6,0.1,0.7,0c0.1,0,0.2-0.1,0.2-0.2 c0.1-0.1,0.1-0.2,0.2-0.3c0.7-0.3,1.3-0.6,2-0.8c2-0.9,3.9-1.7,6-2.4c6-1.8,11.5-4.2,16.1-8c1-0.2,1.6-0.7,2-1.3 c0.3-0.4,0.4-0.8,0.6-1.2c0.6-0.1,0.9-0.3,1.1-0.6c0.2-0.3,0.3-0.7,0.4-1.1c0-0.1,0-0.1,0.1-0.2c0.6,0,0.7-0.4,1-0.7 C203.7,32.1,204.6,29.6,204,26.9z M4.4,38.1C4.2,37.6,4,37,4.3,36.5c2.3-3.7,4.3-7.6,8.5-10.2c3.5-2.1,7.4-3.7,11.3-5.3 c5.4-2.3,11.3-3.2,17.1-4.4c0,0.1,0,0.2,0,0.3l0,0c-1.4,0.5-2.7,0.9-4.1,1.4c-4.1,1.4-8.2,2.7-12.2,4.2c-5.4,2.1-9.7,5.3-12.8,9.5 c-0.6,0.8-1.3,1.7-2,2.5c-2.7,3.4-1.2,5.9,1.5,8.8c0.2,0.2,0.4,0.4,0.5,0.6C8.7,42.8,5.7,41.2,4.4,38.1z M198.5,31.8 c-2.1,3.5-5.2,6.4-8.9,8.6c-2.6,1.6-5.6,2.7-8.7,3.7c-4.1,1.3-8.1,3-12,4.6c-5,2-10.2,3.2-15.7,3.6c-7.5,0.6-14.9,1.9-22.2,3.2 c-6.1,1.1-12.4,1.3-18.6,1.9c-7,0.7-14.1,0.2-21.2,0.1c-4-0.1-7.9,0.4-11.8,0.6c-3.3,0.2-6.5,0.2-9.8-0.1c-4.9-0.4-9.9-0.7-14.8-1.2 c-3.5-0.3-7-0.9-10.4-1.8c-4-1.1-8-2.1-12-3.2c-0.6-0.2-1.2-0.3-1.7-0.7c-0.2-0.1-0.5-0.2-0.8-0.3c0.1,0,0.1,0,0.2-0.1 c0.3-0.1,0.6,0,0.9,0.1c0,0,0,0,0,0c4.3,0.6,8.7,1.5,13.1,1.7c0.6,0,1.3,0,1.9,0c0.6,0,1.6,0.3,1.6-0.3c0-0.7-0.9-1.1-1.8-1.1 c-2.7,0-5.3-0.3-7.9-0.7c-5.8-0.9-11.5-1.8-16.9-3.8c-3.7-1.4-6.8-3.4-8.7-6.6c-0.6-1-0.6-2-0.1-3c4-7.8,11.4-12.4,20.6-15.4 c8.4-2.7,16.7-5.6,25.5-7.6c6.3-1.4,12.7-2.3,18.9-3.7C88,8.1,99,7.5,110.1,7.1c4.5-0.2,9-1.1,13.6-0.7c10.5,0.8,21.1,1.5,31.6,3 c5.7,0.8,11.4,1.5,17.2,2.1c4.5,0.5,9,1.8,13.2,3.5c4,1.6,7.5,3.6,10.7,6.3C199.7,24.1,200.6,28.4,198.5,31.8z"/>
+							</svg>
+						</span>
+						<!-- SVG END -->
+					</span>
+				</h2>
+				<p class="mb-0"></p>
+			</div>
+		</div>
+
+		<div class="row">
+			<!-- Slider START -->
+			<div class="tiny-slider arrow-round arrow-creative arrow-blur">
+				<div class="tiny-slider-inner" data-autoplay="true" data-arrow="true" data-dots="false" data-items="4" data-items-lg="3" data-items-md="2" data-items-xs="1">
+                    {% for team in main_teams %}
+                        <!-- Card item START -->
+                        <div class="card bg-transparent">
+                            <div class="position-relative">
+                                <!-- Image -->
+                                <img src="{{ team.image_file.url }}" class="card-img" alt="course image">
+
+                            </div>
+                            <!-- Card body -->
+                            <div class="card-body text-center">
+                                <!-- Title -->
+                                <h5 class="card-title"><a href="#">{{ team.name }}</a></h5>
+                                <p class="mb-2">{{ team.specialty }}</p>
+                                <p class="mb-2">{{ team.position }}</p>
+                            </div>
+                        </div>
+                        <!-- Card item END -->
+                    {% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+<!--Team END -->
+
+<!-- Advisor START -->
+<section class="bg-light position-relative" id="advisor">
+	<!-- SVG Image -->
+	<figure class="position-absolute start-0 bottom-0 mb-0">
+		<img src="assets/images/element/10.svg" class="h-200px" alt="">
+	</figure>
+
+	<div class="container">
+		<!-- Title -->
+		<div class="row mb-4">
+			<div class="col-lg-8 mx-auto text-center">
+				<h2 class="fs-3">مشاوران</h2>
+				<p class="mb-0"></p>
+			</div>
+		</div>
+
+		<!-- Feedback START -->
+		<div class="row">
+			<!-- Slider START -->
+			<div class="tiny-slider arrow-round arrow-creative arrow-dark arrow-hover">
+				<div class="tiny-slider-inner" data-autoplay="true" data-edge="5" data-arrow="true" data-dots="false" data-items="4" data-items-xl="4" data-items-md="2" data-items-xs="1">
+
+                    {% for team in advisor_teams %}
+					    <div>
+                            <div class="bg-body text-center p-4 rounded-3 border border-1 position-relative">
+                                <!-- Avatar -->
+                                <div class="avatar avatar-lg mb-3">
+                                    <img class="avatar-img rounded-circle" src="{{ team.image_file.url }}" alt="avatar">
+                                </div>
+                                <!-- Title -->
+                                <h6 class="mb-2">{{ team.name }}</h6>
+                                <!-- Content -->
+
+                                <div class="card-body ">
+												<!-- Price and cart -->
+												<div class="row g-3">
+
+													<!-- Item -->
+                                                    {% if team.image_center1 %}
+                                                        <div class="col-sm-4 col-lg-6 col-xl-4">
+                                                            <div class="d-flex align-items-center">
+                                                               <img src="{{ team.image_center1.url }}"  style="width:60px; height:60px; border-radius: 10%" alt="demo">
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    {% if team.image_center2 %}
+                                                        <div class="col-sm-4 col-lg-6 col-xl-4">
+                                                            <div class="d-flex align-items-center">
+                                                                <img src="{{ team.image_center2.url }}"  style="width:60px; height:60px; border-radius: 10%" alt="demo">
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+
+                                                    {% if team.image_center3 %}
+                                                        <div class="col-sm-4 col-lg-6 col-xl-4">
+                                                            <div class="d-flex align-items-center">
+                                                                <img src="{{ team.image_center3.url }}"  style="width:60px; height:60px; border-radius: 10%" alt="demo">
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+
+												</div>
+											</div>
+
+                            </div>
+                        </div>
+                    {% endfor %}
+
+				</div>
+			</div>
+			<!-- Slider START -->
+		</div>
+		<!-- Feedback END -->
+	</div>
+</section>
+<!-- Advisor END -->
+
+<!-- ECG START -->
+<section class="pt-0 pt-lg-5" id="ecg">
+	<div class="container position-relative">
+		<!-- SVG decoration START -->
+		<figure class="position-absolute top-50 start-50 translate-middle ms-2">
+			<svg>
+				<path class="fill-white opacity-4" d="m496 22.999c0 10.493-8.506 18.999-18.999 18.999s-19-8.506-19-18.999 8.507-18.999 19-18.999 18.999 8.506 18.999 18.999z"/>
+				<path class="fill-white opacity-4" d="m775 102.5c0 5.799-4.701 10.5-10.5 10.5-5.798 0-10.499-4.701-10.499-10.5 0-5.798 4.701-10.499 10.499-10.499 5.799 0 10.5 4.701 10.5 10.499z"/>
+				<path class="fill-white opacity-4" d="m192 102c0 6.626-5.373 11.999-12 11.999s-11.999-5.373-11.999-11.999c0-6.628 5.372-12 11.999-12s12 5.372 12 12z"/>
+				<path class="fill-white opacity-4" d="m20.499 10.25c0 5.66-4.589 10.249-10.25 10.249-5.66 0-10.249-4.589-10.249-10.249-0-5.661 4.589-10.25 10.249-10.25 5.661-0 10.25 4.589 10.25 10.25z"/>
+			</svg>
+		</figure>
+		<!-- SVG decoration END -->
+
+		<div class="row" >
+			<div class="col-12">
+				<div class="bg-info p-4 p-sm-5 rounded-3">
+					<div class="row position-relative">
+						<!-- Svg decoration -->
+						<figure class="fill-white opacity-1 position-absolute top-50 start-0 translate-middle-y">
+							<svg width="141px" height="141px">
+								<path	d="M140.520,70.258 C140.520,109.064 109.062,140.519 70.258,140.519 C31.454,140.519 -0.004,109.064 -0.004,70.258 C-0.004,31.455 31.454,-0.003 70.258,-0.003 C109.062,-0.003 140.520,31.455 140.520,70.258 Z"/>
+							</svg>
+						</figure>
+						<!-- Action box -->
+						<div class="col-11 mx-auto position-relative">
+							<div class="row align-items-center">
+								<!-- Title -->
+								<div class="col-lg-7">
+									<h3 class="text-white">تحلیل نوارقلب</h3>
+									<p class="text-white mb-3 mb-lg-0"> امکان تحلیل هوشمند تصاویر نوارقلب</p>
+								</div>
+								<!-- Content and input -->
+								<div class="col-lg-5 text-lg-end">
+                                    {% if request.user.is_authenticated %}
+                                        <a href="{% url 'ecg:ecg_questions_fa' %}" class="btn btn-outline-warning mb-0">شروع کنید</a>
+                                    {% else %}
+                                        <a href="{% url 'account:login_fa' %}" class="btn btn-outline-warning mb-0">شروع کنید</a>
+                                    {% endif %}
+								</div>
+							</div>
+						</div>
+					</div> <!-- Row END -->
+				</div>
+			</div>
+		</div> <!-- Row END -->
+	</div>
+</section>
+<!-- ECG END -->
 
 
 
@@ -121,8 +349,7 @@
 							<blockquote>
 								<p>
 									<span class="me-1 small"><i class="fas fa-quote-left"></i></span>
-به توصیه‌های شما درباره کاهش مصرف قند و چربی عمل کردم و در کنار ورزش منظم، وزنم رو کنترل کردم. خیلی خوشحالم که این تغییرات علاوه بر سلامتی عمومی، می‌تونه ریسک بیماری‌هایی مثل سرطان رو هم کاهش بده.									<span class="ms-1 small"><i class="fas fa-quote-right"></i></span>
-								</p>
+با انجام تست غربالگری دیابت متوجه شدم در مرحله پیش‌دیابت هستم! با تغییر رژیم غذایی و ورزش منظم، سطح قند خونم به حالت عادی برگشت. ممنون از این پلتفرم!								</p>
 							</blockquote>
 							<!-- Rating -->
 							<ul class="list-inline mb-2">
@@ -133,7 +360,7 @@
 								<li class="list-inline-item me-0 small"><i class="fas fa-star-half-alt text-warning"></i></li>
 							</ul>
 							<!-- Info -->
-							<h6 class="mb-0">سمیرا</h6>
+							<h6 class="mb-0">علیرضا، ۴۲ ساله</h6>
 						</div>
 					</div>
 
@@ -197,7 +424,7 @@
 
 						<div class="p-3 bg-primary d-inline-block rounded-4 shadow-lg text-center" style="background:url({% static 'images/pattern/02.png' %}) no-repeat center center; background-size:cover;">
 							<!-- Info -->
-							<h5 class="text-white mb-0">4.5/5.0</h5>
+							<h5 class="text-white mb-0">4.6/5.0</h5>
 							<!-- Rating -->
 							<ul class="list-inline mb-2">
 								<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
@@ -206,7 +433,7 @@
 								<li class="list-inline-item me-0 small"><i class="fas fa-star text-warning"></i></li>
 								<li class="list-inline-item me-0 small"><i class="fas fa-star-half-alt text-warning"></i></li>
 							</ul>
-							<p class="text-white mb-0">بر اساس 3265 رتبه بندی</p>
+							<p class="text-white mb-0">بر اساس 237 رتبه بندی</p>
 						</div>
 					</div>
 
@@ -217,8 +444,8 @@
 							<blockquote>
 								<p>
 									<span class="me-1 small"><i class="fas fa-quote-left"></i></span>
-بعد از خوندن مقاله‌هاتون درباره دیابت، مصرف قندم رو کم کردم و الان سطح قند خونم خیلی بهتر شده. لطفاً درباره رژیم‌های غذایی برای افراد دیابتی هم بیشتر توضیح بدید.									<span class="ms-1 small"><i class="fas fa-quote-right"></i></span>
-								</p>
+تست غربالگری سرطان سینه به من هشدار داد که در گروه پرخطر هستم. با مراجعه به پزشک و انجام ماموگرافی، توده در مراحل اولیه شناسایی شد. امروز سالم و شکرگزارم!
+                                </p>
 							</blockquote>
 							<!-- Rating -->
 							<ul class="list-inline mb-2">
@@ -229,7 +456,7 @@
 								<li class="list-inline-item me-0 small"><i class="fas fa-star-half-alt text-warning"></i></li>
 							</ul>
 							<!-- Info -->
-							<h6 class="mb-0">مسعود </h6>
+							<h6 class="mb-0">نازیلا، ۵۰ ساله </h6>
 						</div>
 					</div>
 				</div> <!-- Row END -->
@@ -237,8 +464,9 @@
 			<div class="col-xl-5 order-1 text-center text-xl-start">
 				<!-- Title -->
 				<h2 class="fs-2">دیدگـاه کاربران</h2>
-				<p>کاربران از محتوای علمی و شخصی‌سازی‌شده سایت برای اصلاح سبک زندگی و پیشگیری از بیماری‌ها استقبال کرده و قابلیت‌هایی مانند مشاوره با متخصصان و پویش‌های نذر سلامت را ارزشمند می‌دانند.</p>
-				<a href="#" class="btn btn-primary mb-0">سایر دیدگاه</a>
+				<p>
+ اکثر کاربران از دقت نتایج و سهولت استفاده از پلتفرم رضایت دارند و آن را ابزاری ارزشمند برای پیشگیری و مدیریت سلامت می‌دانند.
+                </p>
 			</div>
 		</div> <!-- Row END -->
 	</div>
@@ -279,13 +507,13 @@
 					<div class="accordion-item mb-3">
 						<h6 class="accordion-header font-base" id="heading-1">
 							<button class="accordion-button fw-bold rounded collapsed pe-5" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-1" aria-expanded="true" aria-controls="collapse-1">
-								سایت چه خدماتی ارائه می‌دهد؟
+								پلتفرم غربالگری هوشمند چیست؟
 							</button>
 						</h6>
 						<!-- Body -->
 						<div id="collapse-1" class="accordion-collapse collapse show" aria-labelledby="heading-1" data-bs-parent="#accordionExample2">
 							<div class="accordion-body mt-3">
-ما محتوای آموزشی علمی و عملی در زمینه اصلاح سبک زندگی، تغذیه سالم، فعالیت بدنی، مدیریت استرس و پیشگیری از سرطان و بیماری‌های غیرواگیردار ارائه می‌دهیم. همچنین، امکان ارزیابی ریسک بیماری‌ها و دریافت برنامه‌های شخصی‌سازی‌شده برای بهبود سلامت فراهم است.							</div>
+یک سامانه آنلاین مبتنی بر هوش مصنوعی و مدل سازی آماری که با تحلیل داده‌های سلامت شما (مانند سن، سابقه پزشکی، سبک زندگی)، خطر ابتلا به بیماری‌های غیرواگیر (مثل سرطان، دیابت، بیماری‌های قلبی) را ارزیابی و توصیه‌های شخصی‌سازی شده ارائه می‌دهد.
 						</div>
 					</div>
 
@@ -293,14 +521,21 @@
 					<div class="accordion-item mb-3">
 						<h6 class="accordion-header font-base" id="heading-2">
 							<button class="accordion-button fw-bold rounded collapsed pe-5" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
-								چگونه می‌توانم از سایت استفاده کنم؟
+								چرا باید از این پلتفرم استفاده کنم؟
 							</button>
 						</h6>
 						<!-- Body -->
 						<div id="collapse-2" class="accordion-collapse collapse" aria-labelledby="heading-2" data-bs-parent="#accordionExample2">
 							<div class="accordion-body mt-3">
-شما می‌توانید مقالات و ویدئوهای آموزشی رایگان را مشاهده کنید. همچنین با ایجاد یک حساب کاربری، می‌توانید از ارزیابی‌های شخصی‌سازی‌شده و برنامه‌های بهبود سبک زندگی استفاده کنید.
-							</div>
+پیشگیری هوشمند: شناسایی زودهنگام عوامل خطر قبل از بروز بیماری.
+<br/>
+صرفه‌جویی در زمان: انجام غربالگری اولیه بدون مراجعه حضوری.
+<br/>
+توصیه‌های شخصی: برنامه‌های پیشگیری متناسب با پروفایل سلامت شما.
+<br/>
+دسترسی آسان: امکان استفاده در هر زمان و مکان با نتایج فوری.
+
+                            </div>
 						</div>
 					</div>
 
@@ -308,14 +543,14 @@
 					<div class="accordion-item mb-3">
 						<h6 class="accordion-header font-base" id="heading-3">
 							<button class="accordion-button fw-bold collapsed rounded pe-5" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
-								آیا محتوای سایت بر اساس تحقیقات علمی است؟
+								آیا نتایج این غربالگری معتبر است؟
 							</button>
 						</h6>
 						<!-- Body -->
 						<div id="collapse-3" class="accordion-collapse collapse" aria-labelledby="heading-3" data-bs-parent="#accordionExample2">
 							<div class="accordion-body mt-3">
-بله، تمامی اطلاعات ارائه‌شده بر پایه منابع معتبر پزشکی، تحقیقات علمی به‌روز و توصیه‌های سازمان‌های بهداشتی جهانی مانند WHO و CDC است.
-							</div>
+بله، الگوریتم‌های این پلتفرم بر اساس دستورالعمل‌های معتبر جهانی (مانند WHO و وزارت بهداشت) طراحی شده‌اند. اما نتایج جایگزین تشخیص پزشک نیستند و در صورت پرخطر بودن، باید به متخصص مراجعه کنید.
+                            </div>
 						</div>
 					</div>
 
@@ -323,13 +558,19 @@
 					<div class="accordion-item mb-3">
 						<h6 class="accordion-header font-base" id="heading-4">
 							<button class="accordion-button fw-bold collapsed rounded pe-5" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-4" aria-expanded="false" aria-controls="collapse-4">
-								آیا خدمات شما رایگان است؟
+								آیا این پلتفرم برای بیماران مبتلا به بیماری‌های مزمن هم مفید است؟
 							</button>
 						</h6>
 						<!-- Body -->
 						<div id="collapse-4" class="accordion-collapse collapse" aria-labelledby="heading-4" data-bs-parent="#accordionExample2">
 							<div class="accordion-body mt-3">
-								بخش زیادی از محتوای آموزشی رایگان است، اما برخی خدمات پیشرفته مانند مشاوره‌های تخصصی، برنامه‌های شخصی‌سازی‌شده و ارزیابی‌های ویژه ممکن است شامل هزینه باشند.
+بله! این پلتفرم به شما کمک می‌کند:
+<br/>
+روند بیماری خود را بهتر مدیریت کنید.
+<br/>
+از عوارض ثانویه بیماری پیشگیری نمایید.
+<br/>
+توصیه‌های تغذیه و ورزش متناسب با شرایطتان دریافت کنید.
                             </div>
 						</div>
 					</div>
@@ -338,31 +579,52 @@
 					<div class="accordion-item mb-3">
 						<h6 class="accordion-header font-base" id="heading-5">
 							<button class="accordion-button fw-bold collapsed rounded pe-5" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-5" aria-expanded="false" aria-controls="collapse-5">
-								آیا امکان ارزیابی ریسک سرطان یا بیماری‌های دیگر وجود دارد؟
+								چگونه می‌توانم نتایج غربالگری را تفسیر کنم؟
 							</button>
 						</h6>
 						<!-- Body -->
 						<div id="collapse-5" class="accordion-collapse collapse" aria-labelledby="heading-5" data-bs-parent="#accordionExample2">
 							<div class="accordion-body mt-3">
-بله، ما ابزارهای ارزیابی هوشمندی داریم که با تحلیل سبک زندگی، سابقه خانوادگی و عوامل خطر، میزان ریسک شما را برای برخی بیماری‌ها تخمین زده و راهکارهای پیشگیری ارائه می‌دهند.
-							</div>
+نتایج به صورت رنگ‌بندی (سبز، زرد، قرمز) نمایش داده می‌شوند.
+                                همچنین توضیحات کامل برای هر بخش در گزارش ارائه شده است.
+                            </div>
 						</div>
 					</div>
 
 					<!-- Item -->
-					<div class="accordion-item">
+					<div class="accordion-item mb-3">
 						<h6 class="accordion-header font-base" id="heading-6">
 							<button class="accordion-button fw-bold collapsed rounded pe-5" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-6" aria-expanded="false" aria-controls="collapse-6">
-								پویش نذر سلامت چیست؟
+								آیا می‌توانم برای اعضای خانواده‌ام هم غربالگری انجام دهم؟
 							</button>
 						</h6>
 						<!-- Body -->
 						<div id="collapse-6" class="accordion-collapse collapse" aria-labelledby="heading-6" data-bs-parent="#accordionExample2">
 							<div class="accordion-body mt-3">
-پویش نذر سلامت یک کمپین مردمی است که در آن افراد می‌توانند با مشارکت در فعالیت‌های مرتبط با سلامت، مانند تامین هزینه‌های غربالگری، تهیه تجهیزات پزشکی، حمایت از بیماران کم‌برخوردار یا آموزش سبک زندگی سالم، در بهبود سلامت جامعه سهیم شوند.
-							</div>
+بله! شما می‌توانید پروفایل‌های جداگانه برای هر عضو خانواده ایجاد کنید و سلامت همه را تحت نظر بگیرید.
+                            </div>
 						</div>
 					</div>
+
+                    <!-- Item -->
+					<div class="accordion-item">
+						<h6 class="accordion-header font-base" id="heading-6">
+							<button class="accordion-button fw-bold collapsed rounded pe-5" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-7" aria-expanded="false" aria-controls="collapse-7">
+بعد از دریافت نتایج چه کار باید بکنم؟
+                            </button>
+						</h6>
+						<!-- Body -->
+						<div id="collapse-7" class="accordion-collapse collapse" aria-labelledby="heading-7" data-bs-parent="#accordionExample2">
+							<div class="accordion-body mt-3">
+اگر نتیجه پرخطری دریافت کردید، با پزشک خود مشورت نمایید.
+<br/>
+از برنامه‌های پیشنهادی پلتفرم (تغذیه، ورزش، چکاپ‌های دوره‌ای) پیروی کنید.
+<br/>
+نتایج را سالانه به‌روزرسانی کنید تا از تغییرات وضعیت سلامت خود مطلع شوید.
+                            </div>
+						</div>
+					</div>
+
 				</div>
 				<!-- FAQ END -->
 			</div>
@@ -370,6 +632,8 @@
 	</div>
 </section>
 <!--Faqs END -->
+
+
 
 <!-- =======================
 Footer START -->

@@ -11,26 +11,37 @@ class MyModel(models.Model):
     age = models.FloatField(max_length=10, null=True, blank=True)
     weight = models.FloatField(max_length=10, null=True, blank=True)
     height = models.FloatField(max_length=10, null=True, blank=True)
+    waist_size = models.FloatField(max_length=10, null=True, blank=True)
     ethnicity = models.CharField(max_length=20, null=True, blank=True)
     born_place = models.CharField(max_length=20, null=True, blank=True)
     education = models.FloatField(max_length=10, null=True, blank=True)
-
-    ### General
-    previous_cancer = models.CharField(max_length=10, null=True, blank=True)
-    cereal = models.CharField(max_length=10, null=True, blank=True)
     blood_group = models.CharField(max_length=20, null=True, blank=True)
+
+
 
     # LifeStyle
     activity = models.FloatField(max_length=10, null=True, blank=True)
     smoking = models.FloatField(max_length=10, null=True, blank=True)
     alcohol = models.FloatField(max_length=10, null=True, blank=True)
     meat = models.FloatField(max_length=10, null=True, blank=True)
-
-    # Diabetes
-    waist_size = models.FloatField(max_length=10, null=True, blank=True)
+    cereal = models.CharField(max_length=10, null=True, blank=True)
     vegetables = models.CharField(max_length=20, null=True, blank=True)
+    dairy = models.FloatField(null=True, blank=True)
+    multivitamin = models.CharField(max_length=10, null=True, blank=True)
+
+    # Medical
     blood_pressure = models.CharField(max_length=20, null=True, blank=True)
     blood_glucose = models.CharField(max_length=20, null=True, blank=True)
+    totchol = models.FloatField(null=True, blank=True)  # Total cholesterol (mg/dL)
+    previous_cancer = models.CharField(max_length=10, null=True, blank=True)
+
+
+
+    # Diabetes
+    # waist_size = models.FloatField(max_length=10, null=True, blank=True)
+    # vegetables = models.CharField(max_length=20, null=True, blank=True)
+    # blood_pressure = models.CharField(max_length=20, null=True, blank=True)
+    # blood_glucose = models.CharField(max_length=20, null=True, blank=True)
     relatives_diabetes = models.CharField(max_length=20, null=True, blank=True)
     ausdrisk_score = models.FloatField(max_length=100, null=True, blank=True)
     idf_score = models.FloatField(max_length=100, null=True, blank=True)
@@ -65,7 +76,7 @@ class MyModel(models.Model):
 
     # CRC
     family_crc = models.CharField(max_length=10, null=True, blank=True)
-    multivitamin = models.CharField(max_length=10, null=True, blank=True)
+    # multivitamin = models.CharField(max_length=10, null=True, blank=True)
     diabetes = models.CharField(max_length=10, null=True, blank=True)
     aspirin = models.CharField(max_length=100, null=True, blank=True)
     estrogen = models.CharField(max_length=100, null=True, blank=True)
@@ -102,7 +113,7 @@ class MyModel(models.Model):
     # ASCVD
     sbp = models.FloatField(null=True, blank=True)    # Systolic blood pressure (mm Hg)
     hdl = models.FloatField(null=True, blank=True)  # HDL cholesterol (mg/dL)
-    totchol = models.FloatField(null=True, blank=True)  # Total cholesterol (mg/dL)
+    # totchol = models.FloatField(null=True, blank=True)  # Total cholesterol (mg/dL)
     # bp_med = models.FloatField(null=True, blank=True)  # Patient is on a blood pressure medication (1=Yes, 0=No) [blood_pressure]
     # smoker = models.FloatField(null=True, blank=True)  # Current smoker (1=Yes, 0=No) [smoking > 0]
     # diabetes = models.FloatField(null=True, blank=True)  # Diabetes (1=Yes, 0=No) [blood_glucose]
@@ -154,7 +165,7 @@ class MyModel(models.Model):
     # multivitamin
     # cereal = models.CharField(max_length=10, null=True, blank=True)
     # vegetables
-    dairy = models.FloatField(null=True, blank=True)
+    # dairy = models.FloatField(null=True, blank=True)
     calcium_supplements = models.CharField(max_length=10, null=True, blank=True)
     vitamin_d = models.CharField(max_length=10, null=True, blank=True)
     # alcohol
@@ -214,6 +225,7 @@ class MyModel(models.Model):
     family_history_stroke = models.CharField(max_length=10, null=True, blank=True)
     stroke_score = models.FloatField(null=True, blank=True)
 
+    selected_assessments_id = models.CharField(max_length=1000, null=True, blank=True)
     doctor_comment = models.TextField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

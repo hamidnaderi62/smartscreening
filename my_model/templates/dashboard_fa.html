@@ -30,7 +30,7 @@ Page Banner START -->
 						<div class="col d-sm-flex justify-content-between align-items-center">
 							<!-- Button -->
 							<div class="mt-2 mt-sm-0">
-								<a href="student-course-list.html" class="btn btn-outline-primary mb-0 mt-4" >نمایش گزارش جامع غربالگری</a>
+								<a href="{% url 'my_model:dashboard_comprehensive_fa' code=my_model_instance.code %}" class="btn btn-outline-primary mb-0 mt-4" >نمایش گزارش جامع غربالگری</a>
 							</div>
 						</div>
 					</div>
@@ -74,7 +74,7 @@ Page content START -->
 							<span class="display-6 lh-1 text-purple mb-0"><i class="fas fa-clipboard-check fa-fw"></i></span>
 							<div class="ms-4">
 								<div class="d-flex">
-									<h5 class="purecounter mb-0 fw-bold" data-purecounter-start="10" data-purecounter-end="{{ age }}"	data-purecounter-delay="200">{{ age }}</h5>
+									<h5 class="purecounter mb-0 fw-bold" data-purecounter-start="10" data-purecounter-end="{{ my_model_instance.age }}"	data-purecounter-delay="200">{{ age }}</h5>
 								</div>
 								<p class="mb-0 h6 fw-light">
                                     سال
@@ -88,9 +88,9 @@ Page content START -->
 							<span class="display-6 lh-1 text-success mb-0"><i class="fas fa-medal fa-fw"></i></span>
 							<div class="ms-4">
 								<div class="d-flex">
-									<h5 class="purecounter mb-0 fw-bold" data-purecounter-start="0" data-purecounter-end="8" data-purecounter-delay="300">0</h5>
+									<h5 class="purecounter mb-0 fw-bold" data-purecounter-start="0" data-purecounter-end="8" data-purecounter-delay="300"></h5>
 								</div>
-								<p class="mb-0 h6 fw-light">مدارک معتبر</p>
+								<p class="mb-0 h6 fw-light"></p>
 							</div>
 						</div>
 					</div>
@@ -156,7 +156,7 @@ Page content START -->
 
 										<!-- Table data -->
 										<td>
-											<a href="{% url "my_model:dashboard_detail_fa" %}" class="btn btn-sm btn-primary-soft me-1 mb-1 mb-md-0">جزئیات بیشتر</a>
+											<a href="{% url "my_model:dashboard_detail_fa" assessment_id=selected_assessment.id%}" class="btn btn-sm btn-primary-soft me-1 mb-1 mb-md-0">جزئیات بیشتر</a>
 										</td>
 									</tr>
                                 {% endfor %}
@@ -171,7 +171,7 @@ Page content START -->
 					<!-- Card body START -->
 				</div>
 
-                <form action="save_doctor_comment" method="post" >
+                <form method="post" >
                     {% csrf_token %}
                     <div class="row g-4 g-lg-0 align-items-center">
 
@@ -184,20 +184,16 @@ Page content START -->
                         <div class="col-md-6">
                             <!-- Title -->
                             <h2 class="mt-4 mt-md-0 fs-4">ثبت نظر پزشک</h2>
-                            <p>
-                            </p>
-                                <input type="hidden" id="my_model_id" name="my_model_id" value="{{ my_model_last.id }}">
-                                <div class="mb-4 bg-light-input">
+                                <div class="alert alert-primary d-none opacity-0" role="alert" id="doctor_message"></div>                                <div class="mb-4 bg-light-input">
                                     <label for="emailInput" class="form-label">نظر پزشک *</label>
                                     <textarea class="form-control form-control-lg" name="doctor_comment" rows="6" id="doctor_comment"></textarea>
                                 </div>
                                 <div class="d-grid">
-                                    <button class="btn btn-lg btn-primary mb-0" type="submit">ارسال</button>
-                                </div>
-
+                                    <button class="btn btn-lg btn-primary mb-0" onclick="saveDoctorComment({{ my_model_instance.id }})" type="button">ثبت نظر پزشک</button></div>
                         </div>
                         <!-- Contact form END -->
                     </div>
+
                 </form>
 			<!-- Main content END -->
 			</div><!-- Row END -->
@@ -234,4 +230,102 @@ document.getElementById('assessmentsForm').addEventListener('submit', function(e
 <!-- Template Functions -->
 <script src="{% static 'js/functions.js' %}"></script>
 
+<script>
+  function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          // Does this cookie string begin with the name we want?
+          if (cookie.substring(0, name.length + 1) === (name + "=")) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+
+async function saveDoctorComment(my_model_id) {
+    const doctor_comment = document.getElementById('doctor_comment').value.trim();
+    const url = "{% url 'my_model:save_doctor_comment' %}";
+    const messageDiv = document.getElementById('doctor_message');
+
+    // Validate input
+    if (!doctor_comment) {
+        showMessage('لطفا نظر را وارد نمایید', 'danger');
+        return;
+    }
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": getCookie("csrftoken"),
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                my_model_id: my_model_id,
+                doctor_comment: doctor_comment,
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'خطا در ذخیره نظر پزشک');
+        }
+
+        // Clear the input field
+        document.getElementById('doctor_comment').value = '';
+
+        // Show success message
+        showMessage('نظر پزشک با موفقیت ثبت گردید', 'success');
+
+        return data;
+
+    } catch (error) {
+        console.error('Error saving comment:', error);
+        showMessage(error.message || 'خطا در ذخیره نظر پزشک', 'danger');
+        throw error;
+    }
+}
+
+// Helper function to show/hide messages
+function showMessage(message, type = 'primary') {
+    const messageDiv = document.getElementById('doctor_message');
+
+    // Set message content and styling
+    messageDiv.textContent = message;
+    messageDiv.className = `alert alert-${type} fade show`;
+
+    // Make visible
+    messageDiv.classList.remove('d-none');
+
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+        messageDiv.classList.add('fade');
+        setTimeout(() => {
+            messageDiv.classList.add('d-none');
+        }, 150); // Match this with your CSS transition time
+    }, 3000);
+}
+</script>
+<style>
+    .alert.fade {
+    transition: opacity 0.15s linear;
+    }
+
+    .alert.fade.show {
+        opacity: 1;
+    }
+
+    .alert.fade:not(.show) {
+        opacity: 0;
+    }
+</style>
 {% endblock %}
