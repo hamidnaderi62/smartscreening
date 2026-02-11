@@ -12,3 +12,5 @@ staticfiles/
 .DS_Store
 *.ckpt
 *.pth
+Lib/
+Scripts/

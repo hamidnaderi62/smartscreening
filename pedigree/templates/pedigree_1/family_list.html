@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>My Families</h1>
+        <a href="{% url 'pedigree:create_family' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> New Family
+        </a>
+    </div>
+
+    <div class="list-group">
+        {% for family in families %}
+        <a href="{% url 'pedigree:family_detail' family_id=family.id %}" 
+           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1">{{ family.name }}</h5>
+                {% if family.description %}
+                <p class="mb-1 text-muted">{{ family.description|truncatechars:100 }}</p>
+                {% endif %}
+                <small>Created on {{ family.created_at|date:"M d, Y" }}</small>
+            </div>
+            <div>
+                <span class="badge bg-primary rounded-pill me-2">
+                    {{ family.num_individuals }} members
+                </span>
+                {% if family.num_affected > 0 %}
+                <span class="badge bg-danger rounded-pill">
+                    {{ family.num_affected }} affected
+                </span>
+                {% endif %}
+            </div>
+        </a>
+        {% empty %}
+        <div class="alert alert-info">
+            You haven't created any families yet. 
+            <a href="{% url 'pedigree:create_family' %}">Create your first family</a> to get started.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

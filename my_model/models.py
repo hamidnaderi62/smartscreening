@@ -2,10 +2,34 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class AssessmentGroup(models.Model):
+    name = models.CharField(max_length=200)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Assessment(models.Model):
+    assessment_id = models.IntegerField(unique=True)
+    title = models.CharField(max_length=200, null=True, blank=True)
+    title_fa = models.CharField(max_length=200, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    description_fa = models.TextField(null=True, blank=True)
+    image_file = models.ImageField(upload_to='images/assessmets',null=True, blank=True)
+    groups = models.ManyToManyField(AssessmentGroup)
+    active = models.BooleanField(default=True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
+
 class MyModel(models.Model):
     # Demographic Info
     userid = models.ForeignKey(User, on_delete=models.CASCADE)
-    code = models.CharField(max_length=20, null=True, blank=True)
+    code = models.CharField(max_length=100, null=True, blank=True)
     importer = models.CharField(max_length=100, null=True, blank=True)
     gender = models.CharField(max_length=10, null=True, blank=True)
     age = models.FloatField(max_length=10, null=True, blank=True)
@@ -232,27 +256,5 @@ class MyModel(models.Model):
 
     def __str__(self):
         return f"{self.code}"
-
-
-'''
-class Assessment(models.Model):
-    TEAM_TYPE = (
-        ('Main', 'Main'),
-        ('Advisor', 'Advisor')
-    )
-    title_en = models.CharField(max_length=200, null=True, blank=True)
-    title_fa = models.CharField(max_length=200, null=True, blank=True)
-    title_ar = models.CharField(max_length=200, null=True, blank=True)
-    desc_en = models.TextField(null=True, blank=True)
-    desc_fa = models.TextField(null=True, blank=True)
-    desc_ar = models.TextField(null=True, blank=True)
-    image_file = models.ImageField(upload_to='images/team',null=True, blank=True)
-    groups = models.TextField(null=True, blank=True)
-    is_active = models.BooleanField(null=True, blank=True)
-    created = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.title
-'''
 
 

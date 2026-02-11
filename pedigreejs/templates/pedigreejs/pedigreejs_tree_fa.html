@@ -1,0 +1,1585 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,maximum-scale=2">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Vazir Font -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- D3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+
+    <!-- PedigreeJS -->
+    <script src="{% static 'pedigreejs/pedigreejs.v4.0.0-rc1.min.js' %}"></script>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'pedigreejs/jquery-ui.min.css' %}">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+    <style>
+        /* Vazir Font */
+        @font-face {
+            font-family: Vazir;
+            src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir.woff2') format('woff2'),
+                 url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir.woff') format('woff'),
+                 url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: Vazir;
+            src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir-Bold.woff2') format('woff2'),
+                 url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir-Bold.woff') format('woff'),
+                 url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir-Bold.ttf') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        body {
+            font-family: Vazir, "Tahoma", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fff;
+            padding: 20px;
+            direction: rtl;
+            text-align: right;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        #ped {
+            text-align: center;
+            margin-top: 20px;
+            min-height: 700px;
+            width: 100%;
+        }
+
+        .btn {
+            margin: 5px;
+            font-family: Vazir, sans-serif;
+        }
+
+        #history_ex2 {
+            padding: 10px;
+        }
+
+        .code-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+
+        .alert {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: Vazir, sans-serif;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .pedigree-container {
+            min-height: 800px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fff;
+            overflow: auto;
+        }
+
+        .pedigree-svg-container {
+            width: 100%;
+            height: 700px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            flex-grow: 1;
+            text-align: center;
+            font-family: Vazir, sans-serif;
+            font-weight: bold;
+        }
+
+        .risk-indicator {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+            font-family: Vazir, sans-serif;
+        }
+
+        .high-risk {
+            background-color: #ffdddd;
+            color: #d32f2f;
+        }
+
+        .medium-risk {
+            background-color: #fff3e0;
+            color: #ff6d00;
+        }
+
+        .low-risk {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .risk-card {
+            border-left: 4px solid #007bff;
+        }
+
+        .risk-high {
+            border-left-color: #dc3545;
+        }
+
+        .risk-medium {
+            border-left-color: #ffc107;
+        }
+
+        .risk-low {
+            border-left-color: #28a745;
+        }
+
+        .cancer-type-badge {
+            font-size: 0.8em;
+            margin: 2px;
+            font-family: Vazir, sans-serif;
+        }
+
+        .cancer-stat-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            font-family: Vazir, sans-serif;
+        }
+
+        .cancer-type-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-family: Vazir, sans-serif;
+        }
+
+        .attention-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffecb5;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: Vazir, sans-serif;
+        }
+
+        .attention-box h5 {
+            color: #856404;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .attention-box ul {
+            padding-right: 20px;
+            margin-bottom: 10px;
+        }
+
+        .attention-box li {
+            margin-bottom: 5px;
+        }
+
+        .download-buttons {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        /* RTL specific styles */
+        .form-label {
+            text-align: right;
+            font-family: Vazir, sans-serif;
+            font-weight: bold;
+        }
+
+        .table {
+            text-align: right;
+            font-family: Vazir, sans-serif;
+        }
+
+        .btn-group {
+            direction: ltr;
+        }
+
+        .text-start {
+            text-align: right !important;
+        }
+
+        .text-end {
+            text-align: left !important;
+        }
+
+        .me-1 {
+            margin-left: 0.25rem !important;
+            margin-right: 0 !important;
+        }
+
+        .me-2 {
+            margin-left: 0.5rem !important;
+            margin-right: 0 !important;
+        }
+
+        .ms-1 {
+            margin-right: 0.25rem !important;
+            margin-left: 0 !important;
+        }
+
+        .ms-2 {
+            margin-right: 0.5rem !important;
+            margin-left: 0 !important;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: Vazir, sans-serif;
+            font-weight: bold;
+        }
+
+        .form-control {
+            font-family: Vazir, sans-serif;
+            text-align: right;
+        }
+
+        .card {
+            font-family: Vazir, sans-serif;
+        }
+
+        .card-header {
+            font-family: Vazir, sans-serif;
+            font-weight: bold;
+        }
+
+        .badge {
+            font-family: Vazir, sans-serif;
+        }
+
+        small {
+            font-family: Vazir, sans-serif;
+        }
+
+        ul {
+            font-family: Vazir, sans-serif;
+        }
+
+        /* Improve readability */
+        .table th {
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+
+        .btn {
+            font-weight: 500;
+        }
+
+        .form-control::placeholder {
+            text-align: right;
+            font-family: Vazir, sans-serif;
+        }
+
+        /* Risk cards styles */
+        .risk-cards .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            font-family: Vazir, sans-serif;
+        }
+
+        .risk-cards .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .risk-cards .card-header {
+            font-family: Vazir, sans-serif;
+            font-weight: bold;
+        }
+
+        .risk-cards .alert {
+            font-family: Vazir, sans-serif;
+        }
+
+        .risk-cards small {
+            font-family: Vazir, sans-serif;
+        }
+
+        .risk-cards ul {
+            padding-right: 20px;
+        }
+
+        .risk-cards li {
+            margin-bottom: 5px;
+        }
+
+        .risk-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .risk-comparison {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .breast-cancer-risk .risk-value.higher {
+            color: #dc3545;
+        }
+
+        .breast-cancer-risk .risk-value.lower {
+            color: #28a745;
+        }
+
+        .colorectal-cancer-risk .risk-value.high {
+            color: #dc3545;
+        }
+
+        .colorectal-cancer-risk .risk-value.low {
+            color: #28a745;
+        }
+
+    </style>
+
+    <style>
+    .risk-value-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        padding: 5px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .risk-value-container:last-child {
+        border-bottom: none;
+    }
+
+    .risk-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.95rem;
+    }
+
+    .risk-number {
+        font-weight: 700;
+        font-size: 1.1rem;
+        min-width: 70px;
+        text-align: left;
+    }
+
+    .risk-number.higher {
+        color: #dc3545;
+    }
+
+    .risk-number.lower {
+        color: #28a745;
+    }
+
+    .risk-number.neutral {
+        color: #6c757d;
+    }
+
+    .risk-comparison-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 2px;
+    }
+
+    .risk-summary {
+        background: #f8f9fa;
+        border-radius: 6px;
+        padding: 12px;
+        margin-top: 10px;
+        border-right: 3px solid #dee2e6;
+    }
+
+    .risk-summary.high {
+        border-right-color: #dc3545;
+        background: #fff5f5;
+    }
+
+    .risk-summary.medium {
+        border-right-color: #ffc107;
+        background: #fff9e6;
+    }
+
+    .risk-summary.low {
+        border-right-color: #28a745;
+        background: #f0f9f0;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with title and return button -->
+        <div class="header-actions">
+            <a href="{% url 'pedigreejs:pedigreejs_index_fa' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left ms-1"></i> بازگشت به صفحه اصلی
+            </a>
+            <h1 class="page-title mb-0">نمایشگر شجره خانوادگی</h1>
+            <div style="width: 120px;"></div>
+        </div>
+
+        <div class="code-section">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="codeInput" class="form-label fw-bold">کد شجره را وارد کنید</label>
+                    <input type="text" class="form-control" id="codeInput" placeholder="کد شجره را برای بارگذاری وارد کنید" value="{{ code }}">
+                </div>
+                <div class="col-md-6 mb-3 d-flex align-items-end">
+                    <button type="button" class="btn btn-primary ms-2" id="loadPedigreeBtn">
+                        <i class="fas fa-eye ms-1"></i> نمایش شجره
+                    </button>
+                    <button type="button" class="btn btn-success" id="savePedigreeBtn">
+                        <i class="fas fa-save ms-1"></i>بروزرسانی شجره و محاسبه ریسک
+                    </button>
+                </div>
+            </div>
+            <div id="messageArea"></div>
+        </div>
+
+        <div class="pedigree-container">
+            <div class="text-center">
+                <div class="btn-group mb-3">
+                    <button class="btn btn-outline-primary" id="loadBtn">
+                        <i class="fas fa-upload ms-1"></i> بارگذاری
+                    </button>
+                    <button class="btn btn-outline-primary" id="saveBtn">
+                        <i class="fas fa-download ms-1"></i> ذخیره
+                    </button>
+                    <button class="btn btn-outline-primary" id="printBtn">
+                        <i class="fas fa-print ms-1"></i> چاپ
+                    </button>
+                    <button class="btn btn-outline-primary" id="svgDownloadBtn">
+                        <i class="fas fa-file-image ms-1"></i> SVG
+                    </button>
+                    <button class="btn btn-outline-primary" id="pngDownloadBtn">
+                        <i class="fas fa-image ms-1"></i> PNG
+                    </button>
+                </div>
+                <div id='history_ex2'></div>
+                <div class="pedigree-svg-container">
+                    <div id="ped"></div>
+                </div>
+                <div id="node_properties"></div>
+            </div>
+        </div>
+
+        <!-- Cancer Risk Results from Database -->
+        <div class="card mt-4" id="databaseRiskSection" style="display: none;">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0"><i class="fas fa-database ms-2"></i>نتایج ارزیابی ریسک سرطان مبتنی بر مدل های ارزیابی ریسک بصورت کمی</h3>
+            </div>
+            <div class="card-body">
+                <!-- Breast Cancer Results -->
+                <div class="breast-cancer-section mb-4">
+                    <h4 class="border-bottom pb-2"><i class="fas fa-female ms-2"></i>ارزیابی ریسک سرطان پستان</h4>
+                    <div id="breastCancerResults">
+                        <div class="alert alert-info" id="noBreastData">
+                            <i class="fas fa-info-circle ms-1"></i> داده‌های ریسک سرطان پستان موجود نیست
+                        </div>
+                    </div>
+
+                    <!-- توجه: باکس توجه برای سرطان پستان -->
+                    <div class="attention-box mt-4">
+                        <h5><i class="fas fa-exclamation-triangle ms-2"></i> توجه</h5>
+                        <p>اینگونه سیستم‌ها نمی‌تواند خطر ابتلا به سرطان سینه را برای موارد زیر به طور دقیق تخمین بزند:</p>
+                        <ul>
+                            <li>زنانی که حامل جهش تولیدکننده سرطان سینه در BRCA1 یا BRCA2 هستند</li>
+                            <li>زنانی که سابقه قبلی سرطان سینه تهاجمی یا درجا (کارسینوم لوبولار درجا یا کارسینوم مجرایی درجا) دارند</li>
+                            <li>زنانی که در زیرگروه‌های خاص دیگری قرار دارند (مانند درمان با پرتودرمانی قفسه سینه، سایر سندرم‌های نادر ایجادکننده سرطان پستان، مانند سندرم لی-فرامنی.....به پیشنهاد می‌گردد با پزشک متخصص مشورت فرمایید)</li>
+                        </ul>
+                        <p class="mb-0">
+                            اگرچه ممکن است خطر ابتلا به سرطان سینه در یک زن به طور دقیق تخمین زده شود، اما این پیش‌بینی‌ها به فرد اجازه نمی‌دهد دقیقاً بگوید کدام زن به سرطان سینه مبتلا خواهد شد. در واقع، برخی از زنانی که به سرطان سینه مبتلا نمی‌شوند، تخمین خطر بالاتری نسبت به برخی از زنانی که به سرطان سینه مبتلا می‌شوند، دارند.
+                        </p>
+                    </div>
+
+                    <!-- دکمه‌های دانلود برای سرطان پستان -->
+                    <div class="download-buttons" id="breastDownloadButtons" style="display: none;">
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-outline-primary btn-sm download-breast-guide" data-type="physician">
+                                <i class="fas fa-download ms-1"></i> دانلود فایل دستورالعمل پزشک
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm download-breast-guide" data-type="high-risk" style="display: none;">
+                                <i class="fas fa-download ms-1"></i> دانلود فایل راهنمای ریسک بالای سرطان پستان
+                            </button>
+                            <button class="btn btn-outline-success btn-sm download-breast-guide" data-type="low-risk" style="display: none;">
+                                <i class="fas fa-download ms-1"></i> دانلود فایل راهنمای ریسک پایین سرطان پستان
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Colorectal Cancer Results -->
+                <div class="colorectal-cancer-section">
+                    <h4 class="border-bottom pb-2"><i class="fas fa-lungs ms-2"></i>ارزیابی ریسک سرطان کولورکتال</h4>
+                    <div id="colorectalCancerResults">
+                        <div class="alert alert-info" id="noColorectalData">
+                            <i class="fas fa-info-circle ms-1"></i> داده‌های ریسک سرطان کولورکتال موجود نیست
+                        </div>
+                    </div>
+
+                    <!-- توجه: باکس توجه برای سرطان کلورکتال -->
+                    <div class="attention-box mt-4">
+                        <h5><i class="fas fa-exclamation-triangle ms-2"></i> توجه</h5>
+                        <p>در حالی که ممکن است خطر ابتلا به سرطان کولورکتال برای یک بیمار به طور دقیق تخمین زده شود، این پیش‌بینی‌ها به فرد اجازه نمی‌دهد که دقیقاً بگوید کدام بیمار به سرطان کولورکتال مبتلا خواهد شد.</p>
+                        <p>برخی از بیمارانی که به سرطان کولورکتال مبتلا نمی‌شوند، تخمین خطر بالاتری نسبت به بیمارانی که به سرطان کولورکتال مبتلا می‌شوند، دارند.</p>
+                        <p>به عنوان یادآوری، این ابزار برای استفاده متخصصان سلامت طراحی شده است. اگر شما یک متخصص سلامت نیستید، توصیه می‌شود در صورت داشتن مشکلات و علائم مرتبط با سرطان به پزشک خود مراجعه فرمایید.</p>
+                        <p class="mb-0">این ابزار از سابقه پزشکی بیمار و سابقه سرطان کولورکتال در بین بستگان درجه یک او (پدر، مادر، خواهران، برادران، پسران، دختران) برای تخمین خطر مطلق سرطان کولورکتال - شانس یا احتمال ابتلا به سرطان کولورکتال در یک دوره زمانی مشخص - استفاده می‌کند.</p>
+                    </div>
+
+                    <!-- دکمه‌های دانلود برای سرطان کلورکتال -->
+                    <div class="download-buttons" id="colorectalDownloadButtons" style="display: none;">
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-outline-primary btn-sm download-colorectal-guide" data-type="physician">
+                                <i class="fas fa-download ms-1"></i> دانلود فایل دستورالعمل پزشک
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm download-colorectal-guide" data-type="high-risk" style="display: none;">
+                                <i class="fas fa-download ms-1"></i> دانلود فایل راهنمای ریسک بالای سرطان کلورکتال
+                            </button>
+                            <button class="btn btn-outline-success btn-sm download-colorectal-guide" data-type="low-risk" style="display: none;">
+                                <i class="fas fa-download ms-1"></i> دانلود فایل راهنمای ریسک پایین سرطان کلورکتال
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Analysis Section -->
+        <div class="card mt-4" id="riskAnalysisSection" style="display: none;">
+            <div class="card-header bg-info text-white">
+                <h2 class="mb-0"><i class="fas fa-chart-line ms-2"></i> تحلیل جامع ریسک سرطان خانوادگی بصورت کیفی</h2>
+            </div>
+            <div class="card-body">
+                <!-- Overall Statistics -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><i class="fas fa-users ms-2"></i>آمار کلی خانواده</h4>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr>
+                                        <td><strong>تعداد کل اعضای خانواده</strong></td>
+                                        <td id="totalMembers">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>اعضای مبتلا به سرطان</strong></td>
+                                        <td id="affectedCount">-</td>
+                                    </tr>
+                                    <!-- درصد مبتلایان حذف شد -->
+                                    <tr>
+                                        <td><strong>میانگین سن تشخیص</strong></td>
+                                        <td id="avgDiagnosisAge">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>موارد شروع زودرس (زیر ۵۰ سال)</strong></td>
+                                        <td id="earlyOnsetCases">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>سطح ریسک خانوادگی</strong></td>
+                                        <td id="riskLevel">-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="fas fa-dna ms-2"></i>توزیع انواع سرطان</h4>
+                        <div id="cancerTypesChart" class="mt-3">
+                            <div id="cancerTypesList"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cancer-Specific Statistics -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h4><i class="fas fa-stethoscope ms-2"></i>تحلیل ویژه انواع سرطان</h4>
+                        <div class="row" id="cancerSpecificStats">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Affected Members Details -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h4><i class="fas fa-user-injured ms-2"></i>جزئیات اعضای مبتلا</h4>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped" id="affectedMembersTable">
+                                <thead>
+                                    <tr>
+                                        <th>نام</th>
+                                        <th>سن</th>
+                                        <th>جنسیت</th>
+                                        <th>نوع سرطان</th>
+                                        <th>سن تشخیص</th>
+                                        <th>عوامل ریسک</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Assessment Guidelines -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h4><i class="fas fa-clipboard-check ms-2"></i>محاسبه ارزیابی ریسک</h4>
+                        <div class="alert alert-warning">
+                            <h5><i class="fas fa-info-circle"></i> تفسیر بالینی:</h5>
+                            <ul class="mb-2">
+                                <li><strong>ریسک بالا:</strong> دو مورد سرطان در خانواده که یکی از آنها سرطان زودرس باشد یا سابقه بیشتر از ۲ مورد سرطان در خانواده</li>
+                                <li><strong>ریسک پایین:</strong> اگر ریسک بالا نباشد</li>
+                            </ul>
+                            <p class="mb-0"><small><strong>توجه:</strong> این تحلیل تمام انواع سرطان از جمله پستان، تخمدان، پانکراس، پروستات و سایر موارد را در نظر می‌گیرد. برای ارزیابی جامع با مشاور ژنتیک مشورت کنید.</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional return button at bottom -->
+        <div class="text-center mt-4">
+            <a href="{% url 'pedigreejs:pedigreejs_index_fa' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left ms-1"></i> بازگشت به صفحه اصلی
+            </a>
+        </div>
+    </div>
+
+    <!-- Hidden file input for PedigreeJS -->
+    <input id="load" type="file" style="display: none;"/>
+    <input id="save" type="button" style="display: none;"/>
+    <input id="print" type="button" style="display: none;"/>
+    <input id="svg_download" type="button" style="display: none;"/>
+    <input id="png_download" type="button" style="display: none;"/>
+
+    <script type="text/javascript">
+        // Global variables
+        var currentOpts = null;
+        var currentDataset = null;
+
+        // Cancer type configuration - Persian
+        const CANCER_TYPES = {
+            'breast_cancer_diagnosis_age': {
+                name: 'سرطان پستان',
+                color: 'bg-primary',
+                earlyOnsetThreshold: 50,
+                highRiskPattern: true
+            },
+            'ovarian_cancer_diagnosis_age': {
+                name: 'سرطان تخمدان',
+                color: 'bg-danger',
+                earlyOnsetThreshold: 50,
+                highRiskPattern: true
+            },
+            'pancreatic_cancer_diagnosis_age': {
+                name: 'سرطان پانکراس',
+                color: 'bg-warning',
+                earlyOnsetThreshold: 50,
+                highRiskPattern: true
+            },
+            'prostate_cancer_diagnosis_age': {
+                name: 'سرطان پروستات',
+                color: 'bg-info',
+                earlyOnsetThreshold: 55,
+                highRiskPattern: false
+            },
+            'colon_cancer_diagnosis_age': {
+                name: 'سرطان کولون',
+                color: 'bg-success',
+                earlyOnsetThreshold: 50,
+                highRiskPattern: true
+            },
+            'endometrial_cancer_diagnosis_age': {
+                name: 'سرطان آندومتر',
+                color: 'bg-secondary',
+                earlyOnsetThreshold: 50,
+                highRiskPattern: false
+            }
+        };
+
+        // Function to get URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        function showMessage(message, type) {
+            var messageArea = $('#messageArea');
+            var alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            messageArea.html('<div class="alert ' + alertClass + '">' + message + '</div>');
+            setTimeout(function() {
+                messageArea.fadeOut();
+            }, 5000);
+        }
+
+        // Function to update download buttons based on risk results
+        function updateDownloadButtons(breastRiskData, colorectalRiskData) {
+            // Update breast cancer download buttons
+            if (breastRiskData) {
+                $('#breastDownloadButtons').show();
+
+                // Show appropriate risk-based buttons
+                const isHigher5Year = breastRiskData.gail_score_abs_5 > breastRiskData.gail_score_ave_5;
+                const isHigherLifetime = breastRiskData.gail_score_abs_90 > breastRiskData.gail_score_ave_90;
+
+                if (isHigher5Year || isHigherLifetime) {
+                    $('.download-breast-guide[data-type="high-risk"]').show();
+                    $('.download-breast-guide[data-type="low-risk"]').hide();
+                } else {
+                    $('.download-breast-guide[data-type="high-risk"]').hide();
+                    $('.download-breast-guide[data-type="low-risk"]').show();
+                }
+            }
+
+            // Update colorectal cancer download buttons
+            if (colorectalRiskData) {
+                $('#colorectalDownloadButtons').show();
+
+                // Show appropriate risk-based buttons
+                const crcproHighRisk = colorectalRiskData.crcpro_score > colorectalRiskData.crcpro_threshold;
+                const premmHighRisk = colorectalRiskData.premm_score > colorectalRiskData.premm_threshold;
+
+                if (crcproHighRisk || premmHighRisk) {
+                    $('.download-colorectal-guide[data-type="high-risk"]').show();
+                    $('.download-colorectal-guide[data-type="low-risk"]').hide();
+                } else {
+                    $('.download-colorectal-guide[data-type="high-risk"]').hide();
+                    $('.download-colorectal-guide[data-type="low-risk"]').show();
+                }
+            }
+        }
+
+        // Function to handle download button clicks
+        function setupDownloadButtons() {
+            // Breast cancer download buttons
+            $('.download-breast-guide').click(function() {
+                const type = $(this).data('type');
+                let filename = '';
+                let message = '';
+
+                switch(type) {
+                    case 'physician':
+                        filename = 'physician_guide_breast_cancer.pdf';
+                        message = 'فایل دستورالعمل پزشک سرطان پستان در حال دانلود است';
+                        break;
+                    case 'high-risk':
+                        filename = 'high_risk_breast_cancer_guide.pdf';
+                        message = 'فایل راهنمای ریسک بالای سرطان پستان در حال دانلود است';
+                        break;
+                    case 'low-risk':
+                        filename = 'low_risk_breast_cancer_guide.pdf';
+                        message = 'فایل راهنمای ریسک پایین سرطان پستان در حال دانلود است';
+                        break;
+                }
+
+                showMessage(message, 'success');
+                // In a real implementation, you would trigger actual file download here
+                // For now, we just show a message
+                console.log('Downloading:', filename);
+            });
+
+            // Colorectal cancer download buttons
+            $('.download-colorectal-guide').click(function() {
+                const type = $(this).data('type');
+                let filename = '';
+                let message = '';
+
+                switch(type) {
+                    case 'physician':
+                        filename = 'physician_guide_colorectal_cancer.pdf';
+                        message = 'فایل دستورالعمل پزشک سرطان کلورکتال در حال دانلود است';
+                        break;
+                    case 'high-risk':
+                        filename = 'high_risk_colorectal_cancer_guide.pdf';
+                        message = 'فایل راهنمای ریسک بالای سرطان کلورکتال در حال دانلود است';
+                        break;
+                    case 'low-risk':
+                        filename = 'low_risk_colorectal_cancer_guide.pdf';
+                        message = 'فایل راهنمای ریسک پایین سرطان کلورکتال در حال دانلود است';
+                        break;
+                }
+
+                showMessage(message, 'success');
+                // In a real implementation, you would trigger actual file download here
+                // For now, we just show a message
+                console.log('Downloading:', filename);
+            });
+        }
+
+        // Function to fetch and display risk data from database
+        function fetchAndDisplayRiskData(code) {
+            $.ajax({
+                url: "{% url 'pedigreejs:get_risk_data' %}",
+                type: 'GET',
+                data: { 'code': code },
+                success: function(response) {
+                    if (response.success) {
+                        displayRiskDataFromDatabase(response.risk_data);
+                    } else {
+                        showMessage('داده‌های ریسک یافت نشد: ' + response.message, 'error');
+                    }
+                },
+                error: function() {
+                    showMessage('خطا در دریافت داده‌های ریسک', 'error');
+                }
+            });
+        }
+
+        // Function to display breast cancer risk results
+        function displayBreastCancerResults(data) {
+            const container = $('#breastCancerResults');
+            container.empty();
+
+            if (!data || Object.keys(data).length === 0) {
+                container.html('<div class="alert alert-info"><i class="fas fa-info-circle ms-1"></i> داده‌های ریسک سرطان پستان موجود نیست</div>');
+                return data;
+            }
+
+            const isHigher5Year = data.gail_score_abs_5 > data.gail_score_ave_5;
+            const isHigherLifetime = data.gail_score_abs_90 > data.gail_score_ave_90;
+            const diff5Year = Math.abs(data.gail_score_abs_5 - data.gail_score_ave_5).toFixed(1);
+            const diffLifetime = Math.abs(data.gail_score_abs_90 - data.gail_score_ave_90).toFixed(1);
+
+            const html = `
+                <div class="risk-cards breast-cancer-risk">
+                    <!-- 5-Year Risk -->
+                    <div class="card mb-3 ${isHigher5Year ? 'border-danger' : 'border-success'}">
+                        <div class="card-header ${isHigher5Year ? 'bg-danger text-white' : 'bg-success text-white'}">
+                            <h5 class="mb-0"><i class="fas fa-calendar-alt ms-2"></i>ریسک ۵ ساله سرطان پستان</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="risk-value-container">
+                                <span class="risk-label">ریسک فردی شما:</span>
+                                <span class="risk-number ${isHigher5Year ? 'higher' : 'lower'}">
+                                    ${data.gail_score_abs_5}%
+                                </span>
+                            </div>
+
+                            <div class="risk-value-container">
+                                <span class="risk-label">میانگین ریسک جمعیت:</span>
+                                <span class="risk-number neutral">
+                                    ${data.gail_score_ave_5}%
+                                </span>
+                            </div>
+
+                            <div class="risk-comparison-text">
+                                <i class="fas ${isHigher5Year ? 'fa-arrow-up text-danger' : 'fa-arrow-down text-success'} ms-1"></i>
+                                ریسک شما
+                                <strong>${isHigher5Year ? diff5Year + '% بالاتر' : diff5Year + '% پایین‌تر'}</strong>
+                                از میانگین جمعیت است
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lifetime Risk -->
+                    <div class="card mb-3 ${isHigherLifetime ? 'border-danger' : 'border-success'}">
+                        <div class="card-header ${isHigherLifetime ? 'bg-danger text-white' : 'bg-success text-white'}">
+                            <h5 class="mb-0"><i class="fas fa-chart-line ms-2"></i>ریسک مادام‌العمر سرطان پستان</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="risk-value-container">
+                                <span class="risk-label">ریسک فردی (تا ۹۰ سالگی):</span>
+                                <span class="risk-number ${isHigherLifetime ? 'higher' : 'lower'}">
+                                    ${data.gail_score_abs_90}%
+                                </span>
+                            </div>
+
+                            <div class="risk-value-container">
+                                <span class="risk-label">میانگین ریسک جمعیت:</span>
+                                <span class="risk-number neutral">
+                                    ${data.gail_score_ave_90}%
+                                </span>
+                            </div>
+
+                            <div class="risk-comparison-text">
+                                <i class="fas ${isHigherLifetime ? 'fa-arrow-up text-danger' : 'fa-arrow-down text-success'} ms-1"></i>
+                                ریسک شما
+                                <strong>${isHigherLifetime ? diffLifetime + '% بالاتر' : diffLifetime + '% پایین‌تر'}</strong>
+                                از میانگین جمعیت است
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary for breast cancer -->
+                    <div class="risk-summary ${isHigher5Year || isHigherLifetime ? 'high' : 'low'}">
+                        <h6><i class="fas fa-clipboard-check ms-1"></i>خلاصه ارزیابی:</h6>
+                        <div class="mt-2">
+                            ${isHigher5Year ?
+                              '<p class="mb-1"><i class="fas fa-exclamation-circle text-danger ms-1"></i> ریسک ۵ ساله شما بالاتر از میانگین جمعیت است</p>' :
+                              '<p class="mb-1"><i class="fas fa-check-circle text-success ms-1"></i> ریسک ۵ ساله شما در محدوده طبیعی است</p>'}
+                            ${isHigherLifetime ?
+                              '<p class="mb-0"><i class="fas fa-exclamation-circle text-danger ms-1"></i> ریسک مادام‌العمر شما بالاتر از میانگین جمعیت است</p>' :
+                              '<p class="mb-0"><i class="fas fa-check-circle text-success ms-1"></i> ریسک مادام‌العمر شما در محدوده طبیعی است</p>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.html(html);
+            return data;
+        }
+
+        // Function to display colorectal cancer risk results
+        function displayColorectalCancerResults(data) {
+            const container = $('#colorectalCancerResults');
+            container.empty();
+
+            if (!data || Object.keys(data).length === 0) {
+                container.html('<div class="alert alert-info"><i class="fas fa-info-circle ms-1"></i> داده‌های ریسک سرطان کولورکتال موجود نیست</div>');
+                return data;
+            }
+
+            // CRCPro Score Analysis
+            const crcproHighRisk = data.crcpro_score > data.crcpro_threshold;
+            const premmHighRisk = data.premm_score > data.premm_threshold;
+
+            const html = `
+                <div class="risk-cards colorectal-cancer-risk">
+                    <!-- CRCPro Score -->
+                    <div class="card mb-3 ${crcproHighRisk ? 'border-danger' : 'border-success'}">
+                        <div class="card-header ${crcproHighRisk ? 'bg-danger text-white' : 'bg-success text-white'}">
+                            <h5 class="mb-0"><i class="fas fa-calculator ms-2"></i>ریسک سرطان کولورکتال</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="risk-value-container">
+                                <span class="risk-label">ریسک محاسبه شده شما:</span>
+                                <span class="risk-number ${crcproHighRisk ? 'higher' : 'lower'}">
+                                    ${data.crcpro_score.toFixed(2)}
+                                </span>
+                            </div>
+
+                            <div class="risk-value-container">
+                                <span class="risk-label">حد آستانه ریسک بالا:</span>
+                                <span class="risk-number neutral">
+                                    ${data.crcpro_threshold}
+                                </span>
+                            </div>
+
+                            <div class="risk-comparison-text">
+                                <i class="fas ${crcproHighRisk ? 'fa-exclamation-triangle text-danger' : 'fa-check-circle text-success'} ms-1"></i>
+                                ${crcproHighRisk ?
+                                  '<strong>ریسک بالا</strong> - نیاز به پیگیری و غربالگری ویژه' :
+                                  '<strong>ریسک طبیعی</strong> - غربالگری معمول کافی است'}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PREMM Score -->
+                    <div class="card mb-3 ${premmHighRisk ? 'border-danger' : 'border-success'}">
+                        <div class="card-header ${premmHighRisk ? 'bg-danger text-white' : 'bg-success text-white'}">
+                            <h5 class="mb-0"><i class="fas fa-dna ms-2"></i>ریسک سندرم لینچ (سرطان ارثی)</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="risk-value-container">
+                                <span class="risk-label">ریسک محاسبه شده شما:</span>
+                                <span class="risk-number ${premmHighRisk ? 'higher' : 'lower'}">
+                                    ${data.premm_score.toFixed(2)}%
+                                </span>
+                            </div>
+
+                            <div class="risk-value-container">
+                                <span class="risk-label">حد آستانه ریسک بالا:</span>
+                                <span class="risk-number neutral">
+                                    ${data.premm_threshold}%
+                                </span>
+                            </div>
+
+                            <div class="risk-comparison-text">
+                                <i class="fas ${premmHighRisk ? 'fa-exclamation-triangle text-danger' : 'fa-check-circle text-success'} ms-1"></i>
+                                ${premmHighRisk ?
+                                  '<strong>احتمال سندرم لینچ بالا</strong> - مشاوره ژنتیک توصیه می‌شود' :
+                                  '<strong>احتمال سندرم لینچ پایین</strong> - نیاز به بررسی ژنتیک خاصی نیست'}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Overall Risk Assessment -->
+                    <div class="risk-summary ${crcproHighRisk || premmHighRisk ? 'high' : 'low'}">
+                        <h6><i class="fas fa-stethoscope ms-1"></i>توصیه‌های بالینی:</h6>
+                        <div class="mt-2">
+                            ${crcproHighRisk ?
+                              '<p class="mb-1"><i class="fas fa-arrow-right text-danger ms-1"></i> انجام کولونوسکوپی غربالگری توصیه می‌شود</p>' :
+                              '<p class="mb-1"><i class="fas fa-arrow-right text-success ms-1"></i> غربالگری معمول کولورکتال کافی است</p>'}
+                            ${premmHighRisk ?
+                              '<p class="mb-0"><i class="fas fa-arrow-right text-danger ms-1"></i> مشاوره ژنتیک و آزمایش‌های تخصصی توصیه می‌شود</p>' :
+                              '<p class="mb-0"><i class="fas fa-arrow-right text-success ms-1"></i> نیاز به آزمایش‌های ژنتیک خاصی وجود ندارد</p>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.html(html);
+            return data;
+        }
+
+        // Function to display all risk data from database
+        function displayRiskDataFromDatabase(riskData) {
+            if (!riskData || Object.keys(riskData).length === 0) {
+                $('#databaseRiskSection').hide();
+                return;
+            }
+
+            let breastData = null;
+            let colorectalData = null;
+
+            // Display breast cancer results
+            if (riskData.breast_cancer) {
+                breastData = displayBreastCancerResults(riskData.breast_cancer);
+            } else {
+                $('#breastCancerResults').html('<div class="alert alert-info"><i class="fas fa-info-circle ms-1"></i> داده‌های ریسک سرطان پستان موجود نیست</div>');
+            }
+
+            // Display colorectal cancer results
+            if (riskData.colorectal_cancer) {
+                colorectalData = displayColorectalCancerResults(riskData.colorectal_cancer);
+            } else {
+                $('#colorectalCancerResults').html('<div class="alert alert-info"><i class="fas fa-info-circle ms-1"></i> داده‌های ریسک سرطان کولورکتال موجود نیست</div>');
+            }
+
+            // Update download buttons based on risk results
+            updateDownloadButtons(breastData, colorectalData);
+
+            // Show the section
+            $('#databaseRiskSection').fadeIn();
+        }
+
+        function calculateFamilyRisk(dataset) {
+            if (!dataset || dataset.length === 0) {
+                return null;
+            }
+
+            let totalMembers = dataset.length;
+            let affectedMembers = [];
+            let cancerTypes = {};
+            let cancerSpecificStats = {};
+            let totalDiagnosisAge = 0;
+            let diagnosisCount = 0;
+            let earlyOnsetCases = 0;
+            let totalCancerCases = 0;
+
+            // Initialize cancer-specific statistics
+            Object.keys(CANCER_TYPES).forEach(cancerField => {
+                cancerSpecificStats[cancerField] = {
+                    count: 0,
+                    totalAge: 0,
+                    earlyOnsetCount: 0,
+                    members: []
+                };
+            });
+
+            // Analyze each family member
+            dataset.forEach(member => {
+                let memberCancers = [];
+                let memberHasCancer = false;
+                let memberCancerCount = 0;
+
+                // Check all cancer types
+                Object.keys(CANCER_TYPES).forEach(cancerField => {
+                    if (member[cancerField]) {
+                        memberHasCancer = true;
+                        memberCancerCount++;
+                        const cancerType = CANCER_TYPES[cancerField].name;
+                        const diagnosisAge = parseInt(member[cancerField]);
+
+                        // Update cancer types distribution
+                        if (cancerTypes[cancerType]) {
+                            cancerTypes[cancerType]++;
+                        } else {
+                            cancerTypes[cancerType] = 1;
+                        }
+
+                        // Update cancer-specific statistics
+                        cancerSpecificStats[cancerField].count++;
+                        cancerSpecificStats[cancerField].totalAge += diagnosisAge;
+                        if (diagnosisAge < CANCER_TYPES[cancerField].earlyOnsetThreshold) {
+                            cancerSpecificStats[cancerField].earlyOnsetCount++;
+                            earlyOnsetCases++;
+                        }
+                        cancerSpecificStats[cancerField].members.push({
+                            name: member.display_name || member.name,
+                            age: diagnosisAge,
+                            gender: member.sex
+                        });
+
+                        // Update overall statistics
+                        totalDiagnosisAge += diagnosisAge;
+                        diagnosisCount++;
+                        totalCancerCases++;
+
+                        memberCancers.push({
+                            type: cancerType,
+                            age: diagnosisAge,
+                            field: cancerField
+                        });
+                    }
+                });
+
+                // If member has any cancer, add to affected members
+                if (memberHasCancer) {
+                    affectedMembers.push({
+                        ...member,
+                        cancers: memberCancers,
+                        cancerCount: memberCancerCount
+                    });
+                }
+            });
+
+            const affectedCount = affectedMembers.length;
+            const avgDiagnosisAge = diagnosisCount > 0 ? (totalDiagnosisAge / diagnosisCount).toFixed(1) : null;
+
+            // Calculate cancer-specific averages
+            Object.keys(cancerSpecificStats).forEach(cancerField => {
+                if (cancerSpecificStats[cancerField].count > 0) {
+                    cancerSpecificStats[cancerField].averageAge =
+                        (cancerSpecificStats[cancerField].totalAge / cancerSpecificStats[cancerField].count).toFixed(1);
+                }
+            });
+
+            // Determine risk level based on new criteria
+            let riskLevel = 'پایین';
+            let riskClass = 'low-risk';
+
+            // Check for high risk criteria:
+            // 1. دو مورد سرطان در خانواده که یکی از آنها سرطان زودرس باشد
+            // 2. سابقه بیشتر از ۲ مورد سرطان در خانواده
+
+            const hasEarlyOnset = earlyOnsetCases > 0;
+            const hasMultipleCancers = totalCancerCases > 2;
+            const hasTwoCancersWithEarlyOnset = (totalCancerCases >= 2) && hasEarlyOnset;
+
+            if (hasTwoCancersWithEarlyOnset || hasMultipleCancers) {
+                riskLevel = 'بالا';
+                riskClass = 'high-risk';
+            } else {
+                riskLevel = 'پایین';
+                riskClass = 'low-risk';
+            }
+
+            return {
+                totalMembers: totalMembers,
+                affectedCount: affectedCount,
+                avgDiagnosisAge: avgDiagnosisAge,
+                riskLevel: riskLevel,
+                riskClass: riskClass,
+                cancerTypes: cancerTypes,
+                cancerSpecificStats: cancerSpecificStats,
+                affectedMembers: affectedMembers,
+                earlyOnsetCases: earlyOnsetCases,
+                totalCancerCases: totalCancerCases,
+                hasEarlyOnset: hasEarlyOnset,
+                hasMultipleCancers: hasMultipleCancers
+            };
+        }
+
+        function displayRiskAnalysis(riskData) {
+            if (!riskData) {
+                showMessage('داده‌ای برای تحلیل ریسک موجود نیست', 'error');
+                return;
+            }
+
+            // Update overall statistics
+            $('#totalMembers').text(riskData.totalMembers);
+            $('#affectedCount').text(riskData.affectedCount);
+            // درصد مبتلایان حذف شده است
+            $('#avgDiagnosisAge').text(riskData.avgDiagnosisAge ? riskData.avgDiagnosisAge + ' سال' : 'موجود نیست');
+            $('#earlyOnsetCases').text(riskData.earlyOnsetCases);
+            $('#riskLevel').html('<span class="risk-indicator ' + riskData.riskClass + '">ریسک ' + riskData.riskLevel + '</span>');
+
+            // Update cancer types distribution
+            const cancerTypesList = $('#cancerTypesList');
+            cancerTypesList.empty();
+
+            if (Object.keys(riskData.cancerTypes).length === 0) {
+                cancerTypesList.html('<p class="text-muted">هیچ مورد سرطانی ثبت نشده است</p>');
+            } else {
+                let html = '';
+                for (const [cancerType, count] of Object.entries(riskData.cancerTypes)) {
+                    const color = Object.values(CANCER_TYPES).find(ct => ct.name === cancerType)?.color || 'bg-secondary';
+                    html += `<span class="badge ${color} cancer-type-badge">${cancerType}: ${count}</span> `;
+                }
+                cancerTypesList.html(html);
+            }
+
+            // Update cancer-specific statistics
+            const cancerStatsContainer = $('#cancerSpecificStats');
+            cancerStatsContainer.empty();
+
+            Object.keys(riskData.cancerSpecificStats).forEach(cancerField => {
+                const stats = riskData.cancerSpecificStats[cancerField];
+                if (stats.count > 0) {
+                    const cancerInfo = CANCER_TYPES[cancerField];
+                    const cardHtml = `
+                        <div class="col-md-6 col-lg-4">
+                            <div class="cancer-stat-card">
+                                <div class="cancer-type-header">
+                                    <h6 class="mb-0">${cancerInfo.name}</h6>
+                                </div>
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <small class="text-muted">موارد</small>
+                                        <div><strong>${stats.count}</strong></div>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted">میانگین سن</small>
+                                        <div><strong>${stats.averageAge}</strong></div>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted">زودرس</small>
+                                        <div><strong>${stats.earlyOnsetCount}</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    cancerStatsContainer.append(cardHtml);
+                }
+            });
+
+            // Update affected members table
+            const affectedTable = $('#affectedMembersTable tbody');
+            affectedTable.empty();
+
+            if (riskData.affectedMembers.length === 0) {
+                affectedTable.append('<tr><td colspan="6" class="text-center text-muted">هیچ عضو مبتلا به سرطان یافت نشد</td></tr>');
+            } else {
+                riskData.affectedMembers.forEach(member => {
+                    const cancerTypes = member.cancers.map(c => c.type);
+                    const diagnosisAges = member.cancers.map(c => c.age);
+
+                    const riskFactors = [];
+                    member.cancers.forEach(cancer => {
+                        const cancerInfo = CANCER_TYPES[cancer.field];
+                        if (cancer.age < cancerInfo.earlyOnsetThreshold) {
+                            riskFactors.push('زودرس ' + cancer.type);
+                        }
+                        if (cancerInfo.highRiskPattern) {
+                            riskFactors.push('الگوی پرریسک');
+                        }
+                    });
+
+                    if (member.cancers.length > 1) {
+                        riskFactors.push('چندین سرطان');
+                    }
+
+                    const uniqueRiskFactors = [...new Set(riskFactors)];
+                    const genderText = member.sex === 'M' ? 'مرد' : 'زن';
+
+                    const row = `
+                        <tr>
+                            <td>${member.display_name || member.name}</td>
+                            <td>${member.age || 'موجود نیست'}</td>
+                            <td>${genderText}</td>
+                            <td>${cancerTypes.join(', ')}</td>
+                            <td>${diagnosisAges.join(', ')}</td>
+                            <td>${uniqueRiskFactors.join(', ') || 'استاندارد'}</td>
+                        </tr>
+                    `;
+                    affectedTable.append(row);
+                });
+            }
+
+            // Update risk assessment guidelines
+            const guidelinesHtml = `
+                <h5><i class="fas fa-info-circle"></i> تفسیر بالینی:</h5>
+                <ul class="mb-2">
+                    <li><strong>ریسک بالا:</strong> ${riskData.hasMultipleCancers ? 'سابقه بیشتر از ۲ مورد سرطان در خانواده' : 'دو مورد سرطان در خانواده که یکی از آنها سرطان زودرس باشد'}</li>
+                    <li><strong>ریسک پایین:</strong> اگر ریسک بالا نباشد</li>
+                </ul>
+                <div class="mt-2">
+                    <p><strong>تحلیل وضعیت فعلی:</strong></p>
+                    <ul>
+                        <li>تعداد کل موارد سرطان در خانواده: <strong>${riskData.totalCancerCases}</strong></li>
+                        <li>موارد سرطان زودرس: <strong>${riskData.earlyOnsetCases}</strong></li>
+                        <li>نتیجه ارزیابی: <strong>${riskData.riskLevel === 'بالا' ? 'ریسک بالا' : 'ریسک پایین'}</strong></li>
+                    </ul>
+                </div>
+                <p class="mb-0 mt-2"><small><strong>توجه:</strong> این تحلیل تمام انواع سرطان از جمله پستان، تخمدان، پانکراس، پروستات و سایر موارد را در نظر می‌گیرد. برای ارزیابی جامع با مشاور ژنتیک مشورت کنید.</small></p>
+            `;
+
+            $('.risk-assessment-guidelines .alert-warning').html(guidelinesHtml);
+
+            // Show the risk analysis section
+            $('#riskAnalysisSection').fadeIn();
+
+            // Add risk class to card based on risk level
+            $('#riskAnalysisSection .card').removeClass('risk-high risk-medium risk-low');
+            if (riskData.riskLevel.includes('بالا')) {
+                $('#riskAnalysisSection .card').addClass('risk-high');
+            } else {
+                $('#riskAnalysisSection .card').addClass('risk-low');
+            }
+        }
+
+        function loadPedigreeFromDatabase(code) {
+            // Clear local storage cache for this pedigree before loading
+            if (currentOpts) {
+                pedigreejs.pedigreejs_pedcache.clear(currentOpts);
+            }
+
+            $.ajax({
+                url: "{% url 'pedigreejs:pedigreejs_tree_load' %}",
+                type: 'GET',
+                data: {
+                    'code': code
+                },
+                success: function(response) {
+                    if (response.success) {
+                        currentDataset = response.pedigree_data;
+                        initializePedigree(currentDataset);
+                        showMessage('شجره با موفقیت بارگذاری شد!', 'success');
+
+                        // Auto-calculate risk if there are affected members
+                        const riskData = calculateFamilyRisk(currentDataset);
+                        if (riskData) {
+                            displayRiskAnalysis(riskData);
+                        }
+
+                        // Fetch and display risk data from database
+                        fetchAndDisplayRiskData(code);
+                    } else {
+                        showMessage('خطا: ' + response.message, 'error');
+                        $('#ped').html('<div class="text-muted">کد را وارد کرده و روی "نمایش شجره" کلیک کنید</div>');
+                        $('#history_ex2').html('');
+                        $('#riskAnalysisSection').hide();
+                        $('#databaseRiskSection').hide();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showMessage('خطا در بارگذاری شجره: ' + error, 'error');
+                    $('#ped').html('<div class="text-muted">کد را وارد کرده و روی "نمایش شجره" کلیک کنید</div>');
+                    $('#history_ex2').html('');
+                    $('#riskAnalysisSection').hide();
+                    $('#databaseRiskSection').hide();
+                }
+            });
+        }
+
+        function savePedigreeToDatabase(code) {
+            if (!currentOpts || !currentDataset) {
+                showMessage('داده‌ای برای ذخیره وجود ندارد', 'error');
+                return;
+            }
+
+            // Get current dataset from pedigreejs
+            var currentData = pedigreejs.pedigreejs_pedcache.current(currentOpts);
+            if (!currentData) {
+                currentData = currentDataset;
+            }
+
+            $.ajax({
+                url: "{% url 'pedigreejs:pedigreejs_tree_save' %}",
+                type: 'POST',
+                data: {
+                    'code': code,
+                    'famid': 'FAM1',
+                    'pedigree_data': JSON.stringify(currentData),
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showMessage('شجره با موفقیت ذخیره شد با کد: ' + code, 'success');
+                        // Recalculate risk after save
+                        const riskData = calculateFamilyRisk(currentData);
+                        if (riskData) {
+                            displayRiskAnalysis(riskData);
+                        }
+                    } else {
+                        showMessage('خطا: ' + response.message, 'error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showMessage('خطا در ذخیره شجره: ' + error, 'error');
+                }
+            });
+        }
+
+        function initializePedigree(dataset) {
+            // Clear previous pedigree
+            $('#ped').html('');
+            $('#history_ex2').html('');
+
+            var parent_width = $('.pedigree-svg-container').width();
+            var margin = 50;
+            var svg_width = Math.min(parent_width * 0.95, 1200);
+            var svg_height = 650;
+
+            var opts = {
+                'targetDiv': 'ped',
+                'btn_target': 'history_ex2',
+                'store_type': 'local',
+                'width': svg_width,
+                'height': svg_height,
+                'symbol_size': 40,
+                'edit': true,
+                'background': '#d3d3d3',
+                'node_background': '#fff',
+                'dataset': dataset,
+                'DEBUG': false
+            };
+
+            currentOpts = pedigreejs.pedigreejs.build(opts);
+            $('#history_ex2').css('max-width', svg_width);
+            $('#history_ex2').css('margin', 'auto');
+
+            // Connect the action buttons
+            connectActionButtons();
+        }
+
+        function connectActionButtons() {
+            // Connect the action buttons to pedigreejs functions
+            $('#loadBtn').off('click').on('click', function() {
+                $('#load').click();
+            });
+
+            $('#saveBtn').off('click').on('click', function() {
+                $('#save').click();
+            });
+
+            $('#printBtn').off('click').on('click', function() {
+                $('#print').click();
+            });
+
+            $('#svgDownloadBtn').off('click').on('click', function() {
+                $('#svg_download').click();
+            });
+
+            $('#pngDownloadBtn').off('click').on('click', function() {
+                $('#png_download').click();
+            });
+        }
+
+        $(document).ready(function() {
+            // Setup download buttons
+            setupDownloadButtons();
+
+            // Get code from URL parameter
+            var urlCode = getUrlParameter('code');
+            if (urlCode) {
+                $('#codeInput').val(urlCode);
+                // Auto-load the pedigree if code is in URL
+                loadPedigreeFromDatabase(urlCode);
+            } else {
+                // Initially show empty state
+                $('#ped').html('<div class="text-muted">کد را وارد کرده و روی "نمایش شجره" کلیک کنید</div>');
+            }
+
+            // Load pedigree button click
+            $('#loadPedigreeBtn').click(function() {
+                var code = $('#codeInput').val().trim();
+                if (code) {
+                    loadPedigreeFromDatabase(code);
+                } else {
+                    showMessage('لطفاً یک کد وارد کنید', 'error');
+                }
+            });
+
+            // Save pedigree button click
+            $('#savePedigreeBtn').click(function() {
+                var code = $('#codeInput').val().trim();
+                if (code) {
+                    if (currentDataset) {
+                        savePedigreeToDatabase(code);
+                    } else {
+                        showMessage('داده‌ای برای ذخیره وجود ندارد. لطفاً ابتدا یک شجره بارگذاری کنید.', 'error');
+                    }
+                } else {
+                    showMessage('لطفاً یک کد برای ذخیره وارد کنید', 'error');
+                }
+            });
+
+            // Enter key support
+            $('#codeInput').keypress(function(e) {
+                if (e.which == 13) {
+                    $('#loadPedigreeBtn').click();
+                }
+            });
+
+            // Handle file load events
+            $('#load').on('change', function(e) {
+                var file = e.target.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            var dataset = JSON.parse(e.target.result);
+                            currentDataset = dataset;
+                            initializePedigree(dataset);
+                            showMessage('شجره از فایل بارگذاری شد!', 'success');
+
+                            // Auto-calculate risk
+                            const riskData = calculateFamilyRisk(dataset);
+                            if (riskData) {
+                                displayRiskAnalysis(riskData);
+                            }
+                        } catch (error) {
+                            showMessage('خطا در تجزیه فایل: ' + error, 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            });
+
+            // سلب مسئولیت در انتهای صفحه
+            $(document.body).append(`
+                <div style="margin-top: 50px; padding: 20px; border-top: 2px solid #dee2e6; background-color: #f8f9fa; font-family: Vazir, sans-serif; font-size: 12px; color: #666; text-align: center; direction: rtl;">
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <p style="margin-bottom: 10px;">
+                            <strong>سلب مسئولیت:</strong> این اطلاعات به عنوان جایگزینی برای مراقبت‌های بهداشتی حرفه‌ای یا ارزیابی یک متخصص مراقبت‌های بهداشتی در نظر گرفته نشده است. همیشه برای مشاوره در مورد سلامت خود با یک ارائه دهنده خدمات درمانی مشورت کنید. فقط ارائه دهنده خدمات درمانی شما می‌تواند تشخیص دهد که آیا شما سرطان سینه دارید یا خیر. به دلیل مطالبی که در اینجا خوانده‌اید، توصیه‌های پزشکی حرفه‌ای را نادیده نگیرید و درخواست مشاوره یا درمان را به تأخیر نیندازید.
+                        </p>
+                        <p style="margin-bottom: 0;">
+                            <strong>Disclaimer:</strong> This information is not intended as a substitute for professional healthcare or to replace a healthcare professional's evaluation. Always consult with a healthcare provider for advice concerning your health. Only your healthcare provider can determine if you have breast cancer. Do not disregard professional medical advice or delay seeking advice or treatment because of something you have read here.
+                        </p>
+                    </div>
+                </div>
+            `);
+        });
+    </script>
+</body>
+</html>

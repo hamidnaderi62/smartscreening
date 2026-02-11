@@ -67,7 +67,7 @@ def ecg_analyse_fa(request):
                                                                   , prediction_class=prediction_class
                                                                   )
         print(prediction_class)
-        return render(request, 'ecg.html', {
+        return render(request, 'ecg_fa.html', {
             'image_url': f'{settings.MEDIA_URL}{file_path}',
             'prediction_value': prediction_value,
             'prediction_class': prediction_class,

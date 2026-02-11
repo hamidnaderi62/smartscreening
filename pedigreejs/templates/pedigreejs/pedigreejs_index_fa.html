@@ -1,0 +1,2387 @@
+{% extends 'base_raw_fa.html' %}
+{% load static %}
+{% load my_filters %}
+{% block content %}
+
+<!-- Plugins CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/font-awesome/css/all.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/aos/aos.css' %}">
+
+<!-- Theme CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/style-rtl.css' %}">
+
+<main>
+<div class="row mt-4">
+    <div class="col-12">
+        <h1 class="text-center">پلتفرم هوشمند مشاوره ژنتیک سرطان</h1>
+
+        <div class="alert alert-info mt-4">
+            <p>این اپلیکیشن به شما کمک می‌کند تا شجره ژنتیکی خانواده را به همراه وضعیت سرطان رسم کنید.</p>
+        </div>
+
+       <div class="card mt-4">
+
+    <div class="card-body">
+        <form method="post" id="pedigreeForm">
+            {% csrf_token %}
+
+            <!-- Error messages -->
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul>
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <div class="row">
+
+                <div class="col-md-8 mb-4">
+                    <div class="mb-3">
+                        <label for="code" class="form-label fw-bold text-dark">کد شجره *</label>
+                        <input type="text" class="form-control" id="code" name="code" value="" required>
+                        <small class="text-muted">این کد برای ذخیره و بازیابی شجره استفاده می‌شود</small>
+                    </div>
+                </div>
+
+                <!-- Personal Information -->
+                <div class="col-md-8 mb-4">
+                    <div class="mb-3">
+                        <label for="name" class="form-label fw-bold text-dark">نام</label>
+                        <input type="text" class="form-control" id="name" name="name" value="">
+                    </div>
+                </div>
+
+                <div class="col-md-8 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="container">
+                            <label for="gender" class="form-label fw-bold text-dark mb-3">جنسیت</label>
+                            <div class="vstack gap-2">
+                                <div>
+                                    <input type="radio" class="btn-check" value="M" name="gender" id="gender_1">
+                                    <label class="btn btn-outline-primary w-100" for="gender_1">مرد</label>
+                                </div>
+                                <div>
+                                    <input type="radio" class="btn-check" value="F" checked name="gender" id="gender_2">
+                                    <label class="btn btn-outline-primary w-100" for="gender_2">زن</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="col-md-8 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="container">
+                            <label for="affected" class="form-label fw-bold text-dark mb-3">وضعیت بیماری</label>
+                            <div class="vstack gap-2">
+                                <div>
+                                    <input type="radio" class="btn-check" value="H" checked name="affected" id="affected_1">
+                                    <label class="btn btn-outline-primary w-100" for="affected_1">سالم</label>
+                                </div>
+                                <div>
+                                    <input type="radio" class="btn-check" value="C" name="affected" id="affected_2">
+                                    <label class="btn btn-outline-primary w-100" for="affected_2">مبتلا به سرطان</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cancer Information Section -->
+                <div class="mb-4" id="cancer_div" style="display: none;">
+                    <div class="col-md-8 mb-4">
+                        <div class="mb-3">
+                            <label for="cancer_type" class="form-label fw-bold text-dark">نوع سرطان</label>
+                            <select id="cancer_type" name="cancer_type" class="form-select js-choice" aria-label=".form-select-lg">
+                                <!-- Options will be populated based on gender -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-8 mb-4">
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="container px-0">
+                                    <label for="age_diagnosis" class="form-label fw-bold text-dark mb-3">سن تشخیص سرطان</label>
+                                    <div class="position-relative mb-3">
+                                        <input class="form-range custom-range" type="range" name="age_diagnosis" id="age_diagnosis" min="1" value="60" max="120" step="1">
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                            <small class="text-muted">1</small>
+                                            <small class="text-muted">30</small>
+                                            <small class="text-muted">60</small>
+                                            <small class="text-muted">90</small>
+                                            <small class="text-muted">120</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                            <span id="age_diagnosis_value_display" class="d-block fw-bold">60</span>
+                                            <small class="d-block">سال</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-8 mb-4">
+                        <div class="mb-3">
+                            <label for="genes" class="form-label fw-bold text-dark">ژن‌های جهش یافته (با کاما جدا کنید)</label>
+                            <input type="text" class="form-control" id="genes" name="genes" value="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Cancer Information -->
+            <div class="accordion accordion-icon accordion-bg-light" id="accordion_demographic">
+                <!-- Item -->
+                <div class="accordion-item mb-3">
+                    <h6 class="accordion-header font-base" id="heading-demographic">
+                        <a class="accordion-button fw-bold rounded collapsed d-block pe-4" href="#collapse-demographic" data-bs-toggle="collapse" data-bs-target="#collapse-demographic" aria-expanded="false" aria-controls="collapse-demographic">
+
+                            <span class="mb-0">اطلاعات دموگرافیک</span>
+                            <span class="small d-block mt-1"></span>
+                        </a>
+                    </h6>
+                    <div id="collapse-demographic" class="accordion-collapse collapse" aria-labelledby="heading-1" data-bs-parent="#accordion_demographic">
+                        <div class="accordion-body mt-3">
+                            <div class="vstack gap-3">
+
+                                <div class="mb-4">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="age" class="form-label fw-bold text-dark mb-3">
+                                       سن (سال)
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="age"
+                                          id="age"
+                                          min="25"
+                                          value="55"
+                                          max="115"
+                                          step="1"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">25</small>
+                                          <small class="text-muted">40</small>
+                                          <small class="text-muted">55</small>
+                                          <small class="text-muted">70</small>
+                                          <small class="text-muted">85</small>
+                                          <small class="text-muted">100</small>
+                                          <small class="text-muted">115</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="age_value_display" class="d-block fw-bold">55</span>
+                                          <small class="d-block">سال</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="mb-4">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="weight" class="form-label fw-bold text-dark mb-3">
+                                       وزن (کیلوگرم)
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="weight"
+                                          id="weight"
+                                          min="40"
+                                          value="80"
+                                          max="160"
+                                          step="1"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">40</small>
+                                          <small class="text-muted">80</small>
+                                          <small class="text-muted">120</small>
+                                          <small class="text-muted">160</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="weight_value_display" class="d-block fw-bold">80</span>
+                                          <small class="d-block">کیلوگرم</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="mb-4">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="height" class="form-label fw-bold text-dark mb-3">
+                                       قد (سانتیمتر)
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="height"
+                                          id="height"
+                                          min="50"
+                                          value="170"
+                                          max="250"
+                                          step="1"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">50</small>
+                                          <small class="text-muted">100</small>
+                                          <small class="text-muted">150</small>
+                                          <small class="text-muted">200</small>
+                                          <small class="text-muted">250</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="height_value_display" class="d-block fw-bold">170</span>
+                                          <small class="d-block"> سانتیمتر</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="mb-4">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="waist_size" class="form-label fw-bold text-dark mb-3">
+                                        اندازه دور کمر(سانتیمتر)
+                                        <span class="text">            محل صحیح اندازه گیری کمر، نیمه راه بین پایین ترین دنده و بالای استخوان لگن است، تقریباً در راستای ناف. مستقیماً روی پوست خود اندازه گیری کنید، به طور معمول نفس خود را بیرون دهید، مطمئن شوید که متر به بدن چسبیده است، بدون اینکه پوست را فشرده کنید.</span>
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="waist_size"
+                                          id="waist_size"
+                                          min="100"
+                                          value="100"
+                                          max="250"
+                                          step="5"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">100</small>
+                                          <small class="text-muted">150</small>
+                                          <small class="text-muted">200</small>
+                                          <small class="text-muted">250</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="waist_size_value_display" class="d-block fw-bold">100</span>
+                                          <small class="d-block">سانتیمتر</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="mb-4">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="education" class="form-label fw-bold text-dark mb-3">
+                                       میزان تحصیلات (تعداد سال بین 6 تا 20)
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="education"
+                                          id="education"
+                                          min="6"
+                                          value="13"
+                                          max="20"
+                                          step="1"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">6</small>
+                                          <small class="text-muted">13</small>
+                                          <small class="text-muted">20</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="education_value_display" class="d-block fw-bold">13</span>
+                                          <small class="d-block">سال</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                         <div class="container">
+                                             <label for="born_place" class="form-label fw-bold text-dark mb-3">محل تولد</label>
+                                             <div class="vstack gap-2">
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="1" checked name="born_place" id="born_place_1">
+                                                     <label class="btn btn-outline-primary w-100" for="born_place_1">آسیا، شمال آفریقا، اروپا </label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="2"  name="born_place" id="born_place_2">
+                                                     <label class="btn btn-outline-primary w-100" for="born_place_2">دیگر</label>
+                                                 </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="container">
+                                         <label for="ethnicity" class="form-label fw-bold text-dark mb-3">نژاد</label>
+                                         <div class="vstack gap-2">
+                                             <div>
+                                                 <input type="radio" class="btn-check" value="1" checked name="ethnicity" id="ethnicity_1">
+                                                 <label class="btn btn-outline-primary w-100" for="ethnicity_1">سفید </label>
+                                             </div>
+                                             <div>
+                                                 <input type="radio" class="btn-check" value="2"  name="ethnicity" id="ethnicity_2">
+                                                 <label class="btn btn-outline-primary w-100" for="ethnicity_2">سیاه</label>
+                                             </div>
+                                             <div>
+                                                 <input type="radio" class="btn-check" value="3"  name="ethnicity" id="ethnicity_3">
+                                                 <label class="btn btn-outline-primary w-100" for="ethnicity_3">اسپانیایی</label>
+                                             </div>
+                                             <div>
+                                                 <input type="radio" class="btn-check" value="7"  name="ethnicity" id="ethnicity_4">
+                                                 <label class="btn btn-outline-primary w-100" for="ethnicity_4">چینی</label>
+                                             </div>
+                                             <div>
+                                                 <input type="radio" class="btn-check" value="8"  name="ethnicity" id="ethnicity_5">
+                                                 <label class="btn btn-outline-primary w-100" for="ethnicity_5">ژاپنی</label>
+                                             </div>
+                                             <div>
+                                                 <input type="radio" class="btn-check" value="9"  name="ethnicity" id="ethnicity_6">
+                                                 <label class="btn btn-outline-primary w-100" for="ethnicity_6">فیلیپینی</label>
+                                             </div>
+                                             <div>
+                                                 <input type="radio" class="btn-check" value="10"  name="ethnicity" id="ethnicity_7">
+                                                 <label class="btn btn-outline-primary w-100" for="ethnicity_7">هاوایی</label>
+                                             </div>
+                                             <div>
+                                                 <input type="radio" class="btn-check" value="11"  name="ethnicity" id="ethnicity_8">
+                                                 <label class="btn btn-outline-primary w-100" for="ethnicity_8">سایر ساکنان جزیره اقیانوس آرام</label>
+                                             </div>
+                                             <div>
+                                                 <input type="radio" class="btn-check" value="12"  name="ethnicity" id="ethnicity_9">
+                                                 <label class="btn btn-outline-primary w-100" for="ethnicity_9">آسیایی</label>
+                                             </div>
+                                        </div>
+                                     </div>
+                                    </div>
+                                </div>
+
+                                 <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                         <div class="container">
+                                             <label for="blood_group" class="form-label fw-bold text-dark mb-3">
+                                             گروه خونی
+                                             </label>
+                                             <div class="vstack gap-2">
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="A+" name="blood_group" id="blood_group_1">
+                                                     <label class="btn btn-outline-primary w-100" for="blood_group_1">A+</label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="A-"  name="blood_group" id="blood_group_2">
+                                                     <label class="btn btn-outline-primary w-100" for="blood_group_2">A-</label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="B+"  name="blood_group" id="blood_group_3">
+                                                     <label class="btn btn-outline-primary w-100" for="blood_group_3">B+</label>
+                                                 </div>
+                                                  <div>
+                                                     <input type="radio" class="btn-check" value="B-"  name="blood_group" id="blood_group_4">
+                                                     <label class="btn btn-outline-primary w-100" for="blood_group_4">B- </label>
+                                                 </div>
+                                                  <div>
+                                                     <input type="radio" class="btn-check" value="AB+"  name="blood_group" id="blood_group_5">
+                                                     <label class="btn btn-outline-primary w-100" for="blood_group_5">AB+</label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="AB-"  name="blood_group" id="blood_group_6">
+                                                     <label class="btn btn-outline-primary w-100" for="blood_group_6">AB-</label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="O+"  name="blood_group" id="blood_group_7">
+                                                     <label class="btn btn-outline-primary w-100" for="blood_group_7">O+</label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="O-"  name="blood_group" id="blood_group_8">
+                                                     <label class="btn btn-outline-primary w-100" for="blood_group_8">O-</label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="Dont Know" checked name="blood_group" id="blood_group_8">
+                                                     <label class="btn btn-outline-primary w-100" for="blood_group_8">نمیدانم</label>
+                                                 </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="accordion accordion-icon accordion-bg-light" id="accordion_lifestyle">
+                <!-- Item -->
+                <div class="accordion-item mb-3">
+                    <h6 class="accordion-header font-base" id="heading-1">
+                        <a class="accordion-button fw-bold rounded collapsed d-block pe-4" href="#collapse-lifestyle" data-bs-toggle="collapse" data-bs-target="#collapse-lifestyle" aria-expanded="false" aria-controls="collapse-lifestyle">
+
+                            <span class="mb-0">سبک زندگی</span>
+                            <span class="small d-block mt-1"></span>
+                        </a>
+                    </h6>
+                    <div id="collapse-lifestyle" class="accordion-collapse collapse" aria-labelledby="heading-1" data-bs-parent="#accordion_lifestyle">
+                        <div class="accordion-body mt-3">
+                            <div class="vstack gap-3">
+
+                               <div class="mb-4">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="activity" class="form-label fw-bold text-dark mb-3">
+                                        متوسط میزان فعالیت بدنی در روز (ساعت در روز)
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="activity"
+                                          id="activity"
+                                          min="0"
+                                          value="0"
+                                          max="4"
+                                          step="0.1"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">0</small>
+                                          <small class="text-muted">1</small>
+                                          <small class="text-muted">2</small>
+                                          <small class="text-muted">3</small>
+                                          <small class="text-muted">4</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="activity_value_display" class="d-block fw-bold">0.0</span>
+                                          <small class="d-block">ساعت</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                               <div class="mb-4">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="smoking" class="form-label fw-bold text-dark mb-3">
+                                        تعداد بسته سیگار در سال
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="smoking"
+                                          id="smoking"
+                                          min="0"
+                                          value="0"
+                                          max="50"
+                                          step="1"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">0</small>
+                                          <small class="text-muted">10</small>
+                                          <small class="text-muted">20</small>
+                                          <small class="text-muted">30</small>
+                                          <small class="text-muted">40</small>
+                                          <small class="text-muted">50</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="smoking_value_display" class="d-block fw-bold">0</span>
+                                          <small class="d-block">بسته</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="mb-4">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="alcohol" class="form-label fw-bold text-dark mb-3">
+                                        میانگین مصرف الکل (تعداد در روز)
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="alcohol"
+                                          id="alcohol"
+                                          min="0"
+                                          value="0"
+                                          max="12"
+                                          step="1"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">0</small>
+                                          <small class="text-muted">3</small>
+                                          <small class="text-muted">6</small>
+                                          <small class="text-muted">9</small>
+                                          <small class="text-muted">12</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="alcohol_value_display" class="d-block fw-bold">0</span>
+                                          <small class="d-block">شات</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="mb-4">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="meat" class="form-label fw-bold text-dark mb-3">
+                                              میانگین مصرف گوشت قرمز در روز (اونس در روز)
+                                                هر اونس حدود 30 گرم می باشد
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="meat"
+                                          id="meat"
+                                          min="0"
+                                          value="0"
+                                          max="150"
+                                          step="30"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">0</small>
+                                          <small class="text-muted">30</small>
+                                          <small class="text-muted">60</small>
+                                          <small class="text-muted">90</small>
+                                          <small class="text-muted">120</small>
+                                          <small class="text-muted">150</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="meat_value_display" class="d-block fw-bold">0</span>
+                                          <small class="d-block">گرم</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                         <div class="container">
+                                             <label for="cereal" class="form-label fw-bold text-dark mb-3">
+                                               بیشتر روزها غلات صبحانه غنی‌شده می‌خورم.
+                                             </label>
+                                             <div class="vstack gap-2">
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="Yes"  name="cereal" id="cereal_1">
+                                                     <label class="btn btn-outline-primary w-100" for="cereal_1">بلی</label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="No" checked  name="cereal" id="cereal_2">
+                                                     <label class="btn btn-outline-primary w-100" for="cereal_2">خیر</label>
+                                                 </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                         <div class="container">
+                                             <label for="vegetables" class="form-label fw-bold text-dark mb-3">تعداد دفعات مصرف میوه و سبزیجات</label>
+                                             <div class="vstack gap-2">
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="every_day" name="vegetables" id="vegetables_1">
+                                                     <label class="btn btn-outline-primary w-100" for="vegetables_1">هر روز (اغلب روزها) مصرف میکنم </label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="not_every_day" checked  name="vegetables" id="vegetables_2">
+                                                     <label class="btn btn-outline-primary w-100" for="vegetables_2">هر روز (اغلب روزها) مصرف نمیکنم</label>
+                                                 </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                               </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                         <div class="container">
+                                             <label for="dairy" class="form-label fw-bold text-dark mb-3">
+                                               در بیشتر روزها چند وعده شیر یا لبنیات مصرف می‌کنید
+                                             </label>
+                                             <div class="vstack gap-2">
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="1" checked name="dairy" id="dairy_1">
+                                                     <label class="btn btn-outline-primary w-100" for="dairy_1">کمتر از یک وعده</label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="2"  name="dairy" id="dairy_2">
+                                                     <label class="btn btn-outline-primary w-100" for="dairy_2">بین 1 تا 2 وعده</label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="3"  name="dairy" id="dairy_3">
+                                                     <label class="btn btn-outline-primary w-100" for="dairy_3">بیشتر از 2 وعده</label>
+                                                 </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                         <div class="container">
+                                             <label for="multivitamin" class="form-label fw-bold text-dark mb-3">استفاده منظم از مولتی ویتامین ها</label>
+                                             <div class="vstack gap-2">
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="Yes" name="multivitamin" id="multivitamin_1">
+                                                     <label class="btn btn-outline-primary w-100" for="multivitamin_1">بلی </label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="No" checked name="multivitamin" id="multivitamin_2">
+                                                     <label class="btn btn-outline-primary w-100" for="multivitamin_2">خیر</label>
+                                                 </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                               </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="accordion accordion-icon accordion-bg-light" id="accordion_medical">
+                                <!-- Item -->
+                                <div class="accordion-item mb-3">
+                                    <h6 class="accordion-header font-base" id="heading-medical">
+                                        <a class="accordion-button fw-bold rounded collapsed d-block pe-4" href="#collapse-medical" data-bs-toggle="collapse" data-bs-target="#collapse-medical" aria-expanded="false" aria-controls="collapse-medical">
+
+                                            <span class="mb-0">سوابق پزشکی</span>
+                                            <span class="small d-block mt-1"></span>
+                                        </a>
+                                    </h6>
+                                    <div id="collapse-medical" class="accordion-collapse collapse" aria-labelledby="heading-1" data-bs-parent="#accordion_medical">
+                                        <div class="accordion-body mt-3">
+                                            <div class="vstack gap-3">
+
+                                                <div class="col-md-6">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                         <div class="container">
+                                                             <label for="blood_pressure" class="form-label fw-bold text-dark mb-3">         آیا تا به حال دارو برای فشار خون بالا به طور منظم مصرف کرده اید؟</label>
+                                                             <div class="vstack gap-2">
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="Yes"  name="blood_pressure" id="blood_pressure_1">
+                                                                     <label class="btn btn-outline-primary w-100" for="blood_pressure_1">بلی </label>
+                                                                 </div>
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="No" checked  name="blood_pressure" id="blood_pressure_2">
+                                                                     <label class="btn btn-outline-primary w-100" for="blood_pressure_2">خیر</label>
+                                                                 </div>
+                                                            </div>
+                                                         </div>
+                                                    </div>
+                                               </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                         <div class="container">
+                                                             <label for="blood_glucose" class="form-label fw-bold text-dark mb-3">         آیا تا به حال مشاهده شده است که قند خون بالایی دارید (مثلاً در معاینه، در طول بیماری، در دوران بارداری)؟</label>
+                                                             <div class="vstack gap-2">
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="Yes"  name="blood_glucose" id="blood_glucose_1">
+                                                                     <label class="btn btn-outline-primary w-100" for="blood_glucose_1">بلی</label>
+                                                                 </div>
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="No" checked  name="blood_glucose" id="blood_glucose_2">
+                                                                     <label class="btn btn-outline-primary w-100" for="blood_glucose_2">خیر</label>
+                                                                 </div>
+                                                            </div>
+                                                         </div>
+                                                    </div>
+                                               </div>
+
+                                                 <div class="mb-4">
+                                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <div class="container px-0">
+                                                      <label for="totchol" class="form-label fw-bold text-dark mb-3">
+                                                        میزان کلسترول (mg/dL)؟
+                                                      </label>
+                                                      <!-- Slider -->
+                                                      <div class="position-relative mb-3">
+                                                        <input
+                                                          class="form-range custom-range"
+                                                          type="range"
+                                                          required
+                                                          name="totchol"
+                                                          id="totchol"
+                                                          min="100"
+                                                          value="200"
+                                                          max="400"
+                                                          step="1"
+                                                        >
+                                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                                          <small class="text-muted">100</small>
+                                                          <small class="text-muted">200</small>
+                                                          <small class="text-muted">300</small>
+                                                          <small class="text-muted">400</small>
+                                                        </div>
+                                                      </div>
+                                                      <!-- Value Display Box (now below slider) -->
+                                                      <div class="d-flex justify-content-center">
+                                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                                          <span id="totchol_value_display" class="d-block fw-bold">200</span>
+                                                          <small class="d-block">mg/dL</small>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+
+                                                <div class="col-md-6">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                         <div class="container">
+                                                             <label for="previous_cancer" class="form-label fw-bold text-dark mb-3">          آیا سابقه ابتلا به سرطان دارید؟</label>
+                                                             <div class="vstack gap-2">
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="Yes"  name="previous_cancer" id="previous_cancer_1">
+                                                                     <label class="btn btn-outline-primary w-100" for="previous_cancer_1">بلی </label>
+                                                                 </div>
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="No" checked  name="previous_cancer" id="previous_cancer_2">
+                                                                     <label class="btn btn-outline-primary w-100" for="previous_cancer_2">خیر</label>
+                                                                 </div>
+                                                            </div>
+                                                         </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+            <div class="accordion accordion-icon accordion-bg-light" id="accordion-crc">
+                <!-- Item -->
+                <div class="accordion-item mb-3">
+                    <h6 class="accordion-header font-base" id="heading-1">
+                        <a class="accordion-button fw-bold rounded collapsed d-block pe-4" href="#collapse-crc" data-bs-toggle="collapse" data-bs-target="#collapse-crc" aria-expanded="false" aria-controls="collapse-crc">
+
+                            <span class="mb-0">سرطان کلورکتال</span>
+                            <span class="small d-block mt-1"></span>
+                        </a>
+                    </h6>
+                    <div id="collapse-crc" class="accordion-collapse collapse" aria-labelledby="heading-1" data-bs-parent="#accordion_crc">
+                        <div class="accordion-body mt-3">
+                            <div class="vstack gap-3">
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                         <div class="container">
+                                             <label for="family_crc" class="form-label fw-bold text-dark mb-3">سابقه خانوادگی سرطان روده بزرگ</label>
+                                             <div class="vstack gap-2">
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="Yes" name="family_crc" id="family_crc_1">
+                                                     <label class="btn btn-outline-primary w-100" for="family_crc_1">بلی </label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="No" checked name="family_crc" id="family_crc_2">
+                                                     <label class="btn btn-outline-primary w-100" for="family_crc_2">خیر</label>
+                                                 </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                               </div>
+
+
+                                <div class="col-md-6">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container">
+                                      <label for="v1_v2" class="form-label fw-bold text-dark mb-3">چند سرطان کولورکتال مجزا دارید؟</label>
+                                      <div class="vstack gap-2">
+                                        <div>
+                                          <input type="radio" class="btn-check" value="0" checked name="v1_v2" id="v1_v2_1">
+                                          <label class="btn btn-outline-primary w-100" for="v1_v2_1">هیچ </label>
+                                        </div>
+                                        <div>
+                                          <input type="radio" class="btn-check" value="1" name="v1_v2" id="v1_v2_2">
+                                          <label class="btn btn-outline-primary w-100" for="v1_v2_2">یکی</label>
+                                        </div>
+                                        <div>
+                                          <input type="radio" class="btn-check" value="2" name="v1_v2" id="v1_v2_3">
+                                          <label class="btn btn-outline-primary w-100" for="v1_v2_3">دو مورد یا بیشتر</label>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="mb-4" id="v8_MinAge_CRC_DiagnosisSlider" style="display: none;">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="v8_MinAge_CRC" class="form-label fw-bold text-dark mb-3">
+                                        سن تشخیص چقدر بوده است؟
+                                        (اگر نامشخص است، لطفا تخمین بزنید)
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="v8_MinAge_CRC"
+                                          id="v8_MinAge_CRC"
+                                          min="40"
+                                          value="60"
+                                          max="120"
+                                          step="1"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">40</small>
+                                          <small class="text-muted">60</small>
+                                          <small class="text-muted">80</small>
+                                          <small class="text-muted">100</small>
+                                          <small class="text-muted">120</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="v8_MinAge_CRC_value_display" class="d-block fw-bold">60</span>
+                                          <small class="d-block">سال</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                         <div class="container">
+                                             <label for="diabetes" class="form-label fw-bold text-dark mb-3">سابقه دیابت</label>
+                                             <div class="vstack gap-2">
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="Yes"  name="diabetes" id="diabetes_1">
+                                                     <label class="btn btn-outline-primary w-100" for="diabetes_1">بلی </label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="No" checked name="diabetes" id="diabetes_2">
+                                                     <label class="btn btn-outline-primary w-100" for="diabetes_2">خیر</label>
+                                                 </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                               </div>
+
+                                <div class="col-md-6">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container">
+                                      <label for="v3" class="form-label fw-bold text-dark mb-3">آیا بیمار سرطان آندومتر (رحم) داشته است؟</label>
+                                      <div class="vstack gap-2">
+                                        <div>
+                                          <input type="radio" class="btn-check" value="0" checked name="v3" id="v3_1">
+                                          <label class="btn btn-outline-primary w-100" for="v3_1">خیر </label>
+                                        </div>
+                                        <div>
+                                          <input type="radio" class="btn-check" value="1" name="v3" id="v3_2">
+                                          <label class="btn btn-outline-primary w-100" for="v3_2">بلی</label>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="mb-4" id="v9_MinAge_EC_DiagnosisSlider" style="display: none;">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="v9_MinAge_EC" class="form-label fw-bold text-dark mb-3">
+                                        اگر چنین است، سن تشخیص سرطان آندومتر (رحم) چقدر بوده است؟ (اگر نامشخص است، لطفا تخمین بزنید)
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="v9_MinAge_EC"
+                                          id="v9_MinAge_EC"
+                                          min="40"
+                                          value="60"
+                                          max="120"
+                                          step="1"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">40</small>
+                                          <small class="text-muted">60</small>
+                                          <small class="text-muted">80</small>
+                                          <small class="text-muted">100</small>
+                                          <small class="text-muted">120</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="v9_MinAge_EC_value_display" class="d-block fw-bold">60</span>
+                                          <small class="d-block">سال</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                         <div class="container">
+                                             <label for="v4" class="form-label fw-bold text-dark mb-3">
+                                             آیا بیمار سرطان مرتبط با سندرم لینچ دیگری داشته است؟
+                                                         سایر سرطان های مرتبط با سندرم لینچ عبارتند از: تخمدان، معده، روده کوچک، دستگاه ادراری/مثانه/کلیه، مجاری صفراوی، مغز، لوزالمعده و تومورهای پوستی غدد سباسه.
+                                             </label>
+                                             <div class="vstack gap-2">
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="0" checked name="v4" id="v4_1">
+                                                     <label class="btn btn-outline-primary w-100" for="v4_1">خیر </label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="1"  name="v4" id="v4_2">
+                                                     <label class="btn btn-outline-primary w-100" for="v4_2">بلی</label>
+                                                 </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                               </div>
+
+                                <div>
+                                    اقوام درجه یک (اقوام درجه یک شامل والدین، خواهر و برادر، فرزندان هستند)
+                                </div>
+
+                                <div class="col-md-6">
+                                      <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="container">
+                                          <label for="v5_AB" class="form-label fw-bold text-dark mb-3">چند نفر از بستگان درجه یک سرطان کولورکتال داشته اند؟</label>
+                                          <div class="vstack gap-2">
+                                            <div>
+                                              <input type="radio" class="btn-check" value="0" checked name="v5_AB" id="v5_AB_1">
+                                              <label class="btn btn-outline-primary w-100" for="v5_AB_1">هیچ </label>
+                                            </div>
+                                            <div>
+                                              <input type="radio" class="btn-check" value="1" name="v5_AB" id="v5_AB_2">
+                                              <label class="btn btn-outline-primary w-100" for="v5_AB_2">یکی</label>
+                                            </div>
+                                            <div>
+                                              <input type="radio" class="btn-check" value="2" name="v5_AB" id="v5_AB_3">
+                                              <label class="btn btn-outline-primary w-100" for="v5_AB_3">دو مورد یا بیشتر</label>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                <div class="mb-4" id="v8_MinAge_CRC_FDR_DiagnosisSlider" style="display: none;">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="v8_MinAge_CRC_FDR" class="form-label fw-bold text-dark mb-3">
+                                        سن تشخیص چقدر بوده است؟
+                                        (اگر نامشخص است، لطفا تخمین بزنید)
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="v8_MinAge_CRC_FDR"
+                                          id="v8_MinAge_CRC_FDR"
+                                          min="40"
+                                          value="60"
+                                          max="120"
+                                          step="1"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">40</small>
+                                          <small class="text-muted">60</small>
+                                          <small class="text-muted">80</small>
+                                          <small class="text-muted">100</small>
+                                          <small class="text-muted">120</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="v8_MinAge_CRC_FDR_value_display" class="d-block fw-bold">60</span>
+                                          <small class="d-block">سال</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                      <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="container">
+                                          <label for="v6_AB" class="form-label fw-bold text-dark mb-3">چند نفر از بستگان درجه یک سرطان آندومتر (رحم) داشته اند؟</label>
+                                          <div class="vstack gap-2">
+                                            <div>
+                                              <input type="radio" class="btn-check" value="0" checked name="v6_AB" id="v6_AB_1">
+                                              <label class="btn btn-outline-primary w-100" for="v6_AB_1">هیچ </label>
+                                            </div>
+                                            <div>
+                                              <input type="radio" class="btn-check" value="1" name="v6_AB" id="v6_AB_2">
+                                              <label class="btn btn-outline-primary w-100" for="v6_AB_2">یکی</label>
+                                            </div>
+                                            <div>
+                                              <input type="radio" class="btn-check" value="2" name="v6_AB" id="v6_AB_3">
+                                              <label class="btn btn-outline-primary w-100" for="v6_AB_3">دو مورد یا بیشتر</label>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                <div class="mb-4" id="v9_MinAge_EC_FDR_DiagnosisSlider" style="display: none;">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="v9_MinAge_EC_FDR" class="form-label fw-bold text-dark mb-3">
+                                        سن تشخیص چقدر بوده است؟
+                                        (اگر نامشخص است، لطفا تخمین بزنید)
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="v9_MinAge_EC_FDR"
+                                          id="v9_MinAge_EC_FDR"
+                                          min="40"
+                                          value="60"
+                                          max="120"
+                                          step="1"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">40</small>
+                                          <small class="text-muted">60</small>
+                                          <small class="text-muted">80</small>
+                                          <small class="text-muted">100</small>
+                                          <small class="text-muted">120</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="v9_MinAge_EC_FDR_value_display" class="d-block fw-bold">60</span>
+                                          <small class="d-block">سال</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                         <div class="container">
+                                             <label for="v7_E" class="form-label fw-bold text-dark mb-3">
+                                                     آیا بستگان درجه یک دیگر سرطان های مرتبط با سندرم لینچ را داشته اند؟
+                                                         سایر سرطان های مرتبط با سندرم لینچ عبارتند از: تخمدان، معده، روده کوچک، دستگاه ادراری/مثانه/کلیه، مجاری صفراوی، مغز، لوزالمعده و تومورهای پوستی غدد سباسه.
+                                             </label>
+                                             <div class="vstack gap-2">
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="0" checked name="v7_E" id="v7_E_1">
+                                                     <label class="btn btn-outline-primary w-100" for="v7_E_1">خیر </label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="1"  name="v7_E" id="v7_E_2">
+                                                     <label class="btn btn-outline-primary w-100" for="v7_E_2">بلی</label>
+                                                 </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                               </div>
+
+                                <div>
+                                    اقوام درجه دو (پدربزرگ و مادربزرگ، نوه، خاله، عمو، خواهرزاده، برادرزاده)
+                                </div>
+
+                                <div class="col-md-6">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container">
+                                      <label for="v5_CD" class="form-label fw-bold text-dark mb-3">چند نفر از بستگان درجه دو سرطان کولورکتال داشته اند؟</label>
+                                      <div class="vstack gap-2">
+                                        <div>
+                                          <input type="radio" class="btn-check" value="0" checked name="v5_CD" id="v5_CD_1">
+                                          <label class="btn btn-outline-primary w-100" for="v5_CD_1">هیچ </label>
+                                        </div>
+                                        <div>
+                                          <input type="radio" class="btn-check" value="1" name="v5_CD" id="v5_CD_2">
+                                          <label class="btn btn-outline-primary w-100" for="v5_CD_2">یکی</label>
+                                        </div>
+                                        <div>
+                                          <input type="radio" class="btn-check" value="2" name="v5_CD" id="v5_CD_3">
+                                          <label class="btn btn-outline-primary w-100" for="v5_CD_3">دو مورد یا بیشتر</label>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="mb-4" id="v8_MinAge_CRC_SDR_DiagnosisSlider" style="display: none;">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="v8_MinAge_CRC_SDR" class="form-label fw-bold text-dark mb-3">
+                                        سن تشخیص چقدر بوده است؟
+                                        (اگر نامشخص است، لطفا تخمین بزنید)
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="v8_MinAge_CRC_SDR"
+                                          id="v8_MinAge_CRC_SDR"
+                                          min="40"
+                                          value="60"
+                                          max="120"
+                                          step="1"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">40</small>
+                                          <small class="text-muted">60</small>
+                                          <small class="text-muted">80</small>
+                                          <small class="text-muted">100</small>
+                                          <small class="text-muted">120</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="v8_MinAge_CRC_SDR_value_display" class="d-block fw-bold">60</span>
+                                          <small class="d-block">سال</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container">
+                                      <label for="v6_CD" class="form-label fw-bold text-dark mb-3">چند نفر از بستگان درجه دو سرطان آندومتر (رحم) داشته اند؟</label>
+                                      <div class="vstack gap-2">
+                                        <div>
+                                          <input type="radio" class="btn-check" value="0" checked name="v6_CD" id="v6_CD_1">
+                                          <label class="btn btn-outline-primary w-100" for="v6_CD_1">هیچ </label>
+                                        </div>
+                                        <div>
+                                          <input type="radio" class="btn-check" value="1" name="v6_CD" id="v6_CD_2">
+                                          <label class="btn btn-outline-primary w-100" for="v6_CD_2">یکی</label>
+                                        </div>
+                                        <div>
+                                          <input type="radio" class="btn-check" value="2" name="v6_CD" id="v6_CD_3">
+                                          <label class="btn btn-outline-primary w-100" for="v6_CD_3">دو مورد یا بیشتر</label>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="mb-4" id="v9_MinAge_EC_SDR_DiagnosisSlider" style="display: none;">
+                                  <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="container px-0">
+                                      <label for="v9_MinAge_EC_SDR" class="form-label fw-bold text-dark mb-3">
+                                        سن تشخیص چقدر بوده است؟
+                                        (اگر نامشخص است، لطفا تخمین بزنید)
+                                      </label>
+                                      <!-- Slider -->
+                                      <div class="position-relative mb-3">
+                                        <input
+                                          class="form-range custom-range"
+                                          type="range"
+                                          required
+                                          name="v9_MinAge_EC_SDR"
+                                          id="v9_MinAge_EC_SDR"
+                                          min="40"
+                                          value="60"
+                                          max="120"
+                                          step="1"
+                                        >
+                                        <div class="d-flex justify-content-between mt-1 px-2">
+                                          <small class="text-muted">40</small>
+                                          <small class="text-muted">60</small>
+                                          <small class="text-muted">80</small>
+                                          <small class="text-muted">100</small>
+                                          <small class="text-muted">120</small>
+                                        </div>
+                                      </div>
+                                      <!-- Value Display Box (now below slider) -->
+                                      <div class="d-flex justify-content-center">
+                                        <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
+                                          <span id="v9_MinAge_EC_SDR_value_display" class="d-block fw-bold">60</span>
+                                          <small class="d-block">سال</small>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                         <div class="container">
+                                             <label for="v7_F" class="form-label fw-bold text-dark mb-3">
+                                                     آیا بستگان درجه دو دیگری سرطان های مرتبط با سندرم لینچ را داشته اند؟
+                                                         سایر سرطان های مرتبط با سندرم لینچ عبارتند از: تخمدان، معده، روده کوچک، دستگاه ادراری/مثانه/کلیه، مجاری صفراوی، مغز، لوزالمعده و تومورهای پوستی غدد سباسه.
+                                             </label>
+                                             <div class="vstack gap-2">
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="0" checked name="v7_F" id="v7_F_1">
+                                                     <label class="btn btn-outline-primary w-100" for="v7_F_1">خیر </label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="1"  name="v7_F" id="v7_F_2">
+                                                     <label class="btn btn-outline-primary w-100" for="v7_F_2">بلی</label>
+                                                 </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                               </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                         <div class="container">
+                                             <label for="aspirin" class="form-label fw-bold text-dark mb-3">
+                                            مصرف استروژن
+                                             </label>
+                                             <div class="vstack gap-2">
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="Yes" name="aspirin" id="aspirin_1">
+                                                     <label class="btn btn-outline-primary w-100" for="aspirin_1">بلی</label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="Yes - Not Currently" name="aspirin" id="aspirin_2">
+                                                     <label class="btn btn-outline-primary w-100" for="aspirin_2">بلی ولی نه در حاضر</label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="No" checked name="aspirin" id="aspirin_3">
+                                                     <label class="btn btn-outline-primary w-100" for="aspirin_3">خیر</label>
+                                                 </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                               </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                         <div class="container">
+                                             <label for="painmed" class="form-label fw-bold text-dark mb-3">
+                                            استفاده منظم از NSAID ها
+                                             </label>
+                                             <div class="vstack gap-2">
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="Yes, currently" name="painmed" id="painmed_1">
+                                                     <label class="btn btn-outline-primary w-100" for="painmed_1">بلی در حاضر </label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="Yes, but not currently" name="painmed" id="painmed_2">
+                                                     <label class="btn btn-outline-primary w-100" for="painmed_2">بلی ولی نه در حاضر</label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="Yes, but not currently" checked name="painmed" id="painmed_3">
+                                                     <label class="btn btn-outline-primary w-100" for="painmed_3">خیر</label>
+                                                 </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                               </div>
+
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                         <div class="container">
+                                             <label for="estrogen" class="form-label fw-bold text-dark mb-3">
+                                            مصرف استروژن
+                                             </label>
+                                             <div class="vstack gap-2">
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="Yes-currently"  name="estrogen" id="estrogen_1">
+                                                     <label class="btn btn-outline-primary w-100" for="estrogen_1">بلی در حاضر </label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="Yes-previously" name="estrogen" id="estrogen_2">
+                                                     <label class="btn btn-outline-primary w-100" for="estrogen_2">بلی در گذشته</label>
+                                                 </div>
+                                                 <div>
+                                                     <input type="radio" class="btn-check" value="Yes-previously" checked name="estrogen" id="estrogen_3">
+                                                     <label class="btn btn-outline-primary w-100" for="estrogen_3">خیر</label>
+                                                 </div>
+                                            </div>
+                                         </div>
+                                    </div>
+                               </div>
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion accordion-icon accordion-bg-light" id="accordion-breast">
+                    <!-- Item -->
+                    <div class="accordion-item mb-3">
+                        <h6 class="accordion-header font-base" id="heading-1">
+                            <a class="accordion-button fw-bold rounded collapsed d-block pe-4" href="#collapse-breast" data-bs-toggle="collapse" data-bs-target="#collapse-breast" aria-expanded="false" aria-controls="collapse-breast">
+
+                                <span class="mb-0">سرطان سینه</span>
+                                <span class="small d-block mt-1"></span>
+                            </a>
+                        </h6>
+                        <div id="collapse-breast" class="accordion-collapse collapse" aria-labelledby="heading-1" data-bs-parent="#accordion_breast">
+                            <div class="accordion-body mt-3">
+                                <div class="vstack gap-3">
+
+                                   <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                             <div class="container">
+                                                 <label for="biopsy" class="form-label fw-bold text-dark mb-3">         آیا بیمار تا به حال بیوپسی سینه با تشخیص خوش خیم (نه سرطانی) انجام داده است؟</label>
+                                                 <div class="vstack gap-2">
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="0" checked name="biopsy" id="biopsy_1">
+                                                         <label class="btn btn-outline-primary w-100" for="biopsy_1">نامشخص </label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="1"  name="biopsy" id="biopsy_2">
+                                                         <label class="btn btn-outline-primary w-100" for="biopsy_2">بلی</label>
+                                                     </div>
+                                                      <div>
+                                                         <input type="radio" class="btn-check" value="0"   name="biopsy" id="biopsy_3">
+                                                         <label class="btn btn-outline-primary w-100" for="biopsy_3">خیر</label>
+                                                     </div>
+                                                </div>
+                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                             <div class="container">
+                                                 <label for="biopsy_num" class="form-label fw-bold text-dark mb-3">         آیا بیمار تا به حال بیوپسی سینه با تشخیص خوش خیم (نه سرطانی) انجام داده است؟</label>
+                                                 <div class="vstack gap-2">
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="1" checked name="biopsy_num" id="biopsy_num_1">
+                                                         <label class="btn btn-outline-primary w-100" for="biopsy_num_1">نامشخص </label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="0"  name="biopsy_num" id="biopsy_num_2">
+                                                         <label class="btn btn-outline-primary w-100" for="biopsy_num_2">نداشته است</label>
+                                                     </div>
+                                                      <div>
+                                                         <input type="radio" class="btn-check" value="1"   name="biopsy_num" id="biopsy_num_3">
+                                                         <label class="btn btn-outline-primary w-100" for="biopsy_num_3">یک بیوپسی</label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="2"   name="biopsy_num" id="biopsy_num_4">
+                                                         <label class="btn btn-outline-primary w-100" for="biopsy_num_4">دو مورد یا بیشتر بیوپسی</label>
+                                                     </div>
+                                                </div>
+                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                             <div class="container">
+                                                 <label for="hyperplasia_biopsy" class="form-label fw-bold text-dark mb-3">                آیا بیمار تا به حال بیوپسی سینه با هیپرپلازی آتیپیک انجام داده است؟</label>
+                                                 <div class="vstack gap-2">
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="99" checked name="hyperplasia_biopsy" id="hyperplasia_biopsy_1">
+                                                         <label class="btn btn-outline-primary w-100" for="hyperplasia_biopsy_1">نامشخص </label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="1"  name="hyperplasia_biopsy" id="hyperplasia_biopsy_2">
+                                                         <label class="btn btn-outline-primary w-100" for="hyperplasia_biopsy_2">بلی</label>
+                                                     </div>
+                                                      <div>
+                                                         <input type="radio" class="btn-check" value="0"   name="hyperplasia_biopsy" id="hyperplasia_biopsy_3">
+                                                         <label class="btn btn-outline-primary w-100" for="hyperplasia_biopsy_3">خیر</label>
+                                                     </div>
+                                                </div>
+                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                             <div class="container">
+                                                 <label for="menstruation_age" class="form-label fw-bold text-dark mb-3">                سن در زمان اولین قاعدگی</label>
+                                                 <div class="vstack gap-2">
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="0" checked name="menstruation_age" id="menstruation_age_1">
+                                                         <label class="btn btn-outline-primary w-100" for="menstruation_age_1">نامشخص </label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="2"  name="menstruation_age" id="menstruation_age_2">
+                                                         <label class="btn btn-outline-primary w-100" for="menstruation_age_2">کمتر از 12 سال</label>
+                                                     </div>
+                                                      <div>
+                                                         <input type="radio" class="btn-check" value="1"   name="menstruation_age" id="menstruation_age_3">
+                                                         <label class="btn btn-outline-primary w-100" for="menstruation_age_3">بین 12 تا 13 سال</label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="0"   name="menstruation_age" id="menstruation_age_4">
+                                                         <label class="btn btn-outline-primary w-100" for="menstruation_age_4">بیشتر از 13 سال</label>
+                                                     </div>
+                                                </div>
+                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                             <div class="container">
+                                                 <label for="child_age" class="form-label fw-bold text-dark mb-3">               سن در زمان اولین زایمان</label>
+                                                 <div class="vstack gap-2">
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="0" checked name="child_age" id="child_age_1">
+                                                         <label class="btn btn-outline-primary w-100" for="child_age_1">نامشخص </label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="2"  name="child_age" id="child_age_2">
+                                                         <label class="btn btn-outline-primary w-100" for="child_age_2">زایمان نداشته است</label>
+                                                     </div>
+                                                      <div>
+                                                         <input type="radio" class="btn-check" value="0"   name="child_age" id="child_age_3">
+                                                         <label class="btn btn-outline-primary w-100" for="child_age_3">کمتر از 20 سال</label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="1"   name="child_age" id="child_age_4">
+                                                         <label class="btn btn-outline-primary w-100" for="child_age_4">بین 20 تا 24 سال</label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="2"   name="child_age" id="child_age_5">
+                                                         <label class="btn btn-outline-primary w-100" for="child_age_5">بین 25 تا 29 سال</label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="3"   name="child_age" id="child_age_6">
+                                                         <label class="btn btn-outline-primary w-100" for="child_age_6">30 سال و بیشتر</label>
+                                                     </div>
+                                                </div>
+                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                             <div class="container">
+                                                 <label for="fdr_cancer" class="form-label fw-bold text-dark mb-3">    چه تعداد از بستگان درجه یک (مادر، خواهر، دختر) سرطان سینه داشته اند؟</label>
+                                                 <div class="vstack gap-2">
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="0" checked name="fdr_cancer" id="fdr_cancer_1">
+                                                         <label class="btn btn-outline-primary w-100" for="fdr_cancer_1">نامشخص </label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="0"  name="fdr_cancer" id="fdr_cancer_2">
+                                                         <label class="btn btn-outline-primary w-100" for="fdr_cancer_2">هیچکدام</label>
+                                                     </div>
+                                                      <div>
+                                                         <input type="radio" class="btn-check" value="1"   name="fdr_cancer" id="fdr_cancer_3">
+                                                         <label class="btn btn-outline-primary w-100" for="fdr_cancer_3">یکی از وابستگان</label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="2"   name="fdr_cancer" id="fdr_cancer_4">
+                                                         <label class="btn btn-outline-primary w-100" for="fdr_cancer_4">دو نفر یا بیشتر از وابستگان</label>
+                                                     </div>
+                                                </div>
+                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                             <div class="container">
+                                                 <label for="breastfeeding" class="form-label fw-bold text-dark mb-3">  شیردهی</label>
+                                                 <div class="vstack gap-2">
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="Yes" checked name="breastfeeding" id="breastfeeding_1">
+                                                         <label class="btn btn-outline-primary w-100" for="breastfeeding_1">بلی </label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="No"  name="breastfeeding" id="breastfeeding_2">
+                                                         <label class="btn btn-outline-primary w-100" for="breastfeeding_2">خیر</label>
+                                                     </div>
+                                                </div>
+                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                             <div class="container">
+                                                 <label for="cbe" class="form-label fw-bold text-dark mb-3">  شیردهی</label>
+                                                 <div class="vstack gap-2">
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="Yes"  name="cbe" id="cbe_1">
+                                                         <label class="btn btn-outline-primary w-100" for="cbe_1">بله (داشتن سینه های متراکم "بسیار" یا "ناهمگن" همانطور که در ماموگرافی دیده می شود) </label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="No" checked name="cbe" id="cbe_2">
+                                                         <label class="btn btn-outline-primary w-100" for="cbe_2">خیر</label>
+                                                     </div>
+                                                </div>
+                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                             <div class="container">
+                                                 <label for="bse" class="form-label fw-bold text-dark mb-3">  خودآزمایی پستان (BSE)</label>
+                                                 <div class="vstack gap-2">
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="Yes"  name="bse" id="bse_1">
+                                                         <label class="btn btn-outline-primary w-100" for="bse_1">بله (مشکوک) </label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="No" checked name="bse" id="bse_2">
+                                                         <label class="btn btn-outline-primary w-100" for="bse_2">خیر</label>
+                                                     </div>
+                                                </div>
+                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                             <div class="container">
+                                                 <label for="mammograms" class="form-label fw-bold text-dark mb-3">  ماموگرافی دو بعدی یا سه بعدی؟</label>
+                                                 <div class="vstack gap-2">
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="Yes"  name="mammograms" id="mammograms_1">
+                                                         <label class="btn btn-outline-primary w-100" for="mammograms_1">بله (توده تشخیص داده شد)</label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="No" checked name="mammograms" id="mammograms_2">
+                                                         <label class="btn btn-outline-primary w-100" for="mammograms_2">خیر</label>
+                                                     </div>
+                                                </div>
+                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                             <div class="container">
+                                                 <label for="syndrome" class="form-label fw-bold text-dark mb-3">
+                                                          آیا بیمار دارای سندرم Li-Fraumeni، سندرم Cowden یا سندرم Bannayan-Riley-Ruvalcaba است یا دارای بستگان درجه یک با یکی از این سندرم ها است؟
+
+                                                 </label>
+                                                 <div class="vstack gap-2">
+                                                    <div>
+                                                         <input type="radio" class="btn-check" value="Unknown" checked name="syndrome" id="syndrome_1">
+                                                         <label class="btn btn-outline-primary w-100" for="syndrome_1">نامشخص</label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="Yes"  name="syndrome" id="syndrome_2">
+                                                         <label class="btn btn-outline-primary w-100" for="syndrome_2">بلی</label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="No"  name="syndrome" id="syndrome_3">
+                                                         <label class="btn btn-outline-primary w-100" for="syndrome_3">خیر</label>
+                                                     </div>
+                                                </div>
+                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                             <div class="container">
+                                                 <label for="gene_mutation" class="form-label fw-bold text-dark mb-3">
+                                             آیا بیمار دارای جهش شناخته شده ژن BRCA1 یا BRCA2 (بر اساس آزمایش ژنتیکی) است؟
+                                                 </label>
+                                                 <div class="vstack gap-2">
+                                                    <div>
+                                                         <input type="radio" class="btn-check" value="Unknown" checked name="gene_mutation" id="gene_mutation_1">
+                                                         <label class="btn btn-outline-primary w-100" for="gene_mutation_1">نامشخص</label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="Yes"  name="gene_mutation" id="gene_mutation_2">
+                                                         <label class="btn btn-outline-primary w-100" for="gene_mutation_2">بلی</label>
+                                                     </div>
+                                                     <div>
+                                                         <input type="radio" class="btn-check" value="No"  name="gene_mutation" id="gene_mutation_3">
+                                                         <label class="btn btn-outline-primary w-100" for="gene_mutation_3">خیر</label>
+                                                     </div>
+                                                </div>
+                                             </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+
+            <!-- Family Information -->
+            <div class="row mt-3">
+                <div class="col-md-3 mb-4">
+                    <div class="mb-3">
+                        <label for="brothers" class="form-label fw-bold text-dark">تعداد برادران</label>
+                        <input type="number" class="form-control" id="brothers" name="brothers" value="0" min="0">
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="mb-3">
+                        <label for="half_brothers" class="form-label fw-bold text-dark">تعداد برادران ناتنی</label>
+                        <input type="number" class="form-control" id="half_brothers" name="half_brothers" value="0" min="0">
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="mb-3">
+                        <label for="sisters" class="form-label fw-bold text-dark">تعداد خواهران</label>
+                        <input type="number" class="form-control" id="sisters" name="sisters" value="0" min="0">
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="mb-3">
+                        <label for="half_sisters" class="form-label fw-bold text-dark">تعداد خواهران ناتنی</label>
+                        <input type="number" class="form-control" id="half_sisters" name="half_sisters" value="0" min="0">
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="mb-3">
+                        <label for="uncles_father" class="form-label fw-bold text-dark">تعداد عموها</label>
+                        <input type="number" class="form-control" id="uncles_father" name="uncles_father" value="0" min="0">
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="mb-3">
+                        <label for="aunts_father" class="form-label fw-bold text-dark">تعداد عمه ها</label>
+                        <input type="number" class="form-control" id="aunts_father" name="aunts_father" value="0" min="0">
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="mb-3">
+                        <label for="uncles_mother" class="form-label fw-bold text-dark">تعداد دایی ها</label>
+                        <input type="number" class="form-control" id="uncles_mother" name="uncles_mother" value="0" min="0">
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="mb-3">
+                        <label for="aunts_mother" class="form-label fw-bold text-dark">تعداد خاله ها</label>
+                        <input type="number" class="form-control" id="aunts_mother" name="aunts_mother" value="0" min="0">
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="mb-3">
+                        <label for="sons" class="form-label fw-bold text-dark">تعداد پسرها</label>
+                        <input type="number" class="form-control" id="sons" name="sons" value="0" min="0">
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="mb-3">
+                        <label for="daughters" class="form-label fw-bold text-dark">تعداد دخترها</label>
+                        <input type="number" class="form-control" id="daughters" name="daughters" value="0" min="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="button" class="btn btn-success me-2" id="savePedigreeBtn">
+                    <i class="fas fa-save"></i> ذخیره شجره
+                </button>
+
+                <button type="button" class="btn btn-primary" id="showPedigreeBtn">
+                    <i class="fas fa-eye"></i> نمایش شجره
+                </button>
+
+                <!-- Hidden link for PedigreeJS -->
+                <a id="pedigreeJsLink" href="#" class="btn btn-outline-info ms-2" style="display: none;">
+                    <i class="fas fa-project-diagram"></i> باز کردن در PedigreeJS
+                </a>
+            </div>
+        </form>
+
+        <div id="pedigreeMessage" class="mt-3"></div>
+    </div>
+</div>
+
+    </div>
+</div>
+</main>
+
+<style>
+    .risk-indicator {
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    .high-risk {
+        background-color: #ffdddd;
+        color: #d32f2f;
+    }
+    .medium-risk {
+        background-color: #fff3e0;
+        color: #ff6d00;
+    }
+    .low-risk {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+    .value-display {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        box-shadow: 0 4px 6px rgba(0, 123, 255, 0.3);
+    }
+    .custom-range::-webkit-slider-thumb {
+        background: #007bff;
+    }
+    .custom-range::-moz-range-thumb {
+        background: #007bff;
+    }
+    .btn-check:checked + .btn-outline-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Cancer types based on gender
+   const cancerTypes = {
+    'M': [ // Male cancers
+        {value: 'Prostate', text: 'سرطان پروستات'},
+        {value: 'Pancreatic', text: 'سرطان پانکراس'},
+        {value: 'Colorectal', text: 'سرطان کلورکتال'},
+        {value: 'Breast', text: 'سرطان پستان'},
+        {value: '', text: 'سرطان معده'},
+        {value: 'Kidney', text: 'سرطان مجاری صفراوی/کلیه'},
+    ],
+    'F': [ // Female cancers
+        {value: 'Breast', text: 'سرطان پستان'},
+        {value: 'Pancreatic', text: 'سرطان پانکراس'},
+        {value: 'Colorectal', text: 'سرطان کلورکتال'},
+        {value: 'Breast', text: 'سرطان پستان'},
+        {value: 'Ovary', text: 'سرطان تخمدان'},
+        {value: 'Endometrial', text: 'سرطان اندومتریوز'},
+        ]
+    };
+
+    // Function to update cancer types based on gender
+function updateCancerTypes() {
+    const gender = $('input[name="gender"]:checked').val();
+    const cancerTypeSelect = $('#cancer_type');
+
+    cancerTypeSelect.empty();
+
+    const cancers = cancerTypes[gender] || [];
+    cancers.forEach(cancer => {
+        // Create option with RTL styling
+        const option = new Option(cancer.text, cancer.value);
+        option.setAttribute('style', 'direction: rtl; text-align: right; font-family: Vazir, Tahoma, sans-serif;');
+        cancerTypeSelect.append(option);
+    });
+
+    // Optional: Refresh the select if using a custom select plugin
+    if (cancerTypeSelect.hasClass('js-choice')) {
+        cancerTypeSelect.trigger('change');
+    }
+}
+
+    // Initialize cancer types
+    updateCancerTypes();
+
+    // Update cancer types when gender changes
+    $('input[name="gender"]').change(function() {
+        updateCancerTypes();
+    });
+
+    // Initialize PedigreeJS link
+    updatePedigreeJsLink('');
+
+    // Age slider functionality
+    document.getElementById('age').addEventListener('input', function() {
+        document.getElementById('age_value_display').textContent = this.value;
+    });
+
+    // Age diagnosis slider functionality
+    document.getElementById('age_diagnosis').addEventListener('input', function() {
+        document.getElementById('age_diagnosis_value_display').textContent = this.value;
+    });
+
+    // Cancer section toggle functionality
+    const radio_affected_1 = document.getElementById('affected_1');
+    const radio_affected_2 = document.getElementById('affected_2');
+    const cancer_div = document.getElementById('cancer_div');
+
+    function cancer_toggleDiv() {
+        if (radio_affected_2.checked) {
+            cancer_div.style.display = 'block';
+        } else {
+            cancer_div.style.display = 'none';
+        }
+    }
+
+    radio_affected_1.addEventListener('change', cancer_toggleDiv);
+    radio_affected_2.addEventListener('change', cancer_toggleDiv);
+    cancer_toggleDiv(); // Initial check
+
+    // Save pedigree functionality
+    $('#savePedigreeBtn').click(function() {
+        const code = $('#code').val().trim();
+
+        if (!code) {
+            showMessage('لطفاً کد شجره را وارد کنید', 'error');
+            return;
+        }
+
+        // Validate age diagnosis if cancer is selected
+        if ($('#affected_2').is(':checked')) {
+            const cancerType = $('#cancer_type').val();
+            const ageDiagnosis = $('#age_diagnosis').val();
+            const age = $('#age').val();
+
+            if (!cancerType) {
+                showMessage('لطفاً نوع سرطان را انتخاب کنید', 'error');
+                return;
+            }
+
+            if (parseInt(ageDiagnosis) > parseInt(age)) {
+                showMessage('سن تشخیص سرطان نمی‌تواند بیشتر از سن فعلی باشد', 'error');
+                return;
+            }
+        }
+
+        // Collect all form data
+        const formData = new FormData(document.getElementById('pedigreeForm'));
+
+        $.ajax({
+            url: "{% url 'pedigreejs:save_pedigree' %}",
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    showMessage(response.message, 'success');
+                    // Update the PedigreeJS link with the code
+                    updatePedigreeJsLink(code);
+                } else {
+                    showMessage(response.message, 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                showMessage('خطا در ذخیره سازی: ' + error, 'error');
+            }
+        });
+    });
+
+    // Show pedigree functionality
+    $('#showPedigreeBtn').click(function() {
+        const code = $('#code').val().trim();
+
+        if (!code) {
+            showMessage('لطفاً کد شجره را وارد کنید', 'error');
+            return;
+        }
+
+        // First verify the pedigree exists
+        $.ajax({
+            url: "{% url 'pedigreejs:load_pedigree' %}",
+            type: 'GET',
+            data: {
+                'code': code
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Update the PedigreeJS link and navigate to it
+                    updatePedigreeJsLink(code);
+                    // Navigate to the PedigreeJS page
+                    window.location.href = $('#pedigreeJsLink').attr('href');
+                } else {
+                    showMessage(response.message, 'error');
+                    // Still update the link but show error
+                    updatePedigreeJsLink(code);
+                }
+            },
+            error: function(xhr, status, error) {
+                showMessage('خطا در بررسی شجره: ' + error, 'error');
+            }
+        });
+    });
+
+    function updatePedigreeJsLink(code) {
+        const baseUrl = "{% url 'pedigreejs:pedigreejs_tree_fa' %}";
+        if (code) {
+            const fullUrl = baseUrl + '?code=' + encodeURIComponent(code);
+            $('#pedigreeJsLink').attr('href', fullUrl);
+            //$('#pedigreeJsLink').show();
+            //$('#pedigreeJsLink').removeClass('disabled');
+        } else {
+            $('#pedigreeJsLink').attr('href', '#');
+            //$('#pedigreeJsLink').addClass('disabled');
+        }
+    }
+
+    function showMessage(message, type) {
+        const messageDiv = $('#pedigreeMessage');
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        messageDiv.html(`<div class="alert ${alertClass}">${message}</div>`);
+        messageDiv.show();
+        setTimeout(() => messageDiv.fadeOut(), 5000);
+    }
+
+    // Form validation for family members counts
+    $('input[type="number"]').on('change', function() {
+        const value = parseInt($(this).val());
+        if (value < 0) {
+            $(this).val(0);
+            showMessage('تعداد نمی‌تواند منفی باشد', 'warning');
+        }
+        if (value > 20) {
+            $(this).val(20);
+            showMessage('تعداد نمی‌تواند بیشتر از 20 باشد', 'warning');
+        }
+    });
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Demographic
+document.getElementById('age').addEventListener('input', function() {
+document.getElementById('age_value_display').textContent = this.value;
+});
+
+document.getElementById('weight').addEventListener('input', function() {
+document.getElementById('weight_value_display').textContent = this.value;
+});
+
+document.getElementById('height').addEventListener('input', function() {
+document.getElementById('height_value_display').textContent = this.value;
+});
+
+document.getElementById('education').addEventListener('input', function() {
+document.getElementById('education_value_display').textContent = this.value;
+});
+
+// Lifestyle
+document.getElementById('activity').addEventListener('input', function() {
+    document.getElementById('activity_value_display').textContent = this.value;
+});
+
+document.getElementById('smoking').addEventListener('input', function() {
+    document.getElementById('smoking_value_display').textContent = this.value;
+});
+
+document.getElementById('alcohol').addEventListener('input', function() {
+    document.getElementById('alcohol_value_display').textContent = this.value;
+});
+
+document.getElementById('meat').addEventListener('input', function() {
+    document.getElementById('meat_value_display').textContent = this.value;
+});
+
+// Diabetes
+document.getElementById('waist_size').addEventListener('input', function() {
+    document.getElementById('waist_size_value_display').textContent = this.value;
+});
+
+// Prostate
+document.getElementById('psa').addEventListener('input', function() {
+    document.getElementById('psa_value_display').textContent = this.value;
+});
+
+// Cardiovasculare
+document.getElementById('totchol').addEventListener('input', function() {
+    document.getElementById('totchol_value_display').textContent = this.value;
+});
+
+document.getElementById('hdl').addEventListener('input', function() {
+    document.getElementById('hdl_value_display').textContent = this.value;
+});
+
+document.getElementById('sbp').addEventListener('input', function() {
+    document.getElementById('sbp_value_display').textContent = this.value;
+});
+
+// Cervical
+document.getElementById('num_sexual_partners').addEventListener('input', function() {
+    document.getElementById('num_sexual_partners_value_display').textContent = this.value;
+});
+
+document.getElementById('first_sexual_intercourse').addEventListener('input', function() {
+    document.getElementById('first_sexual_intercourse_value_display').textContent = this.value;
+});
+
+document.getElementById('num_pregnancies').addEventListener('input', function() {
+    document.getElementById('num_pregnancies_value_display').textContent = this.value;
+});
+
+document.getElementById('hormonal_contraceptives_years').addEventListener('input', function() {
+    document.getElementById('hormonal_contraceptives_years_value_display').textContent = this.value;
+});
+
+document.getElementById('iud').addEventListener('input', function() {
+    document.getElementById('iud_value_display').textContent = this.value;
+});
+
+</script>
+
+
+
+<!-- **************** Cancer Screening Start **************** -->
+
+    <style>
+  /* Custom Range Slider Styles */
+  .custom-range {
+    height: 8px;
+    -webkit-appearance: none;
+    width: 100%;
+    background: #e9ecef;
+    border-radius: 5px;
+    outline: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .custom-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #0d6efd;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .custom-range::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    background: #0b5ed7;
+  }
+
+  .range-input-group {
+    align-items: center;
+  }
+
+  .range-value-display {
+    min-width: 80px;
+    text-align: center;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s ease;
+  }
+
+  .custom-range:focus + .range-value-display {
+    background-color: #0b5ed7;
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+// ****************************
+// v8_MinAge_CRC
+  const radio_v1_v2_1 = document.getElementById('v1_v2_1');
+  const radio_v1_v2_2 = document.getElementById('v1_v2_2');
+  const radio_v1_v2_3 = document.getElementById('v1_v2_3');
+  const v8_MinAge_CRC_sliderDiv = document.getElementById('v8_MinAge_CRC_DiagnosisSlider');
+  const v8_MinAge_CRC_Slider = document.getElementById('v8_MinAge_CRC');
+  const v8_MinAge_CRC_Display = document.getElementById('v8_MinAge_CRC_value_display');
+
+  // Function to toggle slider visibility
+  function v8_MinAge_CRC_toggleSlider() {
+    if (radio_v1_v2_2.checked || radio_v1_v2_3.checked) {
+      v8_MinAge_CRC_sliderDiv.style.display = 'block';
+      v8_MinAge_CRC_Slider.required = true;
+    } else {
+      v8_MinAge_CRC_sliderDiv.style.display = 'none';
+      v8_MinAge_CRC_Slider.required = false;
+    }
+  }
+
+  // Update display value when slider moves
+  v8_MinAge_CRC_Slider.addEventListener('input', function() {
+    v8_MinAge_CRC_Display.textContent = this.value;
+  });
+
+  // Add event listeners to all radio buttons
+  radio_v1_v2_1.addEventListener('change', v8_MinAge_CRC_toggleSlider);
+  radio_v1_v2_2.addEventListener('change', v8_MinAge_CRC_toggleSlider);
+  radio_v1_v2_3.addEventListener('change', v8_MinAge_CRC_toggleSlider);
+
+  // Initial check
+  v8_MinAge_CRC_toggleSlider();
+
+  // ****************************
+  // v9_MinAge_EC
+  const radio_v3_1 = document.getElementById('v3_1');
+  const radio_v3_2 = document.getElementById('v3_2');
+  const v9_MinAge_EC_sliderDiv = document.getElementById('v9_MinAge_EC_DiagnosisSlider');
+  const v9_MinAge_EC_Slider = document.getElementById('v9_MinAge_EC');
+  const v9_MinAge_EC_Display = document.getElementById('v9_MinAge_EC_value_display');
+
+  // Function to toggle slider visibility
+  function v9_MinAge_EC_toggleSlider() {
+    if (radio_v3_2.checked) {
+      v9_MinAge_EC_sliderDiv.style.display = 'block';
+      v9_MinAge_EC_Slider.required = true;
+    } else {
+      v9_MinAge_EC_sliderDiv.style.display = 'none';
+      v9_MinAge_EC_Slider.required = false;
+    }
+  }
+
+  // Update display value when slider moves
+  v9_MinAge_EC_Slider.addEventListener('input', function() {
+    v9_MinAge_EC_Display.textContent = this.value;
+  });
+
+  // Add event listeners to all radio buttons
+  radio_v3_1.addEventListener('change', v9_MinAge_EC_toggleSlider);
+  radio_v3_2.addEventListener('change', v9_MinAge_EC_toggleSlider);
+
+  // Initial check
+  v9_MinAge_EC_toggleSlider();
+
+// ****************************
+// v8_MinAge_CRC_FDR
+  const radio_v5_AB_1 = document.getElementById('v5_AB_1');
+  const radio_v5_AB_2 = document.getElementById('v5_AB_2');
+  const radio_v5_AB_3 = document.getElementById('v5_AB_3');
+  const v8_MinAge_CRC_FDR_sliderDiv = document.getElementById('v8_MinAge_CRC_FDR_DiagnosisSlider');
+  const v8_MinAge_CRC_FDR_Slider = document.getElementById('v8_MinAge_CRC_FDR');
+  const v8_MinAge_CRC_FDR_Display = document.getElementById('v8_MinAge_CRC_FDR_value_display');
+
+  // Function to toggle slider visibility
+  function v8_MinAge_CRC_FDR_toggleSlider() {
+    if (radio_v5_AB_2.checked || radio_v5_AB_3.checked) {
+      v8_MinAge_CRC_FDR_sliderDiv.style.display = 'block';
+      v8_MinAge_CRC_FDR_Slider.required = true;
+    } else {
+      v8_MinAge_CRC_FDR_sliderDiv.style.display = 'none';
+      v8_MinAge_CRC_FDR_Slider.required = false;
+    }
+  }
+
+  // Update display value when slider moves
+  v8_MinAge_CRC_FDR_Slider.addEventListener('input', function() {
+    v8_MinAge_CRC_FDR_Display.textContent = this.value;
+  });
+
+  // Add event listeners to all radio buttons
+  radio_v5_AB_1.addEventListener('change', v8_MinAge_CRC_FDR_toggleSlider);
+  radio_v5_AB_2.addEventListener('change', v8_MinAge_CRC_FDR_toggleSlider);
+  radio_v5_AB_3.addEventListener('change', v8_MinAge_CRC_FDR_toggleSlider);
+
+  // Initial check
+  v8_MinAge_CRC_FDR_toggleSlider();
+
+  // ****************************
+  // v9_MinAge_EC_FDR
+  const radio_v6_AB_1 = document.getElementById('v6_AB_1');
+  const radio_v6_AB_2 = document.getElementById('v6_AB_2');
+  const radio_v6_AB_3 = document.getElementById('v6_AB_3');
+  const v9_MinAge_EC_FDR_sliderDiv = document.getElementById('v9_MinAge_EC_FDR_DiagnosisSlider');
+  const v9_MinAge_EC_FDR_Slider = document.getElementById('v9_MinAge_EC_FDR');
+  const v9_MinAge_EC_FDR_Display = document.getElementById('v9_MinAge_EC_FDR_value_display');
+
+  // Function to toggle slider visibility
+  function v9_MinAge_EC_FDR_toggleSlider() {
+    if (radio_v6_AB_2.checked || radio_v6_AB_3.checked) {
+      v9_MinAge_EC_FDR_sliderDiv.style.display = 'block';
+      v9_MinAge_EC_FDR_Slider.required = true;
+    } else {
+      v9_MinAge_EC_FDR_sliderDiv.style.display = 'none';
+      v9_MinAge_EC_FDR_Slider.required = false;
+    }
+  }
+
+  // Update display value when slider moves
+  v9_MinAge_EC_FDR_Slider.addEventListener('input', function() {
+    v9_MinAge_EC_FDR_Display.textContent = this.value;
+  });
+
+  // Add event listeners to all radio buttons
+  radio_v6_AB_1.addEventListener('change', v9_MinAge_EC_FDR_toggleSlider);
+  radio_v6_AB_2.addEventListener('change', v9_MinAge_EC_FDR_toggleSlider);
+  radio_v6_AB_3.addEventListener('change', v9_MinAge_EC_FDR_toggleSlider);
+
+  // Initial check
+  v9_MinAge_EC_FDR_toggleSlider();
+
+  // ****************************
+  // v8_MinAge_CRC_SDR
+  const radio_v5_CD_1 = document.getElementById('v5_CD_1');
+  const radio_v5_CD_2 = document.getElementById('v5_CD_2');
+  const radio_v5_CD_3 = document.getElementById('v5_CD_3');
+  const v8_MinAge_CRC_SDR_sliderDiv = document.getElementById('v8_MinAge_CRC_SDR_DiagnosisSlider');
+  const v8_MinAge_CRC_SDR_Slider = document.getElementById('v8_MinAge_CRC_SDR');
+  const v8_MinAge_CRC_SDR_Display = document.getElementById('v8_MinAge_CRC_SDR_value_display');
+
+  // Function to toggle slider visibility
+  function v8_MinAge_CRC_SDR_toggleSlider() {
+    if (radio_v5_CD_2.checked || radio_v5_CD_3.checked) {
+      v8_MinAge_CRC_SDR_sliderDiv.style.display = 'block';
+      v8_MinAge_CRC_SDR_Slider.required = true;
+    } else {
+      v8_MinAge_CRC_SDR_sliderDiv.style.display = 'none';
+      v8_MinAge_CRC_SDR_Slider.required = false;
+    }
+  }
+
+  // Update display value when slider moves
+  v8_MinAge_CRC_SDR_Slider.addEventListener('input', function() {
+    v8_MinAge_CRC_SDR_Display.textContent = this.value;
+  });
+
+  // Add event listeners to all radio buttons
+  radio_v5_CD_1.addEventListener('change', v8_MinAge_CRC_SDR_toggleSlider);
+  radio_v5_CD_2.addEventListener('change', v8_MinAge_CRC_SDR_toggleSlider);
+  radio_v5_CD_3.addEventListener('change', v8_MinAge_CRC_SDR_toggleSlider);
+
+  // Initial check
+  v8_MinAge_CRC_SDR_toggleSlider();
+
+// ****************************
+// v9_MinAge_EC_SDR
+  const radio_v6_CD_1 = document.getElementById('v6_CD_1');
+  const radio_v6_CD_2 = document.getElementById('v6_CD_2');
+  const radio_v6_CD_3 = document.getElementById('v6_CD_3');
+  const v9_MinAge_EC_SDR_sliderDiv = document.getElementById('v9_MinAge_EC_SDR_DiagnosisSlider');
+  const v9_MinAge_EC_SDR_Slider = document.getElementById('v9_MinAge_EC_SDR');
+  const v9_MinAge_EC_SDR_Display = document.getElementById('v9_MinAge_EC_SDR_value_display');
+
+  // Function to toggle slider visibility
+  function v9_MinAge_EC_SDR_toggleSlider() {
+    if (radio_v6_CD_2.checked || radio_v6_CD_3.checked) {
+      v9_MinAge_EC_SDR_sliderDiv.style.display = 'block';
+      v9_MinAge_EC_SDR_Slider.required = true;
+    } else {
+      v9_MinAge_EC_SDR_sliderDiv.style.display = 'none';
+      v9_MinAge_EC_SDR_Slider.required = false;
+    }
+  }
+
+  // Update display value when slider moves
+  v9_MinAge_EC_SDR_Slider.addEventListener('input', function() {
+    v9_MinAge_EC_SDR_Display.textContent = this.value;
+  });
+
+  // Add event listeners to all radio buttons
+  radio_v6_CD_1.addEventListener('change', v9_MinAge_EC_SDR_toggleSlider);
+  radio_v6_CD_2.addEventListener('change', v9_MinAge_EC_SDR_toggleSlider);
+  radio_v6_CD_3.addEventListener('change', v9_MinAge_EC_SDR_toggleSlider);
+
+  // Initial check
+  v9_MinAge_EC_SDR_toggleSlider();
+});
+</script>
+<!-- **************** Cancer Screening End **************** -->
+
+<!-- Bootstrap JS -->
+<script src="{% static 'vendor/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+
+<!-- Vendors -->
+<script src="{% static 'vendor/aos/aos.js' %}"></script>
+
+<!-- Template Functions -->
+<script src="{% static 'js/functions.js' %}"></script>
+{% endblock %}

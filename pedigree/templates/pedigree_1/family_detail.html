@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ family.name }}</h1>
+<p>{{ family.description }}</p>
+
+<div class="mb-4">
+    <a href="{% url 'add_individual' family_id=family.id %}" class="btn btn-success">
+        Add Family Member
+    </a>
+</div>
+
+<h2>Standard Pedigree Chart</h2>
+<div class="pedigree-chart">
+    {{ graph_svg|safe }}
+</div>
+
+<h2>Interactive Pedigree</h2>
+<div class="interactive-pedigree">
+    {{ interactive_graph|safe }}
+</div>
+
+
+<h2>Family Members</h2>
+<ul class="list-group">
+    {% for individual in family.individuals.all %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            {{ individual.name }} ({{ individual.get_gender_display }})
+            {% if individual.affected %}<span class="badge bg-danger">Affected</span>{% endif %}
+        </div>
+        <a href="{% url 'edit_individual' individual_id=individual.id %}" class="btn btn-sm btn-outline-primary">
+            Edit
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+
+
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'pedigree/base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-danger text-white">
+        <h2>تایید حذف عضو</h2>
+    </div>
+    <div class="card-body">
+        <p>آیا از حذف «{{ member.name }}» مطمئن هستید؟</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">بله، حذف شود</button>
+            <a href="{% url 'pedigree:index_fa' %}" class="btn btn-secondary">انصراف</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -38,10 +38,12 @@ class Osteoporosis_RiskCalculator:
             osteoporosis_score += 2
 
         if chemotherapy == 'Yes':
-            osteoporosis_score += 5
+            osteoporosis_score += 15
+            #osteoporosis_score += 5
 
         if steroid == 'Yes':
-            osteoporosis_score += 3
+            osteoporosis_score += 5
+            #osteoporosis_score += 3
 
         if anticonvulsants == 'Yes':
             osteoporosis_score += 2

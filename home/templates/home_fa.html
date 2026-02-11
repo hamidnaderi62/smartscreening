@@ -16,7 +16,7 @@
 					<div class="tiny-slider-inner" data-autoplay="false" data-gutter="0" data-arrow="true" data-dots="false" data-items="1">
 
 						<!-- Card item START -->
-						<div class="card overflow-hidden h-500px h-md-600px text-center rounded-0" style="background-image:url({% static 'images/bg/bg1.png' %}); background-position: center left; background-size: cover;">
+						<div class="card overflow-hidden h-500px h-md-600px text-center rounded-0" style="background-image:url({% static 'images/smartscreening/smartscreening_banner1.png' %}); background-position: center left; background-size: cover;">
 							<!-- Background dark overlay -->
 							<div class="bg-overlay bg-dark opacity-6"></div>
 							<!-- Card image overlay -->
@@ -83,11 +83,25 @@
                                 <li class="list-group-item h6 d-flex fw-normal mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>غربالگری پوکی استخوان</li>
                                 <li class="list-group-item h6 d-flex fw-normal mb-0"><i class="bi bi-patch-check-fill text-success me-2"></i>غربالگری قلبی-عروقی</li>
                             </ul>
+
                             {% if request.user.is_authenticated %}
                                 <a href="{% url 'my_model:screening_list_fa' %}"  class="btn btn-primary mb-0 mt-4">ورود به غربالگری هوشمند</a>
                             {% else %}
-                                <a href="{% url 'account:login_fa' %}"  class="btn btn-primary mb-0 mt-4">ورود به غربالگری هوشمند</a>
+                                {% if request.session.organization_slug %}
+                                    <a href="{% url 'account:org_login_fa' org_slug=request.session.organization_slug %}"
+                                       class="btn btn-sm btn-dark mb-0">
+                                       ورود به غربالگری هوشمند
+                                    </a>
+                                    {% else %}
+                                    <a href="{% url 'account:org_login_fa' org_slug='smartcancer' %}" class="btn btn-sm btn-dark mb-0">
+                                       ورود به غربالگری هوشمند
+                                    </a>
+                                {% endif %}
                             {% endif %}
+
+                            <div class="text-danger mt-4">
+                                توجه : این نرم افزار یک ابزار تشخیصی نیست، صرفا به منظور آگاهی است و ارزیابی بالینی لازم است.
+                            </div>
 						</div>
 					</div>
 				</div>
@@ -148,6 +162,32 @@
 </section>
 <!-- Content_video END -->
 
+<!--Pedigree START -->
+<section id="pedigree">
+	<div class="container">
+		<div class="row g-4">
+            <!-- Action box item -->
+            <div class="col-lg-12 position-relative overflow-hidden">
+                <div class="bg-secondary rounded-3 bg-opacity-10 p-5 h-100">
+                    <!-- Content -->
+                    <div class="row">
+                        <div class="col-sm-12 position-relative">
+                            <h2 class="mb-1 h4" style="direction: rtl; text-align: right; font-family: Vazir, Tahoma, sans-serif;">
+                                پلتفرم هوشمند مشاوره ژنتیک سرطان
+                            </h2>
+                            <p class="mb-3 h5 fw-light" style="direction: rtl; text-align: right; font-family: Vazir, Tahoma, sans-serif;">
+                                پلتفرم آنلاین برای مشاوره ژنتیک، تشخیص زودهنگام سرطان با تولید خودکار شجره‌نامه
+                            </p>
+                            <a href="#" class="btn btn-warning mb-0" style="font-family: Vazir, Tahoma, sans-serif;">به زودی</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--Pedigree End -->
+
 <!--Team START -->
 <section id="team">
 	<div class="container" >
@@ -179,7 +219,9 @@
                         <div class="card bg-transparent">
                             <div class="position-relative">
                                 <!-- Image -->
-                                <img src="{{ team.image_file.url }}" class="card-img" alt="course image">
+                                {% if team.image_file %}
+                                    <img src="{{ team.image_file.url }}" class="card-img" alt="course image">
+                                {% endif %}
 
                             </div>
                             <!-- Card body -->
@@ -226,7 +268,9 @@
                             <div class="bg-body text-center p-4 rounded-3 border border-1 position-relative">
                                 <!-- Avatar -->
                                 <div class="avatar avatar-lg mb-3">
-                                    <img class="avatar-img rounded-circle" src="{{ team.image_file.url }}" alt="avatar">
+                                    {% if team.image_file %}
+                                        <img class="avatar-img rounded-circle" src="{{ team.image_file.url }}" alt="avatar">
+                                    {% endif %}
                                 </div>
                                 <!-- Title -->
                                 <h6 class="mb-2">{{ team.name }}</h6>
@@ -306,15 +350,24 @@
 							<div class="row align-items-center">
 								<!-- Title -->
 								<div class="col-lg-7">
-									<h3 class="text-white">تحلیل نوارقلب</h3>
-									<p class="text-white mb-3 mb-lg-0"> امکان تحلیل هوشمند تصاویر نوارقلب</p>
+									<h3 class="text-white"> نوارقلب</h3>
+									<p class="text-white mb-3 mb-lg-0">اسکن نوار قلب و ارجاع به متخصص</p>
 								</div>
 								<!-- Content and input -->
 								<div class="col-lg-5 text-lg-end">
                                     {% if request.user.is_authenticated %}
                                         <a href="{% url 'ecg:ecg_questions_fa' %}" class="btn btn-outline-warning mb-0">شروع کنید</a>
                                     {% else %}
-                                        <a href="{% url 'account:login_fa' %}" class="btn btn-outline-warning mb-0">شروع کنید</a>
+                                        {% if request.session.organization_slug %}
+                                            <a href="{% url 'account:org_login_fa' org_slug=request.session.organization_slug %}"
+                                               class="btn btn-sm btn-dark mb-0">
+                                               شروع کنید
+                                            </a>
+                                            {% else %}
+                                            <a href="{% url 'account:org_login_fa' org_slug='smartcancer' %}" class="btn btn-sm btn-dark mb-0">
+                                               شروع کنید
+                                            </a>
+                                        {% endif %}
                                     {% endif %}
 								</div>
 							</div>

@@ -1,0 +1,17 @@
+{% extends 'pedigree/base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>ویرایش عضو خانواده: {{ member.name }}</h2>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">ذخیره تغییرات</button>
+            <a href="{% url 'pedigree:index_fa' %}" class="btn btn-secondary">انصراف</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -120,32 +120,41 @@ class BreastCancer:
         bse_factor = 1
         mammograms_factor = 1
         syndrome_factor = 1
+        gene_mutation_factor = 1
         gene_mutation_fdr = 'No'
 
-        if alcohol == 'YES':
-            alcohol_factor = 1.05
+        if alcohol == 'Yes':
+            alcohol_factor = 1.1
 
         if breastfeeding == 'No':
-            breastfeeding_factor = 1.05
+            breastfeeding_factor = 1.1
 
-        if cbe == 'YES':
+        if cbe == 'Yes':
             cbe_factor = 1.1
 
-        if bse == 'YES':
+        if bse == 'Yes':
             bse_factor = 1.1
 
-        if mammograms == 'YES':
-            mammograms_factor = 1.1
+        if mammograms == 'Yes':
+            mammograms_factor = 1.7
 
-        if syndrome == 'YES':
-            syndrome_factor = 1.01
+        if syndrome == 'Yes':
+            syndrome_factor = 1.1
+
+        if gene_mutation == 'Yes':
+            gene_mutation_factor = 1.7
 
         if gene_mutation == 'Yes' and (fdr_cancer == 1 or fdr_cancer == 2):
             gene_mutation_fdr = 'Yes'
 
-        mymodel_gail_score = round(gail_score_abs_5 * alcohol_factor * breastfeeding_factor * cbe_factor * bse_factor * mammograms_factor * syndrome_factor, 1)
+        mymodel_gail_score = round(gail_score_abs_5 * alcohol_factor * breastfeeding_factor * cbe_factor * bse_factor * mammograms_factor * syndrome_factor * gene_mutation_factor, 2)
 
-        breast_gail_threshold = 1
+
+
+        print(f"mammograms:{mammograms}")
+        print(f"gail_score_abs_5:{gail_score_abs_5}")
+        print(f"mymodel_gail_score:{mymodel_gail_score}")
+        breast_gail_threshold = 1.7
 
         results=({"gail_score_abs_5": gail_score_abs_5,
                    "gail_score_ave_5": gail_score_ave_5,

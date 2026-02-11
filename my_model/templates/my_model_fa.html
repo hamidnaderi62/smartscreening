@@ -90,24 +90,25 @@ Page content START -->
                                                           required
                                                           name="age"
                                                           id="age"
-                                                          min="10"
-                                                          value="60"
-                                                          max="110"
+                                                          min="25"
+                                                          value="55"
+                                                          max="115"
                                                           step="1"
                                                         >
                                                         <div class="d-flex justify-content-between mt-1 px-2">
-                                                          <small class="text-muted">10</small>
-                                                          <small class="text-muted">30</small>
-                                                          <small class="text-muted">50</small>
+                                                          <small class="text-muted">25</small>
+                                                          <small class="text-muted">40</small>
+                                                          <small class="text-muted">55</small>
                                                           <small class="text-muted">70</small>
-                                                          <small class="text-muted">90</small>
-                                                          <small class="text-muted">110</small>
+                                                          <small class="text-muted">85</small>
+                                                          <small class="text-muted">100</small>
+                                                          <small class="text-muted">115</small>
                                                         </div>
                                                       </div>
                                                       <!-- Value Display Box (now below slider) -->
                                                       <div class="d-flex justify-content-center">
                                                         <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
-                                                          <span id="age_value_display" class="d-block fw-bold">60</span>
+                                                          <span id="age_value_display" class="d-block fw-bold">55</span>
                                                           <small class="d-block">سال</small>
                                                         </div>
                                                       </div>
@@ -644,7 +645,6 @@ Page content START -->
                             </div>
                             <!-- Accordion END -->
 
-
                             <!-- Accordion START -->
                             <div class="accordion accordion-icon accordion-bg-light" id="accordion_medical">
                                 <!-- Item -->
@@ -813,7 +813,7 @@ Page content START -->
                                     <h6 class="accordion-header font-base" id="heading-1">
                                         <a class="accordion-button fw-bold rounded collapsed d-block pe-4" href="#collapse-breast" data-bs-toggle="collapse" data-bs-target="#collapse-breast" aria-expanded="false" aria-controls="collapse-breast">
 
-                                            <span class="mb-0">سرطان سینه</span>
+                                            <span class="mb-0"> سرطان سینه</span>
                                             <span class="small d-block mt-1"></span>
                                         </a>
                                     </h6>
@@ -846,7 +846,7 @@ Page content START -->
                                                 <div class="col-md-6">
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                                          <div class="container">
-                                                             <label for="biopsy_num" class="form-label fw-bold text-dark mb-3">         آیا بیمار تا به حال بیوپسی سینه با تشخیص خوش خیم (نه سرطانی) انجام داده است؟</label>
+                                                             <label for="biopsy_num" class="form-label fw-bold text-dark mb-3">چند نمونه‌برداری پستان با تشخیص خوش‌خیم داشته اید؟ </label>
                                                              <div class="vstack gap-2">
                                                                  <div>
                                                                      <input type="radio" class="btn-check" value="1" checked name="biopsy_num" id="biopsy_num_1">
@@ -1139,7 +1139,7 @@ Page content START -->
                                                           name="psa"
                                                           id="psa"
                                                           min="0"
-                                                          value="10"
+                                                          value="2"
                                                           max="50"
                                                           step="1"
                                                         >
@@ -1155,7 +1155,7 @@ Page content START -->
                                                       <!-- Value Display Box (now below slider) -->
                                                       <div class="d-flex justify-content-center">
                                                         <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
-                                                          <span id="psa_value_display" class="d-block fw-bold">50</span>
+                                                          <span id="psa_value_display" class="d-block fw-bold">2</span>
                                                           <small class="d-block">ng/ml</small>
                                                         </div>
                                                       </div>
@@ -1567,7 +1567,7 @@ Page content START -->
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                                          <div class="container">
                                                              <label for="std" class="form-label fw-bold text-dark mb-3">
-                                                              آیا از STD استفاده میکنید؟
+                                                              سابقه ابتلا به STD
                                                              </label>
                                                              <div class="vstack gap-2">
                                                                  <div>
@@ -2228,8 +2228,12 @@ Page content START -->
                                                                      <label class="btn btn-outline-primary w-100" for="painmed_1">بلی در حاضر </label>
                                                                  </div>
                                                                  <div>
-                                                                     <input type="radio" class="btn-check" value="Yes, but not currently" checked name="painmed" id="painmed_2">
+                                                                     <input type="radio" class="btn-check" value="Yes, but not currently" name="painmed" id="painmed_2">
                                                                      <label class="btn btn-outline-primary w-100" for="painmed_2">بلی ولی نه در حاضر</label>
+                                                                 </div>
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="Yes, but not currently" checked name="painmed" id="painmed_3">
+                                                                     <label class="btn btn-outline-primary w-100" for="painmed_3">خیر</label>
                                                                  </div>
                                                             </div>
                                                          </div>
@@ -2248,8 +2252,12 @@ Page content START -->
                                                                      <label class="btn btn-outline-primary w-100" for="estrogen_1">بلی در حاضر </label>
                                                                  </div>
                                                                  <div>
-                                                                     <input type="radio" class="btn-check" value="Yes-previously" checked name="estrogen" id="estrogen_2">
+                                                                     <input type="radio" class="btn-check" value="Yes-previously" name="estrogen" id="estrogen_2">
                                                                      <label class="btn btn-outline-primary w-100" for="estrogen_2">بلی در گذشته</label>
+                                                                 </div>
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="Yes-previously" checked name="estrogen" id="estrogen_3">
+                                                                     <label class="btn btn-outline-primary w-100" for="estrogen_3">خیر</label>
                                                                  </div>
                                                             </div>
                                                          </div>
@@ -2767,7 +2775,7 @@ Page content START -->
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                                          <div class="container">
                                                              <label for="menopause" class="form-label fw-bold text-dark mb-3">
-                                                               آیا یائسگی را پشت سر گذاشته‌اید؟
+                                                               یائسگی زودرس داشته اید؟
                                                              </label>
                                                              <div class="vstack gap-2">
                                                                  <div>
@@ -3090,6 +3098,78 @@ Page content START -->
                                                                  <div>
                                                                      <input type="radio" class="btn-check" value="No" checked  name="family_history_stroke" id="family_history_stroke_2">
                                                                      <label class="btn btn-outline-primary w-100" for="family_history_stroke_2">خیر</label>
+                                                                 </div>
+                                                            </div>
+                                                         </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            {% endwith %}
+                            <!-- Accordion END -->
+
+                            <!-- Accordion START -->
+                            {% with pancreatic_assessments=selected_assessments|filter_assessment_title:'Pancreatic_Cancer' %}
+                            <div class="accordion accordion-icon accordion-bg-light {% if not pancreatic_assessments %}d-none{% endif %}" id="accordion-pancreatic">
+                                <!-- Item -->
+                                <div class="accordion-item mb-3">
+                                    <h6 class="accordion-header font-base" id="heading-1">
+                                        <a class="accordion-button fw-bold rounded collapsed d-block pe-4" href="#collapse-pancreatic" data-bs-toggle="collapse" data-bs-target="#collapse-pancreatic" aria-expanded="false" aria-controls="collapse-pancreatic">
+
+                                            <span class="mb-0">سرطان پانکراس</span>
+                                            <span class="small d-block mt-1"></span>
+                                        </a>
+                                    </h6>
+                                    <div id="collapse-pancreatic" class="accordion-collapse collapse" aria-labelledby="heading-1" data-bs-parent="#accordion_pancreatic">
+                                        <div class="accordion-body mt-3">
+                                            <div class="vstack gap-3">
+
+                                                <div class="col-md-6">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                         <div class="container">
+                                                             <label for="family_pancreatic_cancer" class="form-label fw-bold text-dark mb-3">
+                                                            برادر، خواهر یا والدین مبتلا سرطان پانکراس
+                                                            </label>
+                                                             <div class="vstack gap-2">
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="Yes"  name="family_pancreatic_cancer" id="family_pancreatic_cancer_1">
+                                                                     <label class="btn btn-outline-primary w-100" for="family_pancreatic_cancer_1">بلی</label>
+                                                                 </div>
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="No" checked  name="family_pancreatic_cancer" id="family_pancreatic_cancer_2">
+                                                                     <label class="btn btn-outline-primary w-100" for="family_pancreatic_cancer_2">خیر</label>
+                                                                 </div>
+                                                            </div>
+                                                         </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6" id="family_pancreatic_cancer_InfoBox" style="display: none;">
+	<div class="d-flex justify-content-between align-items-center mb-2">
+		 <div class="container">
+از آنجایی که شما سابقه سکته مغزی داشته‌اید، سیستم قادر به ارائه تخمین دقیقی از خطر نمی باشد. در صورت داشتن هرگونه سوال، لطفاً با پزشک خود مشورت کنید. اگرچه می‌توانید همچنان ریسک خطر را مشاهده کنید، اما لطفاً به خاطر داشته باشید که نتایج، تخمین دقیقی از خطر شما نیستند.                                                          </div>
+	</div>
+</div>
+
+                                                <div class="col-md-6">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                         <div class="container">
+                                                             <label for="chronic_pancreatitis" class="form-label fw-bold text-dark mb-3">
+                                                            سابقه پانکراتیت مزمن
+                                                            </label>
+                                                             <div class="vstack gap-2">
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="Yes"  name="chronic_pancreatitis" id="chronic_pancreatitis_1">
+                                                                     <label class="btn btn-outline-primary w-100" for="chronic_pancreatitis_1">بلی</label>
+                                                                 </div>
+                                                                 <div>
+                                                                     <input type="radio" class="btn-check" value="No" checked  name="chronic_pancreatitis" id="chronic_pancreatitis_2">
+                                                                     <label class="btn btn-outline-primary w-100" for="chronic_pancreatitis_2">خیر</label>
                                                                  </div>
                                                             </div>
                                                          </div>

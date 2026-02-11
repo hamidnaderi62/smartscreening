@@ -11,8 +11,11 @@ urlpatterns = [
     path('', include('home.urls')),
     path('account/', include('account.urls', namespace='account')),
     path('my_model/', include('my_model.urls', namespace='my_model')),
+    path('cpanel/', include('cpanel.urls', namespace='cpanel')),
     path('ecg/', include('ecg.urls', namespace='ecg')),
+    path('pedigreejs/', include('pedigreejs.urls', namespace='pedigreejs')),
     path('pedigree/', include('pedigree.urls', namespace='pedigree')),
+
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

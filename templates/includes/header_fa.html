@@ -34,7 +34,9 @@
                         <li class="nav-item"><a class="nav-link" href="#faq">سوالات متداول</a></li>
                     </ul>
                 {% else %}
+                    <ul>
                         <li class="nav-item"><a class="nav-link" href="{% url "home:home_fa" %}">صفحه اصلی</a></li>
+                    </ul>
                 {% endif %}
 				<!-- Nav Main menu END -->
 
@@ -43,6 +45,16 @@
 
             {% if request.user.is_authenticated %}
                 <!-- Profile START -->
+                {% if request.user.profile.user_type == 'Organization' %}
+                    <ul class="navbar-nav navbar-nav-scroll me-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="demoMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">پنل مدیریت</a>
+                        <ul class="dropdown-menu" aria-labelledby="demoMenu">
+                            <li> <a class="dropdown-item" href="{% url "cpanel:admin_users_list_fa" %}">لیست کاربران</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                {% endif %}
                 <div class="dropdown ms-1 ms-lg-0">
                     <a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
                         {% if request.user.profile.image %}
@@ -63,7 +75,7 @@
                         <li> <hr class="dropdown-divider"></li>
                         <!-- Links -->
                         <li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>تنظیمات</a></li>
-                        <li><a class="dropdown-item bg-danger-soft-hover" href="{% url 'account:logout_fa' %}"><i class="bi bi-power fa-fw me-2"></i>خروج</a></li>
+                        <li><a class="dropdown-item bg-danger-soft-hover" href="{% url 'account:org_logout_fa' %}"><i class="bi bi-power fa-fw me-2"></i>خروج</a></li>
                         <li> <hr class="dropdown-divider"></li>
                         <!-- Dark mode options START -->
                         <li>
@@ -92,10 +104,20 @@
                         <!-- Dark mode options END-->
                     </ul>
                 </div>
+
             {% else %}
                 <div class="navbar-nav ms-2">
-				    <a href="{% url 'account:login_fa' %}" class="btn btn-sm btn-dark mb-0">ورود</a>
-			    </div>
+                    {% if request.session.organization_slug %}
+                    <a href="{% url 'account:org_login_fa' org_slug=request.session.organization_slug %}"
+                       class="btn btn-sm btn-dark mb-0">
+                       ورود
+                    </a>
+                    {% else %}
+                    <a href="{% url 'account:org_login_fa' org_slug='smartcancer' %}" class="btn btn-sm btn-dark mb-0">
+                       ورود عمومی
+                    </a>
+                    {% endif %}
+                </div>
             {% endif %}
 		</div>
 	</nav>

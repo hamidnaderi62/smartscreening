@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load pedigree_tags %}
+{% block content %}
+<h1>Genetic Analysis for {{ family.name }}</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>Basic Statistics</h3>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item">Total Individuals: {{ total_individuals }}</li>
+                    <li class="list-group-item">Males: {{ males }} ({{ males|floatformat:2 }}%)</li>
+                    <li class="list-group-item">Females: {{ females }} ({{ females|floatformat:2 }}%)</li>
+                    <li class="list-group-item">Affected: {{ affected_count }} ({{ affected_percentage|floatformat:2 }}%)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3>Inheritance Patterns</h3>
+            </div>
+            <div class="card-body">
+                {% if inheritance_patterns.autosomal_dominant %}
+                <div class="alert alert-info">
+                    <strong>Autosomal Dominant</strong> pattern detected
+                </div>
+                {% endif %}
+                
+                {% if inheritance_patterns.autosomal_recessive %}
+                <div class="alert alert-info">
+                    <strong>Autosomal Recessive</strong> pattern detected
+                </div>
+                {% endif %}
+                
+                {% if inheritance_patterns.x_linked %}
+                <div class="alert alert-info">
+                    <strong>X-Linked</strong> pattern suspected
+                </div>
+                {% endif %}
+                
+                {% if not inheritance_patterns.autosomal_dominant and not inheritance_patterns.autosomal_recessive and not inheritance_patterns.x_linked %}
+                <div class="alert alert-warning">
+                    No clear inheritance pattern detected
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>Generation Analysis</h3>
+    </div>
+    <div class="card-body">
+        {% for generation, members in generations.items %}
+        <h4>Generation {{ generation }}</h4>
+        <ul>
+            {% for member in members %}
+            <li>
+                {{ member.name }} 
+                ({{ member.get_gender_display }})
+                {% if member.affected %}<span class="badge bg-danger">Affected</span>{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>Risk Analysis</h3>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Individual</th>
+                    <th>Estimated Risk</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for individual in family.individuals.all %}
+                {% if not individual.affected %}
+                <tr>
+                    <td>{{ individual.name }}</td>
+                    <td>{{ risk_analysis|get_item:individual.id|floatformat:2 }}%</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

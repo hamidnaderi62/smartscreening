@@ -26,10 +26,21 @@ class FamilyMember(models.Model):
     age = models.PositiveIntegerField(verbose_name="سن فعلی یا سن فوت")
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, verbose_name="وضعیت زنده یا فوت شده")
     parents = models.ManyToManyField('self', symmetrical=False, blank=True, verbose_name="والدین")
+    generation = models.IntegerField(default=0, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        # First save the instance to get an ID
+        super().save(*args, **kwargs)
+
+        # Now handle the generation calculation
+        if self.parents.exists():
+            self.generation = max(p.generation for p in self.parents.all()) + 1
+            # Need to save again if generation changed
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = "عضو خانواده"
-        verbose_name_plural = "اعضای خانواده"
+        verbose_name = "FamilyMember"
+        verbose_name_plural = "FamilyMembers"

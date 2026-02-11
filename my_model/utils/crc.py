@@ -384,4 +384,10 @@ class CRC:
         "premm_score": premm_score,
         "premm_threshold": premm_threshold})
 
+
+        print(f"crcpro_score:{crcpro_score}")
+        print(f"crcpro_threshold:{crcpro_threshold}")
+        print(f"premm_score:{premm_score}")
+        print(f"premm_threshold:{premm_threshold}")
+
         return results

@@ -3,7 +3,7 @@ import requests
 import json
 
 from django.shortcuts import render
-from .models import MyModel
+from .models import MyModel,AssessmentGroup,Assessment
 from .utils.diabetes import *
 from .utils.breast_cancer import *
 from .utils.crc import *
@@ -25,6 +25,11 @@ import math
 from django.conf import settings
 from persiantools.jdatetime import JalaliDate
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+import json
+
 assessments = [
         {
             "id": 1,
@@ -32,7 +37,9 @@ assessments = [
             "title_fa": "ارزیابی ریسک سرطان سینه",
             "desc": "Breast Cancer Risk Assessment",
             "desc_fa": "ارزیابی ریسک سرطان سینه",
-            "image": "heart_screening.jpg",
+            "image": "breast.png",
+            "tags":"سرطان سینه",
+            "speciality":1,
             "groups": ['Female'],
             "active": 1
         },
@@ -42,7 +49,9 @@ assessments = [
             "title_fa": "ارزیابی ریسک سرطان کلورکتال",
             "desc": "Colorectal Cancer Risk Assessment",
             "desc_fa": "ارزیابی ریسک سرطان کلورکتال",
-            "image": "heart_screening.jpg",
+            "image": "colorectal.png",
+            "tags":"سرطان کلورکتال",
+            "speciality":1,
             "groups": ['Male', 'Female'],
             "active": 1
         },
@@ -52,7 +61,9 @@ assessments = [
             "title_fa": "ارزیابی ریسک سرطان پروستات",
             "desc": "Prostate Cancer Risk Assessment",
             "desc_fa": "ارزیابی ریسک سرطان پروستات",
-            "image": "heart_screening.jpg",
+            "image": "prostate.png",
+            "tags": "سرطان پروستات",
+            "speciality":1,
             "groups": ['Male'],
             "active": 1
         },
@@ -62,7 +73,9 @@ assessments = [
             "title_fa": "ارزیابی ریسک سرطان دهانه رحم",
             "desc": "Cervical Cancer Risk Assessment",
             "desc_fa": "ارزیابی ریسک سرطان دهانه رحم",
-            "image": "heart_screening.jpg",
+            "image": "cervical.png",
+            "tags": "سرطان دهانه رحم",
+            "speciality": 1,
             "groups": ['Female'],
             "active": 1
         },
@@ -72,7 +85,9 @@ assessments = [
             "title_fa": "ارزیابی ریسک دیابت",
             "desc": "Diabetes Risk Assessment",
             "desc_fa": "ارزیابی ریسک دیابت",
-            "image": "heart_screening.jpg",
+            "image": "diabetes.png",
+            "tags": "دیابت",
+            "speciality": 1,
             "groups": ['Male', 'Female'],
             "active": 1
         },
@@ -82,7 +97,9 @@ assessments = [
             "title_fa": "ارزیابی ریسک قلبی-عروقی",
             "desc": "Cardiovascular Disease Risk Assessment",
             "desc_fa": "ارزیابی ریسک قلبی-عروقی",
-            "image": "heart_screening.jpg",
+            "image": "cardiovasculare.png",
+            "tags": "قلبی-عروقی",
+            "speciality": 1,
             "groups": ['Male', 'Female'],
             "active": 1
         },
@@ -92,7 +109,9 @@ assessments = [
             "title_fa": "ارزیابی ریسک سرطان پوست",
             "desc": "Melanoma Cancer Risk Assessment",
             "desc_fa": "ارزیابی ریسک سرطان پوست",
-            "image": "heart_screening.jpg",
+            "image": "melanoma.png",
+            "tags": "سرطان پوست",
+            "speciality": 1,
             "groups": ['Male', 'Female'],
             "active": 1
         },
@@ -102,7 +121,9 @@ assessments = [
             "title_fa": "ارزیابی ریسک پوکی استخوان",
             "desc": "Osteoporosis Risk Assessment",
             "desc_fa": "ارزیابی ریسک پوکی استخوان",
-            "image": "heart_screening.jpg",
+            "image": "osteoporosis.png",
+            "tags": "پوکی استخوان",
+            "speciality": 1,
             "groups": ['Male', 'Female'],
             "active": 1
         },
@@ -112,7 +133,9 @@ assessments = [
             "title_fa": "ارزیابی ریسک سرطان تخمدان",
             "desc": "Ovarian Cancer Risk Assessment",
             "desc_fa": "ارزیابی ریسک سرطان تخمدان",
-            "image": "heart_screening.jpg",
+            "image": "ovarian.png",
+            "tags": "سرطان تخمدان",
+            "speciality": 1,
             "groups": ['Female'],
             "active": 1
         },
@@ -122,7 +145,9 @@ assessments = [
             "title_fa": "ارزیابی ریسک سرطان معده",
             "desc": "Stomach Cancer Risk Assessment",
             "desc_fa": "ارزیابی ریسک سرطان معده",
-            "image": "heart_screening.jpg",
+            "image": "stomach.png",
+            "tags": "سرطان معده",
+            "speciality": 1,
             "groups": ['Male', 'Female'],
             "active": 1
         },
@@ -132,7 +157,9 @@ assessments = [
             "title_fa": "ارزیابی ریسک سکته مغزی",
             "desc": "Stroke Risk Assessment",
             "desc_fa": "ارزیابی ریسک سکته مغزی",
-            "image": "heart_screening.jpg",
+            "image": "stroke.png",
+            "tags": "سکته مغزی",
+            "speciality": 1,
             "groups": ['Male', 'Female'],
             "active": 1
         },
@@ -142,13 +169,16 @@ assessments = [
             "title_fa": "ارزیابی ریسک سرطان پانکراس",
             "desc": "Pancreatic Cancer Risk Assessment",
             "desc_fa": "ارزیابی ریسک سرطان پانکراس",
-            "image": "heart_screening.jpg",
+            "image": "pancreatic.png",
+            "tags": "سرطان پانکراس",
+            "speciality": 1,
             "groups": ['Male', 'Female'],
             "active": 1
         },
     ]
 
 def screening_list_fa(request):
+    #assessments =  Assessment.objects.prefetch_related('groups').all()
     return render(request, 'screening_list_fa.html', {'assessments' : assessments})
 
 def dashboard_fa(request):
@@ -163,6 +193,12 @@ def dashboard_detail_fa(request, assessment_id=None):
 
     date_history = list(reversed([JalaliDate(my_model.created.date(), locale='fa').strftime("%Y-%m-%d") for my_model in my_models]))
     context['date_history'] = date_history
+
+    param_tags = ''
+    param_speciality = -1
+
+    param_tags = assessments[assessment_id-1]['tags']
+    param_speciality = assessments[assessment_id-1]['speciality']
 
     if assessment_id == 1:
         gail_score_abs_5_history = list(reversed([float(my_model.gail_score_abs_5) for my_model in my_models if my_model.gail_score_abs_5]))
@@ -225,14 +261,13 @@ def dashboard_detail_fa(request, assessment_id=None):
 
 
 ### Related Contents
-    param = 'دیابت'
-    res_related_contents = requests.get(f'{settings.SMARTLIFE_BASE_URL}/filter_content_list?q={param}')
+    res_related_contents = requests.get(f'{settings.SMARTLIFE_BASE_URL}/filter_content_list?q={param_tags}')
     #res_related_contents = requests.get(f'https://smartcancer.ir/smartlife/filter_content_list?q={param}')
     if res_related_contents.content:
         related_contents = res_related_contents.json()
 
-    speciality = 3
-    res_related_doctors = requests.get(f'{settings.SMARTLIFE_BASE_URL}/doctor/filter_doctor_list?q={speciality}')
+
+    res_related_doctors = requests.get(f'{settings.SMARTLIFE_BASE_URL}/doctor/filter_doctor_list?q={param_speciality}')
     #res_related_doctors = requests.get(f'https://smartcancer.ir/smartlife/doctor/filter_doctor_list?q={speciality}')
     if res_related_doctors.content:
         related_doctors = res_related_doctors.json()
@@ -244,7 +279,7 @@ def dashboard_detail_fa(request, assessment_id=None):
 
 def dashboard_comprehensive_fa(request, code=None):
     context = {}
-    code = '1000'
+    # code = '1000'
 
 ### Get assessment history
     my_models = MyModel.objects.filter(code=code).order_by('-created')[:5]
@@ -949,340 +984,297 @@ def calculate_my_model(request):
 
     for item in selected_assessments:
         if item['title'] == 'Diabetes':
+            item['score'] = idf_score
+            item['total_score'] = 30
+            item['desc_file_fa'] = 'diabetes_fa.pdf'
             if 0 <= idf_score <= 6:
-                item['score'] = idf_score
                 item['status'] = 'Low Risk'
                 item['status_fa'] = 'ریسک کم'
                 item['color_class'] = 'bg-success'
                 item['recommendation'] = 'Maintain healthy lifestyle: Balanced diet and 150 mins/week moderate exercise.'
-                item['recommendation_fa'] = 'سبک زندگی سالم: رژیم متعادل و ۱۵۰ دقیقه ورزش متوسط در هفته.'
+                item['recommendation_fa'] = 'اصلاح سبک زندگی'
 
             elif 7 <= idf_score <= 11:
-                item['score'] = idf_score
                 item['status'] = 'Slightly Increased Risk'
                 item['status_fa'] = 'ریسک تقریبا کم'
                 item['color_class'] = 'bg-info'
                 item['recommendation'] = 'Lifestyle modification + annual glucose check. Consider HbA1c testing.'
-                item['recommendation_fa'] = 'اصلاح سبک زندگی + آزمایش سالانه قند خون. تست HbA1c توصیه می‌شود.'
+                item['recommendation_fa'] = 'اصلاح سبک زندگی'
 
             elif 12 <= idf_score <= 14:
-                item['score'] = idf_score
                 item['status'] = 'Average Risk'
                 item['status_fa'] = 'ریسک متوسط'
                 item['color_class'] = 'bg-warning'
                 item['recommendation'] = 'Medical consultation required. Monitor fasting glucose every 6 months.'
-                item['recommendation_fa'] = 'مشاوره پزشکی ضروری است. کنترل قند ناشتا هر ۶ ماه.'
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
 
             elif 15 <= idf_score <= 20:
-                item['score'] = idf_score
                 item['status'] = 'High Risk'
                 item['status_fa'] = 'ریسک زیاد'
                 item['color_class'] = 'bg-danger'
                 item['recommendation'] = 'Urgent intervention: OGTT test + potential metformin therapy.'
-                item['recommendation_fa'] = 'اقدام فوری: تست تحمل گلوکز (OGTT) + احتمال شروع متفورمین.'
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
 
             elif idf_score > 20:
-                item['score'] = idf_score
                 item['status'] = 'Very High Risk'
                 item['status_fa'] = 'ریسک خیلی زیاد'
                 item['color_class'] = 'bg-danger'
                 item['recommendation'] = 'Immediate endocrinology referral. Start pharmacological prevention.'
-                item['recommendation_fa'] = 'مراجعه فوری به متخصص غدد. شروع پیشگیری دارویی.'
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
 
         if item['title'] == 'Cardiovascular_Disease':
+            item['score'] = ascvd_score
+            item['total_score'] = 30
+            item['desc_file_fa'] = 'cvd_fa.pdf'
             if ascvd_score is None:
-                item['score'] = ascvd_score # 0
                 item['status'] = 'Not supported'
                 item['status_fa'] = 'بازه سنی پشتیبانی نمی شود'
                 item['color_class'] = 'bg-primary'
                 item['recommendation'] = 'Age outside 40-79 range'
                 item['recommendation_fa'] = 'محدوده سنی نامعتبر (۴۰-۷۹ سال)'
             elif ascvd_score < 5:
-                item['score'] = ascvd_score
                 item['status'] = 'Low risk'
                 item['status_fa'] = 'ریسک کم'
                 item['color_class'] = 'bg-success'
                 item['recommendation'] = 'Lifestyle prevention'
-                item['recommendation_fa'] = 'پیشگیری با سبک زندگی سالم'
+                item['recommendation_fa'] = 'اصلاح سبک زندگی'
             elif (ascvd_score >= 5) and (ascvd_score <= 7.4):
-                item['score'] = ascvd_score
                 item['status'] = 'Borderline risk'
                 item['status_fa'] = 'ریسک کم-متوسط'
                 item['color_class'] = 'bg-info'
                 item['recommendation'] = 'LDL management + lifestyle'
-                item['recommendation_fa'] = 'کنترل LDL + تغییر سبک زندگی'
+                item['recommendation_fa'] = 'اصلاح سبک زندگی'
             elif (ascvd_score >= 7.5) and (ascvd_score < 19.9):
-                item['score'] = ascvd_score
                 item['status'] = 'Intermediate risk'
                 item['status_fa'] = 'ریسک متوسط'
                 item['color_class'] = 'bg-warning'
                 item['recommendation'] = 'Moderate statins + risk factor control'
-                item['recommendation_fa'] = 'استاتین متوسط + کنترل فاکتورهای خطر'
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             elif ascvd_score >= 20:
-                item['score'] = ascvd_score
                 item['status'] = 'High risk'
                 item['status_fa'] = 'ریسک زیاد'
                 item['color_class'] = 'bg-danger'
                 item['recommendation'] = 'Aggressive lipid-lowering therapy'
-                item['recommendation_fa'] = 'درمان تهاجمی کاهش چربی خون'
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
 
         if item['title'] == 'Breast_Cancer':
-            if gail_score_abs_5 >= 5.0 or gail_score_abs_90 >= 30:
-                item['score'] = mymodel_gail_score
-                item['status'] = 'High Risk'
-                item['status_fa'] = 'ریسک زیاد'
-                item['color_class'] = 'bg-danger'
-                item['recommendation'] = 'Medical advice, medicine'
-                item['recommendation_fa'] = 'مشاوره پزشکی، پیشگیری دارویی'
-            elif gail_score_abs_5 >= 3.0 or gail_score_abs_90 >= 25:
-                item['score'] = mymodel_gail_score
+            item['score'] = mymodel_gail_score
+            item['total_score'] = 10
+            item['desc_file_fa'] = 'breast_cancer_fa.pdf'
+            if mymodel_gail_score >= 1.7:
                 item['status'] = 'Intermediate Risk'
                 item['status_fa'] = 'ریسک متوسط-بالا'
                 item['color_class'] = 'bg-warning'
                 item['recommendation'] = 'May need additional tests (e.g., MRI)'
-                item['recommendation_fa'] = 'بررسی‌های تکمیلی (MRI)'
-            elif gail_score_abs_5 >= 1.67 or gail_score_abs_90 >= 20:
-                item['score'] = mymodel_gail_score
-                item['status'] = 'Average Risk'
-                item['status_fa'] = 'ریسک متوسط'
-                item['color_class'] = 'bg-info'
-                item['recommendation'] = 'Follow standard mammogram'
-                item['recommendation_fa'] = 'پیگیری منظم ماموگرافی'
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             else:
-                item['score'] = mymodel_gail_score
                 item['status'] = 'Low Risk'
                 item['status_fa'] = 'ریسک کم'
                 item['color_class'] = 'bg-success'
                 item['recommendation'] = 'Routine screening'
-                item['recommendation_fa'] = 'غربالگری معمول'
+                item['recommendation_fa'] = 'اصلاح سبک زندگی'
 
         if item['title'] == 'Colorectal_Cancer':
-            if premm_score >= 25:
-                item['score'] = premm_score
+            item['score'] = premm_score
+            item['total_score'] = 5
+            item['desc_file_fa'] = 'colon_cancer_fa.pdf'
+            if premm_score >= 2.5:
                 item['status'] = 'High Risk'
-                item['status_fa'] = 'ریسک زیاد'
-                item['color_class'] = 'bg-danger'
-                item['recommendation'] = 'Annual colonoscopy + Consider prophylactic colectomy if mutations are confirmed.'
-                item['recommendation_fa'] = 'کولونوسکوپی سالانه + جراحی پیشگیرانه (کولکتومی) در صورت تایید جهش ها'
-            elif premm_score >= 10:
-                item['score'] = premm_score
-                item['status'] = 'Intermediate Risk'
                 item['status_fa'] = 'ریسک متوسط-بالا'
-                item['color_class'] = 'bg-warning'
-                item['recommendation'] = 'Genetic testing for Lynch Syndrome + colonoscopy every 1-2 years.'
-                item['recommendation_fa'] = 'آزمایش ژنتیک برای بررسی جهش‌های سندرم لینچ + کولونوسکوپی هر ۱-۲ سال.'
-            elif premm_score >= 2.5:
-                item['score'] = premm_score
-                item['status'] = 'Moderate Risk'
-                item['status_fa'] = 'ریسک متوسط'
-                item['color_class'] = 'bg-info'
-                item['recommendation'] = 'Begin screening earlier (e.g., age 45) and repeat every 5 years.'
-                item['recommendation_fa'] = 'شروع کولونوسکوپی در سن پایین‌تر (مثلاً ۴۵ سالگی) و تکرار هر ۵ سال.'
+                item['color_class'] = 'bg-danger'
+                item['recommendation'] = 'Referral for genetic evaluation is recommended.'
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             else:
-                item['score'] = premm_score
                 item['status'] = 'Low Risk'
                 item['status_fa'] = 'ریسک کم'
                 item['color_class'] = 'bg-success'
                 item['recommendation'] = 'Follow average-risk guidelines (colonoscopy every 10 years starting at age 50).'
-                item['recommendation_fa'] = 'کولونوسکوپی هر ۱۰ سال از سن ۵۰ سالگی (طبق دستورالعمل‌های معمول).'
+                item['recommendation_fa'] = 'اصلاح سبک زندگی'
 
         if item['title'] == 'Cervical_Cancer':
+            item['score'] = cervical_cancer_score
+            item['total_score'] = 3
+            item['desc_file_fa'] = 'cervical_cancer_fa.pdf'
             if cervical_cancer_score  == 3:
-                item['score'] = cervical_cancer_score
                 item['status'] = 'High Risk'
                 item['status_fa'] = 'ریسک زیاد'
                 item['color_class'] = 'bg-danger'
                 item['recommendation'] = 'Immediate colposcopy and possible biopsy required'
-                item['recommendation_fa'] = 'کولپوسکوپی فوری و احتمالاً بیوپسی ضروری است'
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             elif cervical_cancer_score  == 2:
-                item['score'] = cervical_cancer_score
                 item['status'] = 'Intermediate Risk'
                 item['status_fa'] = 'ریسک متوسط-بالا'
                 item['color_class'] = 'bg-warning'
                 item['recommendation'] = 'Repeat testing in 6-12 months or colposcopy referral'
-                item['recommendation_fa'] = 'تکرار تست در ۶-۱۲ ماه یا ارجاع به کولپوسکوپی'
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             elif cervical_cancer_score == 1:
-                item['score'] = cervical_cancer_score
                 item['status'] = 'Low Risk'
                 item['status_fa'] = 'ریسک کم'
                 item['color_class'] = 'bg-success'
                 item['recommendation'] = 'Follow routine screening per national guidelines (e.g., Pap every 3-5 years)'
-                item['recommendation_fa'] = 'پیگیری غربالگری معمول (مطابق دستورالعمل ملی، مثلاً پاپ اسمیر هر ۳-۵ سال)'
+                item['recommendation_fa'] = 'اصلاح سبک زندگی'
 
         if item['title'] == 'Prostate_Cancer':
-            if pbcg_score_high_cancer >= 0.10:
-                item['score'] = pbcg_score_high_cancer
+            item['score'] = pbcg_score_high_cancer
+            item['total_score'] = 60
+            item['desc_file_fa'] = 'prostate_cancer_fa.pdf'
+            if pbcg_score_high_cancer >=40:
                 item['status'] = 'High risk (PBCG)'
                 item['status_fa'] = 'ریسک بالا (PBCG)'
                 item['recommendation'] = "Urgent urology referral and biopsy strongly recommended"
-                item['recommendation_fa'] = "ارجاع فوری به اورولوژی و بیوپسی اکیداً توصیه می‌شود"
+                item['recommendation_fa'] = "بررسی و پیگیری توسط متخصص"
                 item['color_class'] = 'bg-danger'
-            elif pbcg_score_high_cancer >= 0.05:
-                item['score'] = pbcg_score_high_cancer
+            elif pbcg_score_high_cancer >= 20:
                 item['status'] = 'Intermediate risk (PBCG)'
                 item['status_fa'] = 'ریسک متوسط (PBCG)'
                 item['recommendation'] = "Consider prostate biopsy or multiparametric MRI"
-                item['recommendation_fa'] = "بیوپسی پروستات یا ام‌آرآی چندپارامتری را در نظر بگیرید"
+                item['recommendation_fa'] = "بررسی و پیگیری توسط متخصص"
                 item['color_class'] = 'bg-warning'
-            elif pbcg_score_low_cancer >= 0.20:
-                item['score'] = pbcg_score_high_cancer
+            else:
                 item['status'] = 'Low-grade risk (PBCG)'
                 item['status_fa'] = 'ریسک درجه پایین (PBCG)'
                 item['recommendation'] = "Active surveillance or MRI-targeted biopsy"
-                item['recommendation_fa'] = "پایش فعال یا بیوپسی هدفمند با ام‌آرآی"
+                item['recommendation_fa'] = "اصلاح سبک زندگی"
                 item['color_class'] = 'bg-info'
-            elif pbcg_score_no_cancer < 0.50:
-                item['score'] = pbcg_score_high_cancer
-                item['status'] = 'Suspicious (PBCG)'
-                item['status_fa'] = 'مشکوک (PBCG)'
-                item['recommendation'] = "Repeat PSA or consider advanced imaging"
-                item['recommendation_fa'] = "تکرار آزمایش PSA یا تصویربرداری پیشرفته را در نظر بگیرید"
-                item['color_class'] = 'bg-primary'
-            else:
-                item['score'] = pbcg_score_high_cancer
-                item['status'] = 'Very low risk (PBCG)'
-                item['status_fa'] = 'ریسک بسیار کم (PBCG)'
-                item['recommendation'] = "Continue routine screening as per guidelines"
-                item['recommendation_fa'] = "غربالگری معمول را طبق دستورالعمل ادامه دهید"
-                item['color_class'] = 'bg-success'
+
 
         if item['title'] == 'Melanoma_Cancer':
+            item['score'] = melanoma_cancer_score
+            item['total_score'] = 30
+            item['desc_file_fa'] = 'melanoma_fa.pdf'
             if melanoma_cancer_score >= 20:
-                item['score'] = melanoma_cancer_score
                 item['status'] = 'High Risk'
                 item['status_fa'] = 'ریسک زیاد'
                 item['color_class'] = 'bg-danger'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             elif melanoma_cancer_score >= 10:
-                item['score'] = melanoma_cancer_score
                 item['status'] = 'Moderate Risk'
                 item['status_fa'] = 'ریسک متوسط'
                 item['color_class'] = 'bg-warning'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             else:
-                item['score'] = melanoma_cancer_score
                 item['status'] = 'Low Risk'
                 item['status_fa'] = 'ریسک کم'
                 item['color_class'] = 'bg-success'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'اصلاح سبک زندگی'
 
         if item['title'] == 'Osteoporosis':
-            if osteoporosis_score >= 20:
-                item['score'] = osteoporosis_score
+            item['score'] = osteoporosis_score
+            item['total_score'] = 60
+            item['desc_file_fa'] = 'steoprosis_fa.pdf'
+            if osteoporosis_score > 40:
                 item['status'] = 'High Risk'
                 item['status_fa'] = 'ریسک زیاد'
                 item['color_class'] = 'bg-danger'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
-            elif osteoporosis_score >= 10:
-                item['score'] = osteoporosis_score
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
+            elif osteoporosis_score > 20:
                 item['status'] = 'Moderate Risk'
                 item['status_fa'] = 'ریسک متوسط'
                 item['color_class'] = 'bg-warning'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             else:
-                item['score'] = osteoporosis_score
                 item['status'] = 'Low Risk'
                 item['status_fa'] = 'ریسک کم'
                 item['color_class'] = 'bg-success'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'اصلاح سبک زندگی'
 
         if item['title'] == 'Ovarian_Cancer':
-            if ovarian_cancer_score >= 20:
-                item['score'] = ovarian_cancer_score
+            item['score'] = ovarian_cancer_score
+            item['total_score'] = 15
+            item['desc_file_fa'] = 'ovarian_cancer_fa.pdf'
+            if ovarian_cancer_score >= 10:
                 item['status'] = 'High Risk'
                 item['status_fa'] = 'ریسک زیاد'
                 item['color_class'] = 'bg-danger'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
-            elif ovarian_cancer_score >= 10:
-                item['score'] = ovarian_cancer_score
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
+            elif ovarian_cancer_score >= 5:
                 item['status'] = 'Moderate Risk'
                 item['status_fa'] = 'ریسک متوسط'
                 item['color_class'] = 'bg-warning'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             else:
-                item['score'] = ovarian_cancer_score
                 item['status'] = 'Low Risk'
                 item['status_fa'] = 'ریسک کم'
                 item['color_class'] = 'bg-success'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'اصلاح سبک زندگی'
 
         if item['title'] == 'Pancreatic_Cancer':
+            item['score'] = pancreatic_cancer_score
+            item['total_score'] = 30
+            item['desc_file_fa'] = 'pancreatic_cancer_fa.pdf'
             if pancreatic_cancer_score >= 20:
-                item['score'] = pancreatic_cancer_score
                 item['status'] = 'High Risk'
                 item['status_fa'] = 'ریسک زیاد'
                 item['color_class'] = 'bg-danger'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             elif pancreatic_cancer_score >= 10:
-                item['score'] = pancreatic_cancer_score
                 item['status'] = 'Moderate Risk'
                 item['status_fa'] = 'ریسک متوسط'
                 item['color_class'] = 'bg-warning'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             else:
-                item['score'] = pancreatic_cancer_score
                 item['status'] = 'Low Risk'
                 item['status_fa'] = 'ریسک کم'
                 item['color_class'] = 'bg-success'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'اصلاح سبک زندگی'
 
         if item['title'] == 'Stomach_Cancer':
+            item['score'] = stomach_cancer_score
+            item['total_score'] = 30
+            item['desc_file_fa'] = 'stomach_cancer_fa.pdf'
             if stomach_cancer_score >= 20:
-                item['score'] = stomach_cancer_score
                 item['status'] = 'High Risk'
                 item['status_fa'] = 'ریسک زیاد'
                 item['color_class'] = 'bg-danger'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             elif stomach_cancer_score >= 10:
-                item['score'] = stomach_cancer_score
                 item['status'] = 'Moderate Risk'
                 item['status_fa'] = 'ریسک متوسط'
                 item['color_class'] = 'bg-warning'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             else:
-                item['score'] = stomach_cancer_score
                 item['status'] = 'Low Risk'
                 item['status_fa'] = 'ریسک کم'
                 item['color_class'] = 'bg-success'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'اصلاح سبک زندگی'
 
         if item['title'] == 'Stroke':
+            item['score'] = stroke_score
+            item['total_score'] = 30
+            item['desc_file_fa'] = 'stroke_fa.pdf'
             if stroke_score >= 20:
-                item['score'] = stroke_score
                 item['status'] = 'High Risk'
                 item['status_fa'] = 'ریسک زیاد'
                 item['color_class'] = 'bg-danger'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             elif stroke_score >= 10:
-                item['score'] = stroke_score
                 item['status'] = 'Moderate Risk'
                 item['status_fa'] = 'ریسک متوسط'
                 item['color_class'] = 'bg-warning'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
             else:
-                item['score'] = stroke_score
                 item['status'] = 'Low Risk'
                 item['status_fa'] = 'ریسک کم'
                 item['color_class'] = 'bg-success'
                 item['recommendation'] = ''
-                item['recommendation_fa'] = ''
+                item['recommendation_fa'] = 'اصلاح سبک زندگی'
 
     # print(selected_assessments)
 
@@ -1295,11 +1287,6 @@ def calculate_my_model(request):
 
     return render(request, 'dashboard_fa.html', context)
 
-
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
-import json
 
 
 @require_POST
@@ -1321,4 +1308,5 @@ def save_doctor_comment(request):
 
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
 

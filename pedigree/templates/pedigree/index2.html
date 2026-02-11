@@ -1,0 +1,248 @@
+{% extends 'pedigree/base.html' %}
+
+{% block content %}
+<div class="row mt-4">
+    <div class="col-12">
+        <h1 class="text-center">اپلیکیشن پیشرفته رسم شجره ژنتیکی سرطان</h1>
+
+        <div class="alert alert-info mt-4">
+            <p>این اپلیکیشن به شما کمک می‌کند تا شجره ژنتیکی خانواده را به همراه وضعیت سرطان و ژن‌های جهش‌یافته رسم کنید.</p>
+            <ul>
+                <li>فیلدها را برای هر فرد پر کنید</li>
+                <li>شناسه والدین را انتخاب کنید</li>
+                <li>روی دکمه رسم کلیک کنید</li>
+            </ul>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2>افزودن عضو جدید</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">ذخیره</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h2>اعضای خانواده</h2>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>شناسه</th>
+                            <th>نام</th>
+                            <th>جنسیت</th>
+                            <th>وضعیت بیماری</th>
+                            <th>والدین</th>
+                            <th>سن</th>
+                            <th>وضعیت</th>
+                            <th>ژن‌ها</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in members %}
+                        <tr>
+                            <td>{{ member.id }}</td>
+                            <td>{{ member.name }}</td>
+                            <td>{{ member.get_gender_display }}</td>
+                            <td>
+                                {{ member.get_affected_display }}
+                                {% if member.affected == 'C' and member.cancer_type %}
+                                <br><small>{{ member.cancer_type }}
+                                {% if member.age_diagnosis %}
+                                (سن تشخیص: {{ member.age_diagnosis }})
+                                {% endif %}
+                                </small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% for parent in member.parents.all %}
+                                <span class="badge bg-secondary">{{ parent.name }} ({{ parent.id }})</span>
+                                {% empty %}
+                                -
+                                {% endfor %}
+                            </td>
+                            <td>{{ member.age }}</td>
+                            <td>{{ member.get_status_display }}</td>
+                            <td>{{ member.genes|default:"-" }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'pedigree:edit_member' member.id %}" class="btn btn-warning">
+                                        <i class="bi bi-pencil-square"></i> ویرایش
+                                    </a>
+                                    <a href="{% url 'pedigree:delete_member' member.id %}" class="btn btn-danger"
+                                       onclick="return confirm('آیا از حذف {{ member.name }} مطمئن هستید؟')">
+                                        <i class="bi bi-trash"></i> حذف
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center">هیچ عضوی ثبت نشده است</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h2>تحلیل خطر سرطان خانوادگی</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>آمار کلی</h4>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                تعداد اعضای خانواده
+                                <span class="badge bg-primary rounded-pill">{{ risk_factors.total_members }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                تعداد مبتلایان به سرطان
+                                <span class="badge bg-danger rounded-pill">{{ risk_factors.affected_count }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                میانگین سن تشخیص
+                                <span class="badge bg-warning rounded-pill">
+                                    {% if risk_factors.average_diagnosis_age %}
+                                        {{ risk_factors.average_diagnosis_age|floatformat:1 }} سال
+                                    {% else %}
+                                        داده‌ای موجود نیست
+                                    {% endif %}
+                                </span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                سطح خطر خانوادگی
+                                <span class="badge
+                                    {% if risk_factors.risk_level == 'بالا' %}bg-danger
+                                    {% elif risk_factors.risk_level == 'متوسط' %}bg-warning
+                                    {% else %}bg-success{% endif %}">
+                                    {{ risk_factors.risk_level }}
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+
+
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>نوع سرطان</th>
+                                    <th>تعداد</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if risk_factors.cancer_types %}
+                                    {% for cancer, count in risk_factors.cancer_types.items %}
+                                    <tr>
+                                        <td>{{ cancer }}</td>
+                                        <td>{{ count }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="2">موردی ثبت نشده</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {% if risk_factors.generation_risks.items %}
+                <h4 class="mt-3">خطر در نسل‌های مختلف</h4>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>نسل</th>
+                                <th>تعداد اعضا</th>
+                                <th>تعداد مبتلایان</th>
+                                <th>درصد خطر</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for gen, data in risk_factors.generation_risks.items %}
+                            <tr>
+                                <td>{{ gen }}</td>
+                                <td>{{ data.total }}</td>
+                                <td>{{ data.affected }}</td>
+                                <td>
+                                    {% widthratio data.affected data.total 100 as percentage %}
+                                    <span class="risk-indicator
+                                        {% if percentage > 30 %}high-risk
+                                        {% elif percentage > 15 %}medium-risk
+                                        {% else %}low-risk{% endif %}">
+                                        {{ percentage }}%
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+
+                <div class="alert alert-warning mt-3">
+                    <h5><i class="bi bi-info-circle"></i> تفسیر نتایج:</h5>
+                    <ul class="mb-2">
+                        <li><strong>خطر بالا:</strong> بیش از 30% اعضا مبتلا به سرطان</li>
+                        <li><strong>خطر متوسط:</strong> بین 15% تا 30% اعضا مبتلا</li>
+                        <li><strong>خطر پایین:</strong> کمتر از 15% اعضا مبتلا</li>
+                    </ul>
+                    <p class="mb-0"><small>این تحلیل صرفاً بر اساس داده‌های وارد شده بوده و جایگزین مشاوره ژنتیک تخصصی نمی‌باشد.</small></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 text-center">
+            <div class="btn-group" role="group">
+                <a href="{% url 'pedigree:generate_pedigree_graphviz' %}" class="btn btn-success btn-lg mx-2">
+                    <i class="bi bi-diagram-3"></i> رسم شجره (Graphviz)
+                </a>
+                <a href="{% url 'pedigree:generate_pedigree_networkx' %}" class="btn btn-success btn-lg mx-2">
+                    <i class="bi bi-diagram-3"></i> رسم شجره (NetworkX)
+                </a>
+            </div>
+            <div class="mt-3">
+                <a href="{% url 'pedigree:clear_data' %}" class="btn btn-danger btn-lg"
+                   onclick="return confirm('آیا از پاک کردن تمام داده‌های خانواده مطمئن هستید؟ این عمل غیرقابل بازگشت است.')">
+                    <i class="bi bi-trash"></i> پاک کردن همه داده‌ها
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .risk-indicator {
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    .high-risk {
+        background-color: #ffdddd;
+        color: #d32f2f;
+    }
+    .medium-risk {
+        background-color: #fff3e0;
+        color: #ff6d00;
+    }
+    .low-risk {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+</style>
+{% endblock %}

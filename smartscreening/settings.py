@@ -31,8 +31,10 @@ INSTALLED_APPS = [
     'home.apps.HomeConfig',
     'account.apps.AccountConfig',
     'my_model.apps.MyModelConfig',
+    'cpanel.apps.CpanelConfig',
     'ecg.apps.EcgConfig',
-    'pedigree',
+    'pedigree.apps.PedigreeConfig',
+    'pedigreejs.apps.PedigreejsConfig',
 ]
 
 MIDDLEWARE = [
@@ -154,3 +156,8 @@ SMARTLIFE_IMAGE_BASE_URL = 'http://localhost:8001/media'
 # Security settings for login attempts
 MAX_LOGIN_ATTEMPTS = 5  # Maximum allowed attempts
 LOGIN_ATTEMPTS_TIMEOUT = 1800  # 30 minutes in seconds
+
+
+GRAPHVIZ_BIN = 'C:/Program Files/Graphviz/bin/'  # Windows default
+# or for Linux/Mac: '/usr/local/bin/'
+os.environ["PATH"] += os.pathsep + GRAPHVIZ_BIN

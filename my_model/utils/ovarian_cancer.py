@@ -40,6 +40,9 @@ class Ovarian_RiskCalculator:
             ovarian_cancer_score += 1
 
         if menopause == 'Yes':
+            ovarian_cancer_score -= 3
+            #ovarian_cancer_score += 3
+        else:
             ovarian_cancer_score += 3
 
         if menopause_hormone == 4:
@@ -51,13 +54,16 @@ class Ovarian_RiskCalculator:
             ovarian_cancer_score += 2
 
         if hysterectomy == 'Yes':
-            ovarian_cancer_score += 2
+            ovarian_cancer_score -= 2
+            #ovarian_cancer_score += 2
 
         if endometriosis == 'Yes':
-            ovarian_cancer_score += 2
+            ovarian_cancer_score += 5
+            #ovarian_cancer_score += 2
 
         if salpingectomy == 'Yes':
-            ovarian_cancer_score += 4
+            ovarian_cancer_score -= 4
+            #ovarian_cancer_score += 4
 
         return ovarian_cancer_score
 

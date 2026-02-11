@@ -30,3 +30,10 @@ def blog_list_fa(request):
 def blog_detail_fa(request, pk=None):
     blog = get_object_or_404(Blog, id=pk)
     return render(request, 'blog_detail_fa.html', context={'blog':blog})
+
+
+
+def team_list(request):
+    teams = Team.objects.filter(is_active=True).all()
+    data = list(teams.values())
+    return JsonResponse(data, safe=False)

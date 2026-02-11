@@ -30,7 +30,7 @@ Page Banner START -->
 						<div class="col d-sm-flex justify-content-between align-items-center">
 							<!-- Button -->
 							<div class="mt-2 mt-sm-0">
-								<a href="{% url 'my_model:dashboard_comprehensive_fa' code=my_model_instance.code %}" class="btn btn-outline-primary mb-0 mt-4" >نمایش گزارش جامع غربالگری</a>
+								<a target="_blank" href="{% url 'my_model:dashboard_comprehensive_fa' code=my_model_instance.code %}" class="btn btn-outline-primary mb-0 mt-4" >نمایش گزارش جامع غربالگری</a>
 							</div>
 						</div>
 					</div>
@@ -106,7 +106,9 @@ Page content START -->
 
 					<!-- Card body START -->
 					<div class="card-body">
-
+                         <div class="text-danger mt-4 mb-4">
+                            توجه : این نرم افزار یک ابزار تشخیصی نیست، صرفا به منظور آگاهی است و ارزیابی بالینی لازم است.
+                         </div>
 						<!-- Course list table START -->
 						<div class="table-responsive border-0">
 							<table class="table table-dark-gray align-middle p-4 mb-0 table-hover">
@@ -116,7 +118,8 @@ Page content START -->
 										<th scope="col" class="border-0 rounded-start">غربالگری</th>
 										<th scope="col" class="border-0">ریسک</th>
 										<th scope="col" class="border-0">توصیه</th>
-										<th scope="col" class="border-0 rounded-end">جزئیات</th>
+                                        <th scope="col" class="border-0">توضیحات</th>
+										<th scope="col" class="border-0 rounded-end">داشبورد</th>
 									</tr>
 								</thead>
 
@@ -131,7 +134,7 @@ Page content START -->
 											<div class="d-flex align-items-center">
 												<!-- Image -->
 												<div class="w-100px">
-													<img src="{% static 'images/courses/4by3/08.jpg' %}" class="rounded" alt="">
+													<img src="{% static 'images/assessments/'|add:selected_assessment.image %}" class="rounded" alt="">
 												</div>
 												<div class="mb-0 ms-2 w-200px">
 													<!-- Title -->
@@ -149,15 +152,40 @@ Page content START -->
 										</td>
 
 										<!-- Table data -->
-										<td>{{ selected_assessment.status_fa }}</td>
+										<td>
+                                            {{ selected_assessment.status_fa }}
+                                             <div class="position-relative mb-3">
+                                              <input
+                                                  class="form-range custom-range"
+                                                  type="range"
+                                                  disabled
+                                                  name="{{ selected_assessment.id }}"
+                                                  id="{{ selected_assessment.id }}"
+                                                  min="0"
+                                                  value="{{ selected_assessment.score }}"
+                                                  max="{{ selected_assessment.total_score }}"
+                                                  step="0.1"
+                                                    >
+                                            </div>
 
-										<!-- Table data -->
-										<td>{{ selected_assessment.recommendation_fa }}</td>
+                                        </td>
 
 										<!-- Table data -->
 										<td>
-											<a href="{% url "my_model:dashboard_detail_fa" assessment_id=selected_assessment.id%}" class="btn btn-sm btn-primary-soft me-1 mb-1 mb-md-0">جزئیات بیشتر</a>
-										</td>
+                                            {{ selected_assessment.recommendation_fa }}
+                                        </td>
+
+										<!-- Table data -->
+										<td>
+                                            {% if selected_assessment.desc_file_fa != '' %}
+                                            <a target="_blank" href="{% static 'docs/' %}{{ selected_assessment.desc_file_fa }}" class="btn btn-sm btn-primary-soft me-1 mb-1 mb-md-0">توضیحات</a>
+                                            {% endif %}
+                                        </td>
+
+                                        <!-- Table data -->
+										<td>
+											<a target="_blank" href="{% url "my_model:dashboard_detail_fa" assessment_id=selected_assessment.id%}" class="btn btn-sm btn-primary-soft me-1 mb-1 mb-md-0">داشبورد نتایج</a>
+                                        </td>
 									</tr>
                                 {% endfor %}
 
@@ -328,4 +356,6 @@ function showMessage(message, type = 'primary') {
         opacity: 0;
     }
 </style>
+
+
 {% endblock %}
