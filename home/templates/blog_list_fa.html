@@ -68,7 +68,7 @@ Page content START -->
                         <!-- Card body -->
                         <div class="card-body">
                             <!-- Title -->
-                            <h5 class="card-title fw-normal"><a href="{% url "home:blog_detail_fa" pk=blog.id %}">{{ blog.title }}</a></h5>
+                            <h5 class="card-title fw-normal"><a href="{% url "home:blog_detail" pk=blog.id %}">{{ blog.title }}</a></h5>
                             <p class="small">{{ blog.desc |safe | slice:":50"  }}</p>
                             <!-- Info -->
                             <div class="d-flex justify-content-between">

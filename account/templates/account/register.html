@@ -1,163 +1,140 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="{{ CURRENT_LANGUAGE }}" dir="{% if IS_RTL %}rtl{% else %}ltr{% endif %}">
 
 <head>
-	<title>Eduport - قالب HTML دوره آنلاین و آموزش</title>
+	<title>{% if CURRENT_LANGUAGE == 'fa' %}غربالگری هوشمند سلامت - ثبت نام{% elif CURRENT_LANGUAGE == 'ar' %}الفحص الصحي الذكي - إنشاء حساب{% else %}Smart Health Screening - Sign Up{% endif %}</title>
 
 	<!-- Meta Tags -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="author" content="">
-	<meta name="description" content="Eduport - قالب HTML دوره آنلاین و آموزش">
+	<meta name="description" content="{% if CURRENT_LANGUAGE == 'fa' %}Eduport - قالب HTML دوره آنلاین و آموزش{% elif CURRENT_LANGUAGE == 'ar' %}Eduport - قالب HTML للدورات عبر الإنترنت والتعليم{% else %}Eduport - Online Course and Education HTML Template{% endif %}">
 
 	<!-- Dark mode -->
 	<script>
 		const storedTheme = localStorage.getItem('theme')
-
-		const getPreferredTheme = () => {
-			if (storedTheme) {
-				return storedTheme
-			}
-			return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-		}
-
-		const setTheme = function (theme) {
-			if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-				document.documentElement.setAttribute('data-bs-theme', 'dark')
-			} else {
-				document.documentElement.setAttribute('data-bs-theme', theme)
-			}
-		}
-
+		const getPreferredTheme = () => storedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+		const setTheme = theme => document.documentElement.setAttribute('data-bs-theme', theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : theme)
 		setTheme(getPreferredTheme())
-
 		window.addEventListener('DOMContentLoaded', () => {
-		    var el = document.querySelector('.theme-icon-active');
-			if(el != 'undefined' && el != null) {
-				const showActiveTheme = theme => {
-				const activeThemeIcon = document.querySelector('.theme-icon-active use')
-				const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
-				const svgOfActiveBtn = btnToActive.querySelector('.mode-switch use').getAttribute('href')
-
-				document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
-					element.classList.remove('active')
-				})
-
-				btnToActive.classList.add('active')
-				activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+			const element = document.querySelector('.theme-icon-active')
+			if (!element) return
+			const showActiveTheme = theme => {
+				const icon = document.querySelector('.theme-icon-active use')
+				const button = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+				if (!icon || !button) return
+				document.querySelectorAll('[data-bs-theme-value]').forEach(item => item.classList.remove('active'))
+				button.classList.add('active')
+				const source = button.querySelector('.mode-switch use')
+				if (source) icon.setAttribute('href', source.getAttribute('href'))
 			}
-
 			window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-				if (storedTheme !== 'light' || storedTheme !== 'dark') {
-					setTheme(getPreferredTheme())
-				}
+				if (storedTheme !== 'light' && storedTheme !== 'dark') setTheme(getPreferredTheme())
 			})
-
 			showActiveTheme(getPreferredTheme())
-
-			document.querySelectorAll('[data-bs-theme-value]')
-				.forEach(toggle => {
-					toggle.addEventListener('click', () => {
-						const theme = toggle.getAttribute('data-bs-theme-value')
-						localStorage.setItem('theme', theme)
-						setTheme(theme)
-						showActiveTheme(theme)
-					})
-				})
-
-			}
+			document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => toggle.addEventListener('click', () => {
+				const theme = toggle.getAttribute('data-bs-theme-value')
+				localStorage.setItem('theme', theme)
+				setTheme(theme)
+				showActiveTheme(theme)
+			}))
 		})
-
 	</script>
 
 	<!-- Favicon -->
 	<link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
-
 	<!-- Plugins CSS -->
 	<link rel="stylesheet" type="text/css" href="{% static 'vendor/font-awesome/css/all.min.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}">
-
 	<!-- Theme CSS -->
 	<link rel="stylesheet" type="text/css" href="{% static 'css/style-rtl.css' %}">
-
 </head>
 
 <body>
-
-<!-- **************** MAIN CONTENT START **************** -->
 <main>
 	<section class="p-0 d-flex align-items-center position-relative overflow-hidden">
-
 		<div class="container-fluid">
 			<div class="row">
-				<!-- left -->
 				<div class="col-12 col-lg-6 d-md-flex align-items-center justify-content-center bg-primary bg-opacity-10 vh-lg-100">
 					<div class="p-3 p-lg-5">
-						<!-- Title -->
 						<div class="text-center">
-							<h2 class="fw-bold fs-3">به بزرگترین انجمن ما خوش آمدید</h2>
-							<p class="mb-0 h6 fw-light">بیایید امروز چیز جدیدی یاد بگیریم!</p>
+							<h2 class="fw-bold fs-3">{% if CURRENT_LANGUAGE == 'fa' %}غربالگری هوشمند سلامت{% elif CURRENT_LANGUAGE == 'ar' %}الفحص الصحي الذكي{% else %}Smart Health Screening{% endif %}</h2>
+							<p class="mb-0 h6 fw-light">{% if CURRENT_LANGUAGE == 'fa' %}پیشگیری هوشمندانه ، زندگی بهتر{% elif CURRENT_LANGUAGE == 'ar' %}الوقاية الذكية، حياة أفضل{% else %}Smart Prevention, Better Life{% endif %}</p>
 						</div>
-						<!-- SVG Image -->
 						<img src="{% static 'images/element/02.svg' %}" class="mt-5" alt="">
 					</div>
 				</div>
 
-				<!-- Right -->
 				<div class="col-12 col-lg-6 m-auto">
 					<div class="row my-5">
 						<div class="col-sm-10 col-xl-8 m-auto">
-							<!-- Title -->
 							<img src="{% static 'images/element/03.svg' %}" class="h-40px mb-2" alt="">
-							<h2 class="">ثبت نام</h2>
-							<p class="mb-4">از دیدن شما خوشحالم! لطفا با حساب کاربری خود ثبت نام کنید.</p>
+							<h2 class="">{% if CURRENT_LANGUAGE == 'fa' %}ثبت نام{% elif CURRENT_LANGUAGE == 'ar' %}إنشاء حساب{% else %}Sign Up{% endif %}</h2>
+							<p class="mb-4">{% if CURRENT_LANGUAGE == 'fa' %}از دیدن شما خوشحالم! لطفا برای حساب کاربری خود ثبت نام کنید.{% elif CURRENT_LANGUAGE == 'ar' %}يسعدنا رؤيتك! يرجى إنشاء حسابك.{% else %}Glad to see you! Please sign up for your account.{% endif %}</p>
 
-							<!-- Form START -->
-							<form>
-								<!-- Email -->
+                            {% if messages %}
+                                {% for message in messages %}
+                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                     {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+
+							<form method="POST" action="{% url 'account:register' %}">
+                                {% csrf_token %}
 								<div class="mb-4">
-									<label for="exampleInputEmail1" class="form-label">ایمیل</label>
+									<label for="username" class="form-label">{% if CURRENT_LANGUAGE == 'fa' %}نام کاربری{% elif CURRENT_LANGUAGE == 'ar' %}اسم المستخدم{% else %}Username{% endif %}</label>
+									<div class="input-group input-group-lg">
+										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-person-fill"></i></span>
+										<input type="text" required class="form-control border-0 bg-light rounded-end ps-1" name="username" id="username">
+									</div>
+								</div>
+								<div class="mb-4">
+									<label for="email" class="form-label">{% if CURRENT_LANGUAGE == 'fa' %}ایمیل{% elif CURRENT_LANGUAGE == 'ar' %}البريد الإلكتروني{% else %}Email{% endif %}</label>
 									<div class="input-group input-group-lg">
 										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-envelope-fill"></i></span>
-										<input type="email" class="form-control border-0 bg-light rounded-end ps-1" placeholder="***@gmail.com" id="exampleInputEmail1">
+										<input type="email" required minlength="3" class="form-control border-0 bg-light rounded-end ps-1" name="email" id="email">
 									</div>
 								</div>
-								<!-- Password -->
 								<div class="mb-4">
-									<label for="inputPassword5" class="form-label">رمز عبور *</label>
+									<label for="phone_number" class="form-label">{% if CURRENT_LANGUAGE == 'fa' %}شماره موبایل (اختیاری){% elif CURRENT_LANGUAGE == 'ar' %}رقم الهاتف (اختياري){% else %}Mobile number (optional){% endif %}</label>
+									<div class="input-group input-group-lg">
+										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-phone-fill"></i></span>
+										<input type="tel" maxlength="20" class="form-control border-0 bg-light rounded-end ps-1" name="phone_number" id="phone_number" value="{{ form.phone_number.value|default:'' }}" autocomplete="tel">
+									</div>
+								</div>
+								<div class="mb-4">
+									<label for="password1" class="form-label">{% if CURRENT_LANGUAGE == 'fa' %}رمز عبور *{% elif CURRENT_LANGUAGE == 'ar' %}كلمة المرور *{% else %}Password *{% endif %}</label>
 									<div class="input-group input-group-lg">
 										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="fas fa-lock"></i></span>
-										<input type="password" class="form-control border-0 bg-light rounded-end ps-1" placeholder="*********" id="inputPassword5">
+										<input type="password" required minlength="8" class="form-control border-0 bg-light rounded-end ps-1" placeholder="*********" name="password1" id="password1">
 									</div>
 								</div>
-								<!-- Confirm Password -->
 								<div class="mb-4">
-									<label for="inputPassword6" class="form-label">تایید رمز عبور *</label>
+									<label for="password2" class="form-label">{% if CURRENT_LANGUAGE == 'fa' %}تکرار رمز عبور *{% elif CURRENT_LANGUAGE == 'ar' %}تأكيد كلمة المرور *{% else %}Confirm Password *{% endif %}</label>
 									<div class="input-group input-group-lg">
 										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="fas fa-lock"></i></span>
-										<input type="password" class="form-control border-0 bg-light rounded-end ps-1" placeholder="*********" id="inputPassword6">
+										<input type="password" required minlength="8" class="form-control border-0 bg-light rounded-end ps-1" placeholder="*********" name="password2" id="password2">
 									</div>
 								</div>
-								<!-- Check box -->
 								<div class="mb-4">
 									<div class="form-check">
 										<input type="checkbox" class="form-check-input" id="checkbox-1">
-										<label class="form-check-label" for="checkbox-1">با ثبت نام <a href="#">شرایط و قوانین سایت</a> را خواهید پذیرفت.</label>
+										<label class="form-check-label" for="checkbox-1">{% if CURRENT_LANGUAGE == 'fa' %}با ثبت نام <a href="#">شرایط و قوانین سایت</a> را خواهید پذیرفت.{% elif CURRENT_LANGUAGE == 'ar' %}بالتسجيل، أنت توافق على <a href="#">الشروط والأحكام</a>.{% else %}By signing up, you agree to our <a href="#">Terms and Conditions</a>.{% endif %}</label>
 									</div>
 								</div>
-								<!-- Button -->
 								<div class="align-items-center mt-0">
 									<div class="d-grid">
-										<button class="btn btn-primary mb-0" type="button">ثبت نام</button>
+										<button class="btn btn-primary mb-0" type="submit">{% if CURRENT_LANGUAGE == 'fa' %}ثبت نام{% elif CURRENT_LANGUAGE == 'ar' %}إنشاء حساب{% else %}Sign Up{% endif %}</button>
 									</div>
 								</div>
 							</form>
-							<!-- Form END -->
 
-							<!-- Sign up link -->
 							<div class="mt-4 text-center">
-								<span>آیا قبلا ثبت نام کرده اید؟<a href="sign-in.html"> ورود</a></span>
+								<span>{% if CURRENT_LANGUAGE == 'fa' %}آیا قبلا ثبت نام کرده اید؟{% elif CURRENT_LANGUAGE == 'ar' %}هل لديك حساب بالفعل؟{% else %}Already have an account?{% endif %}
+                                    <a href="{% url 'account:login' %}">{% if CURRENT_LANGUAGE == 'fa' %}ورود{% elif CURRENT_LANGUAGE == 'ar' %}تسجيل الدخول{% else %}Log in{% endif %}</a></span>
 							</div>
 						</div>
 					</div>
@@ -166,17 +143,9 @@
 		</div>
 	</section>
 </main>
-<!-- **************** MAIN CONTENT END **************** -->
 
-<!-- Back to top -->
 <div class="back-top"><i class="bi bi-arrow-up-short position-absolute top-50 start-50 translate-middle"></i></div>
-
-<!-- Bootstrap JS -->
 <script src="{% static 'vendor/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
-
-<!-- Template Functions -->
 <script src="{% static 'js/functions.js' %}"></script>
-
 </body>
-
 </html>

@@ -30,8 +30,8 @@ class Cervical_RiskCalculator:
             cervical_cancer_score = 2
         elif cytology > 2 and cervical_cancer == 'Yes':
             cervical_cancer_score = 2
-        elif hpv == 1 and cytology < 3 and std == 'Yes':
-            cervical_cancer_score = 2
+        #elif hpv == 1 and cytology < 3 and std == 'Yes':
+        #    cervical_cancer_score = 2
         elif hpv == 1 and cytology < 3 and cervical_cancer == 'Yes':
             cervical_cancer_score = 2
         else:

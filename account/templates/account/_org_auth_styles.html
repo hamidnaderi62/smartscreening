@@ -1,0 +1,190 @@
+<style>
+    :root {
+        --org-primary: {{ organization_brand.primary }};
+        --org-accent: {{ organization_brand.accent }};
+        --org-surface: {{ organization_brand.surface }};
+    }
+
+    body.org-auth-page {
+        background: var(--org-surface);
+    }
+
+    .org-auth-shell {
+        min-height: 100vh;
+    }
+
+    .org-auth-hero {
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(145deg, var(--org-primary), var(--org-accent));
+        color: #fff;
+    }
+
+    .org-auth-hero::before,
+    .org-auth-hero::after {
+        position: absolute;
+        border: 1px solid rgba(255, 255, 255, .18);
+        border-radius: 50%;
+        content: '';
+    }
+
+    .org-auth-hero::before {
+        width: 320px;
+        height: 320px;
+        top: -130px;
+        inset-inline-start: -100px;
+    }
+
+    .org-auth-hero::after {
+        width: 420px;
+        height: 420px;
+        bottom: -220px;
+        inset-inline-end: -140px;
+    }
+
+    .org-auth-hero-content {
+        position: relative;
+        z-index: 1;
+        max-width: 600px;
+    }
+
+    .org-auth-hero-image {
+        max-height: 42vh;
+        object-fit: contain;
+        filter: drop-shadow(0 20px 30px rgba(0, 0, 0, .15));
+    }
+
+    .org-auth-card {
+        max-width: 560px;
+        padding: clamp(1.5rem, 4vw, 3rem);
+        border: 1px solid rgba(6, 106, 201, .08);
+        border-radius: 28px;
+        background: #fff;
+        box-shadow: 0 24px 70px rgba(31, 45, 61, .12);
+    }
+
+    .org-brand-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .org-brand-logo {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 76px;
+        height: 76px;
+        padding: .65rem;
+        overflow: hidden;
+        border-radius: 22px;
+        background: #fff;
+        box-shadow: 0 12px 28px rgba(31, 45, 61, .12);
+    }
+
+    .org-brand-logo img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .org-language-switcher {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .3rem;
+        border: 1px solid #e7edf3;
+        border-radius: 999px;
+        background: #f8fafc;
+    }
+
+    .org-language-switcher a {
+        padding: .3rem .55rem;
+        border-radius: 999px;
+        color: #6c757d;
+        font-size: .78rem;
+        text-decoration: none;
+    }
+
+    .org-language-switcher a:hover,
+    .org-language-switcher a.active {
+        background: var(--org-primary);
+        color: #fff;
+    }
+
+    .org-identity {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        margin: 1.5rem 0 .9rem;
+        color: var(--org-primary);
+        font-weight: 700;
+    }
+
+    .org-identity i {
+        color: var(--org-accent);
+    }
+
+    .org-code {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        margin-top: .8rem;
+        padding: .35rem .7rem;
+        border: 1px solid rgba(255, 255, 255, .35);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, .12);
+        font-size: .8rem;
+    }
+
+    .org-auth-page .form-control:focus {
+        border-color: var(--org-primary);
+        box-shadow: 0 0 0 .2rem rgba(6, 106, 201, .12);
+    }
+
+    .org-auth-page .input-group:focus-within .input-group-text {
+        color: var(--org-primary) !important;
+    }
+
+    .btn-org-primary {
+        border-color: var(--org-primary);
+        background: var(--org-primary);
+        color: #fff;
+    }
+
+    .btn-org-primary:hover,
+    .btn-org-primary:focus {
+        border-color: var(--org-accent);
+        background: var(--org-accent);
+        color: #fff;
+    }
+
+    .org-auth-link {
+        color: var(--org-primary);
+        font-weight: 600;
+    }
+
+    .org-auth-link:hover {
+        color: var(--org-accent);
+    }
+
+    .org-auth-footer {
+        color: #8a97a6;
+        font-size: .82rem;
+    }
+
+    @media (max-width: 991.98px) {
+        .org-auth-hero {
+            min-height: 330px;
+        }
+
+        .org-auth-hero-image {
+            max-height: 190px;
+        }
+
+        .org-auth-card {
+            margin: 2rem 1rem;
+        }
+    }
+</style>

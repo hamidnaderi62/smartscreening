@@ -1,25 +1,29 @@
-{% load static %}
+{% load i18n %}
 
-<!-- =======================
-Footer START -->
-<footer class="pt-5 bg-light">
-		<div class="container">
-
-
-		<!-- Divider -->
-		<hr class="mt-4 mb-0">
-
-		<!-- Bottom footer -->
-		<div class="py-3">
-			<div class="container px-0">
-				<div class="text-center">
-					<!-- copyright text -->
-					<div class="text-primary-hover" style="direction: ltr" > © HealthyLife, 2025</div>
-					<!-- copyright links-->
-				</div>
-			</div>
-		</div>
-	</div>
+<footer class="smart-site-footer">
+    <div class="container">
+        <div class="smart-footer-main">
+            <div class="smart-footer-brand">
+                <a class="smart-brand-lockup smart-brand-lockup-footer" href="{% url 'home:home' %}">
+                    <span class="smart-brand-symbol"><i class="bi bi-heart-pulse-fill"></i></span>
+                    <span class="smart-brand-name"><strong>Smart</strong><small>Screening</small></span>
+                </a>
+                <p>{% if CURRENT_LANGUAGE == 'fa' %}تصمیم‌های بهتر برای زندگی سالم‌تر.{% elif CURRENT_LANGUAGE == 'ar' %}قرارات صحية أفضل لحياة أكثر صحة.{% else %}Clearer insight for better health decisions.{% endif %}</p>
+            </div>
+            <div class="smart-footer-links">
+                <span class="smart-footer-label">{{ SITE_LABELS.explore }}</span>
+                <a href="{% url 'home:home' %}">{% translate 'Home' %}</a>
+                <a href="{% url 'my_model:screening_list' %}">{% translate 'Smart Screening' %}</a>
+                <a href="{% url 'home:home' %}#smart-how-it-works">{{ SITE_LABELS.how_it_works }}</a>
+            </div>
+            <div class="smart-footer-links">
+                <span class="smart-footer-label">{{ SITE_LABELS.privacy }}</span>
+                <p>{% if CURRENT_LANGUAGE == 'fa' %}اطلاعات شما خصوصی و برای ارائه بینش سلامت استفاده می‌شود.{% elif CURRENT_LANGUAGE == 'ar' %}تبقى معلوماتك خاصة وتُستخدم لتقديم رؤية صحية شخصية.{% else %}Your information stays private and supports personal health insight.{% endif %}</p>
+            </div>
+        </div>
+        <div class="smart-footer-bottom">
+            <span>© {% now "Y" %} SmartScreening</span>
+            <span class="smart-footer-pulse"><i class="bi bi-heart-pulse-fill"></i> {% if CURRENT_LANGUAGE == 'fa' %}همراه شما در مسیر سلامت{% elif CURRENT_LANGUAGE == 'ar' %}معك في رحلتك الصحية{% else %}With you on your health journey{% endif %}</span>
+        </div>
+    </div>
 </footer>
-<!-- =======================
-Footer END -->

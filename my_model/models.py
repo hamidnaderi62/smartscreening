@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from account.validators import validate_image_upload
+import json
+import numpy as np
 
 class AssessmentGroup(models.Model):
     name = models.CharField(max_length=200)
@@ -16,7 +18,7 @@ class Assessment(models.Model):
     title_fa = models.CharField(max_length=200, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     description_fa = models.TextField(null=True, blank=True)
-    image_file = models.ImageField(upload_to='images/assessmets',null=True, blank=True)
+    image_file = models.ImageField(upload_to='images/assessmets',null=True, blank=True, validators=[validate_image_upload])
     groups = models.ManyToManyField(AssessmentGroup)
     active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -28,7 +30,11 @@ class Assessment(models.Model):
 
 class MyModel(models.Model):
     # Demographic Info
-    userid = models.ForeignKey(User, on_delete=models.CASCADE)
+    userid = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name='screenings',
+    )
     code = models.CharField(max_length=100, null=True, blank=True)
     importer = models.CharField(max_length=100, null=True, blank=True)
     gender = models.CharField(max_length=10, null=True, blank=True)
@@ -253,6 +259,47 @@ class MyModel(models.Model):
     doctor_comment = models.TextField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    # NEW: JSON field to store all questions and answers
+    screening_data = models.JSONField(default=dict, blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['userid', '-created']),
+            models.Index(fields=['code', '-created']),
+        ]
+
+    def get_screening_data(self):
+        if self.screening_data:
+            if isinstance(self.screening_data, dict):
+                return self.screening_data
+            try:
+                return json.loads(self.screening_data)
+            except (TypeError, ValueError, json.JSONDecodeError):
+                return {}
+        return {}
+
+    def save_screening_data(self, data):
+        """Normalize numpy values before saving structured JSON."""
+        self.screening_data = json.loads(
+            json.dumps(data, default=self._json_serializer),
+        )
+
+    def _json_serializer(self, obj):
+        if isinstance(obj, (np.integer, np.int32, np.int64)):
+            return int(obj)
+        elif isinstance(obj, (np.floating, np.float32, np.float64)):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, np.bool_):
+            return bool(obj)
+        elif hasattr(obj, 'item'):
+            try:
+                return obj.item()
+            except (ValueError, TypeError):
+                pass
+        raise TypeError(f"Type {type(obj)} not serializable")
 
     def __str__(self):
         return f"{self.code}"

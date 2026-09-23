@@ -1,6 +1,5 @@
 import numpy as np
-import math
-from .breast_cancer_utils.gail3 import *
+from .breast_cancer_utils.gail3 import GailRiskCalculator
 
 class BreastCancer:
 
@@ -130,7 +129,7 @@ class BreastCancer:
             breastfeeding_factor = 1.1
 
         if cbe == 'Yes':
-            cbe_factor = 1.1
+            cbe_factor = 1.3
 
         if bse == 'Yes':
             bse_factor = 1.1

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static my_filters %}
+
+{% block title %}{{ home_labels.title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/smart-home.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="smart-home">
+    {% if request.user.is_authenticated %}
+        <section class="smart-dashboard-hero">
+            <div class="container position-relative">
+                <div class="row align-items-end g-4">
+                    <div class="col-lg-8">
+                        <span class="smart-eyebrow smart-eyebrow-light">{{ home_labels.dashboard_eyebrow }}</span>
+                        {% if organization %}<span class="smart-org-badge"><i class="bi bi-building me-1"></i>{{ organization.display_title|default:organization.title }}</span>{% endif %}
+                        <h1 class="smart-dashboard-title">{{ welcome_text }}</h1>
+                        <p class="smart-dashboard-lead">{{ home_labels.dashboard_text }}</p>
+                        <div class="d-flex flex-wrap gap-3">
+                            <a class="btn smart-btn-accent" href="{% url 'my_model:screening_list' %}"><i class="bi bi-plus-lg me-2"></i>{{ home_labels.new_screening }}</a>
+                            <a class="btn smart-btn-ghost-light" href="{% url 'followup:list' %}"><i class="bi bi-calendar2-heart me-2"></i>{{ home_labels.follow_up }}</a>
+                            <a class="btn smart-btn-ghost-light" href="{% url 'my_model:screening_list' %}">{{ home_labels.continue }}<i class="bi bi-arrow-up-right ms-2"></i></a>
+                            {% if is_org_admin %}<a class="btn smart-btn-ghost-light" href="{% url 'cpanel:organization_dashboard' %}"><i class="bi bi-building me-2"></i>{{ home_labels.organization_admin }}</a>{% endif %}
+                        </div>
+                    </div>
+                    <div class="col-lg-4 text-lg-end"><div class="smart-user-orbit" aria-hidden="true"><span class="smart-orbit-dot smart-orbit-dot-one"></span><span class="smart-orbit-dot smart-orbit-dot-two"></span><span class="smart-orbit-dot smart-orbit-dot-three"></span><div class="smart-orbit-core"><i class="bi bi-heart-pulse-fill"></i></div></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="container smart-dashboard-content">
+            <div class="row g-4 smart-stat-row">
+                <div class="col-sm-4"><div class="smart-stat-card"><span class="smart-stat-icon smart-icon-blue"><i class="bi bi-activity"></i></span><span class="smart-stat-label">{{ home_labels.screening_count }}</span><strong class="smart-stat-value">{{ screening_count }}</strong></div></div>
+                <div class="col-sm-4"><div class="smart-stat-card"><span class="smart-stat-icon smart-icon-purple"><i class="bi bi-grid-1x2"></i></span><span class="smart-stat-label">{{ home_labels.tracks_count }}</span><strong class="smart-stat-value">{{ health_area_count }}</strong></div></div>
+                <div class="col-sm-4"><div class="smart-stat-card"><span class="smart-stat-icon smart-icon-green"><i class="bi bi-calendar2-check"></i></span><span class="smart-stat-label">{{ home_labels.last_activity }}</span><strong class="smart-stat-value smart-stat-date">{% if last_screening %}{{ last_screening.created|localized_date:home_language }}{% else %}{{ home_labels.not_started }}{% endif %}</strong></div></div>
+            </div>
+
+            <div class="row g-4 mt-1">
+                <div class="col-lg-8">
+                    <div class="smart-panel smart-latest-panel h-100">
+                        <div class="smart-panel-heading"><div><span class="smart-panel-kicker">{{ home_labels.private_workspace }}</span><h2>{{ home_labels.latest_title }}</h2></div><i class="bi bi-arrow-up-right smart-panel-arrow"></i></div>
+                        {% if last_screening %}
+                            <div class="smart-latest-main"><div class="smart-pulse-visual"><i class="bi bi-heart-pulse"></i></div><div class="smart-latest-copy"><span class="smart-latest-date">{{ last_screening.created|localized_datetime:home_language }}</span><h3>{{ last_screening.code }}</h3><p>{{ last_screening.assessment_count }} {{ home_labels.assessment_count }}</p></div><div class="smart-latest-actions"><a class="btn btn-sm smart-btn-dark" target="_blank" href="{% url 'my_model:dashboard_comprehensive' code=last_screening.code %}?user_id={{ request.user.id }}">{{ home_labels.view_result }}</a><a class="btn btn-sm smart-btn-soft" href="{% url 'my_model:pdf_report' model_id=last_screening.id %}">{{ home_labels.download_pdf }}</a></div></div>
+                        {% else %}
+                            <div class="smart-empty-state"><div class="smart-empty-icon"><i class="bi bi-compass"></i></div><div><h3>{{ home_labels.no_screenings }}</h3><p>{{ home_labels.no_screenings_text }}</p><a class="btn smart-btn-dark" href="{% url 'my_model:screening_list' %}">{{ home_labels.new_screening }}</a></div></div>
+                        {% endif %}
+                        {% if recent_screenings %}<div class="smart-history-list">{% for screening in recent_screenings|slice:'1:' %}<div class="smart-history-item"><span class="smart-history-marker"></span><span>{{ screening.created|localized_date:home_language }}</span><span class="smart-history-code">{{ screening.code }}</span><span class="smart-history-count">{{ screening.assessment_count }} {{ home_labels.assessment_count }}</span></div>{% endfor %}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-4"><div class="smart-panel smart-tip-panel h-100"><div class="smart-tip-glow"></div><span class="smart-panel-kicker">{{ home_labels.health_tip }}</span><div class="smart-tip-icon"><i class="bi bi-stars"></i></div><h2>{{ home_labels.health_tip }}</h2><p>{{ home_labels.health_tip_text }}</p><a class="smart-text-link" href="{% url 'my_model:screening_list' %}">{{ home_labels.new_screening }} <i class="bi bi-arrow-up-right"></i></a></div></div>
+            </div>
+        </section>
+    {% else %}
+        <section class="smart-hero">
+            <div class="container position-relative">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6"><span class="smart-eyebrow">{{ home_labels.eyebrow }}</span><h1 class="smart-hero-title">{{ home_labels.hero_title }}</h1><p class="smart-hero-text">{{ home_labels.hero_text }}</p><div class="d-flex flex-wrap gap-3 mb-4"><a class="btn smart-btn-accent smart-btn-large" href="{% url 'account:login' %}">{{ home_labels.start }}<i class="bi bi-arrow-up-right ms-2"></i></a><a class="btn smart-btn-ghost-light smart-btn-large" href="#smart-how-it-works">{{ home_labels.learn }}<i class="bi bi-play-circle ms-2"></i></a></div><div class="smart-hero-proof"><span class="smart-proof-icon"><i class="bi bi-shield-check"></i></span><div><strong>{{ home_labels.secure }}</strong><small>{{ home_labels.secure_text }}</small></div></div></div>
+                    <div class="col-lg-6"><div class="smart-hero-art"><div class="smart-art-ring smart-art-ring-one"></div><div class="smart-art-ring smart-art-ring-two"></div><img src="{% static 'images/smartscreening/smartscreening_banner1.png' %}" alt="{{ home_labels.title }}"><div class="smart-floating-card smart-floating-card-top"><i class="bi bi-graph-up-arrow"></i><span>+ <b>24%</b><small> {{ home_labels.clarity }}</small></span></div><div class="smart-floating-card smart-floating-card-bottom"><i class="bi bi-heart-pulse-fill"></i><span>{{ home_labels.health_insight }}</span></div></div></div>
+                </div>
+                <div class="smart-hero-scroll"><span></span><small>{{ home_labels.scroll }}</small></div>
+            </div>
+        </section>
+
+        <section class="smart-feature-section"><div class="container"><div class="row align-items-end g-4 mb-5"><div class="col-lg-7"><span class="smart-eyebrow smart-eyebrow-dark">{{ home_labels.brand_mark }}</span><h2 class="smart-section-title">{{ home_labels.feature_title }}</h2></div><div class="col-lg-4 ms-auto"><p class="smart-section-lead">{{ home_labels.feature_text }}</p></div></div><div class="row g-4"><div class="col-md-4"><article class="smart-feature-card smart-feature-card-blue"><span class="smart-feature-number">01</span><div class="smart-feature-icon"><i class="bi bi-person-heart"></i></div><h3>{{ home_labels.feature_1_title }}</h3><p>{{ home_labels.feature_1_text }}</p><span class="smart-feature-line"></span></article></div><div class="col-md-4"><article class="smart-feature-card smart-feature-card-purple"><span class="smart-feature-number">02</span><div class="smart-feature-icon"><i class="bi bi-bar-chart-line"></i></div><h3>{{ home_labels.feature_2_title }}</h3><p>{{ home_labels.feature_2_text }}</p><span class="smart-feature-line"></span></article></div><div class="col-md-4"><article class="smart-feature-card smart-feature-card-orange"><span class="smart-feature-number">03</span><div class="smart-feature-icon"><i class="bi bi-chat-square-heart"></i></div><h3>{{ home_labels.feature_3_title }}</h3><p>{{ home_labels.feature_3_text }}</p><span class="smart-feature-line"></span></article></div></div></div></section>
+
+        <section class="smart-process-section" id="smart-how-it-works"><div class="container"><div class="text-center mb-5"><span class="smart-eyebrow smart-eyebrow-dark">{{ home_labels.process_eyebrow }}</span><h2 class="smart-section-title">{{ home_labels.steps_title }}</h2></div><div class="row g-4 smart-process-row"><div class="col-md-4"><article class="smart-process-card"><span class="smart-process-step">01</span><div class="smart-process-icon"><i class="bi bi-sliders2"></i></div><h3>{{ home_labels.step_1 }}</h3><p>{{ home_labels.step_1_text }}</p></article></div><div class="col-md-4"><article class="smart-process-card"><span class="smart-process-step">02</span><div class="smart-process-icon"><i class="bi bi-ui-checks-grid"></i></div><h3>{{ home_labels.step_2 }}</h3><p>{{ home_labels.step_2_text }}</p></article></div><div class="col-md-4"><article class="smart-process-card"><span class="smart-process-step">03</span><div class="smart-process-icon"><i class="bi bi-compass"></i></div><h3>{{ home_labels.step_3 }}</h3><p>{{ home_labels.step_3_text }}</p></article></div></div></div></section>
+
+        <section class="smart-cta-section"><div class="container"><div class="smart-cta-card"><div class="smart-cta-orb"></div><div class="row align-items-center g-4 position-relative"><div class="col-lg-8"><span class="smart-eyebrow smart-eyebrow-light">{{ home_labels.cta_eyebrow }}</span><h2>{{ home_labels.cta_title }}</h2><p>{{ home_labels.cta_text }}</p></div><div class="col-lg-4 text-lg-end"><a class="btn smart-btn-light smart-btn-large" href="{% url 'account:login' %}">{{ home_labels.start }}<i class="bi bi-arrow-up-right ms-2"></i></a></div></div></div></div></section>
+    {% endif %}
+</main>
+{% endblock %}

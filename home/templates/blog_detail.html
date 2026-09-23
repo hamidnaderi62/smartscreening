@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{{ blog.display_title }}{% endblock %}
+{% block content %}
+<main class="container py-5">
+    <article class="mx-auto" style="max-width:850px">
+        <h1 class="h2">{{ blog.display_title }}</h1>
+        {% if blog.image_file %}<img src="{{ blog.image_file.url }}" class="img-fluid rounded my-4" alt="">{% endif %}
+        <div>{{ blog.display_desc|safe }}</div>
+    </article>
+</main>
+{% endblock %}

@@ -15,7 +15,7 @@ class Melanoma_RiskCalculator:
             melanoma_cancer_score += 3
 
         if family_melanoma_cancer == 'Yes':
-            melanoma_cancer_score += 7
+            melanoma_cancer_score += 9
 
         if colored_hair == 'Yes':
             melanoma_cancer_score += 2

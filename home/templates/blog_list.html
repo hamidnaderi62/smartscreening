@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% translate 'Articles and news' %}{% endblock %}
+{% block content %}
+<main class="container py-5">
+    <h1 class="h3 mb-4">{% translate 'Articles and news' %}</h1>
+    <div class="row g-4">
+        {% for blog in blogs %}
+            <div class="col-md-6 col-lg-4">
+                <article class="card h-100">
+                    {% if blog.image_file %}<img src="{{ blog.image_file.url }}" class="card-img-top" alt="">{% endif %}
+                    <div class="card-body">
+                        <h2 class="h5"><a href="{% url 'home:blog_detail' pk=blog.id %}">{{ blog.display_title }}</a></h2>
+                        <p>{{ blog.display_desc|truncatechars:180 }}</p>
+                    </div>
+                </article>
+            </div>
+        {% empty %}<p>{% translate 'No articles are available.' %}</p>{% endfor %}
+    </div>
+    {% if blogs.has_other_pages %}<nav class="mt-4">{% if blogs.has_previous %}<a href="?page={{ blogs.previous_page_number }}">{% translate 'Previous' %}</a>{% endif %} {% if blogs.has_next %}<a href="?page={{ blogs.next_page_number }}">{% translate 'Next' %}</a>{% endif %}</nav>{% endif %}
+</main>
+{% endblock %}

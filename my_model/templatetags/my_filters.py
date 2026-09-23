@@ -1,4 +1,5 @@
 from django import template
+from my_model.services.localization import format_localized_date, format_localized_datetime
 register = template.Library()
 
 @register.filter(name='split_by')
@@ -19,6 +20,16 @@ def to_jalali(value):
 @register.filter
 def to_jalali_c(value):
     return JalaliDate(value, locale="fa").strftime('%c')
+
+
+@register.filter(name='localized_date')
+def localized_date(value, language='fa'):
+    return format_localized_date(value, language)
+
+
+@register.filter(name='localized_datetime')
+def localized_datetime(value, language='fa'):
+    return format_localized_datetime(value, language)
 
 
 @register.filter

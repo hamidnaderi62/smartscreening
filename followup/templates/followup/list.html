@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static my_filters %}
+
+{% block title %}{{ followup_labels.title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/smart-home.css' %}">
+<link rel="stylesheet" href="{% static 'css/followup.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="followup-page">
+    <section class="followup-hero">
+        <div class="container followup-hero-inner">
+            <div class="followup-hero-copy">
+                <span class="followup-eyebrow"><i class="bi bi-shield-check"></i>{{ followup_labels.title }}</span>
+                <h1>{{ followup_labels.title }}</h1>
+                <p>{{ followup_labels.intro }}</p>
+            </div>
+            <div class="followup-hero-visual" aria-hidden="true">
+                <div class="followup-orbit followup-orbit-one"></div>
+                <div class="followup-orbit followup-orbit-two"></div>
+                <div class="followup-hero-glass">
+                    <span class="followup-hero-icon"><i class="bi bi-calendar2-heart"></i></span>
+                    <span><strong>{{ follow_up_plans|length }}</strong><small>{{ followup_labels.title }}</small></span>
+                </div>
+                <span class="followup-orbit-dot followup-dot-one"></span>
+                <span class="followup-orbit-dot followup-dot-two"></span>
+            </div>
+        </div>
+    </section>
+    <section class="container followup-content">
+        {% for plan in follow_up_plans %}
+            <article class="followup-card">
+                <div class="followup-card-heading">
+                    <div>
+                        <span class="followup-card-kicker">{{ followup_labels.screening }} · {{ plan.screening.code }}</span>
+                        <h2>{{ plan.display_title }}</h2>
+                        {% if plan.display_description %}<p>{{ plan.display_description }}</p>{% endif %}
+                    </div>
+                    <span class="followup-status followup-status-{{ plan.status }}">{% if plan.status == 'active' %}{{ followup_labels.active }}{% elif plan.status == 'completed' %}{{ followup_labels.completed }}{% else %}{{ followup_labels.cancelled }}{% endif %}</span>
+                </div>
+                <div class="followup-meta">
+                    <span><i class="bi bi-activity"></i>{{ followup_labels.result }}: {{ plan.result_status|default:'—' }}</span>
+                    {% if plan.next_reminder_at %}<span><i class="bi bi-bell"></i>{{ followup_labels.next_reminder }}: {{ plan.next_reminder_at|localized_datetime:followup_language }}</span>{% else %}<span><i class="bi bi-check2-circle"></i>{{ followup_labels.no_reminder }}</span>{% endif %}
+                </div>
+                <div class="followup-reminders">
+                    {% for reminder in plan.reminders.all %}
+                        <div class="followup-reminder-row">
+                            <span class="followup-reminder-line"></span>
+                            <span class="followup-reminder-icon"><i class="bi {% if reminder.kind == 'pdf' or reminder.kind == 'manual' %}bi-file-earmark-pdf{% else %}bi-bell{% endif %}"></i></span>
+                            <div><strong>{% if reminder.kind == 'pdf' or reminder.kind == 'manual' %}{{ followup_labels.pdf }}{% else %}{{ reminder.display_title }}{% endif %}</strong><small>{{ reminder.scheduled_for|localized_datetime:followup_language }}</small></div>
+                            <span class="followup-delivery followup-delivery-{{ reminder.status }}">{% if reminder.status == 'pending' %}{{ followup_labels.pending }}{% elif reminder.status == 'sent' %}{{ followup_labels.sent }}{% else %}{{ followup_labels.failed }}{% endif %}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </article>
+        {% empty %}
+            <div class="followup-empty"><i class="bi bi-calendar2-heart"></i><h2>{{ followup_labels.empty }}</h2><p>{{ followup_labels.empty_text }}</p></div>
+        {% endfor %}
+    </section>
+</main>
+{% endblock %}

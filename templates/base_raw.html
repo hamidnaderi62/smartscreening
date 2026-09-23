@@ -1,0 +1,29 @@
+{% load static i18n %}
+<!DOCTYPE html>
+<html lang="{{ CURRENT_LANGUAGE }}" dir="{% if IS_RTL %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="{% translate 'Smart health screening' %}">
+    <title>{% block title %}{% translate 'Smart Screening' %}{% endblock %}</title>
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'vendor/font-awesome/css/all.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'vendor/tiny-slider/tiny-slider.css' %}">
+    {% if IS_RTL %}
+        <link rel="stylesheet" href="{% static 'css/style-rtl.css' %}">
+    {% else %}
+        <link rel="stylesheet" href="{% static 'css/style-ltr.css' %}">
+    {% endif %}
+    <link rel="stylesheet" href="{% static 'css/smart-home.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    {% include 'includes/header.html' %}
+    {% block content %}{% endblock %}
+    {% include 'includes/footer.html' %}
+    <script src="{% static 'js/functions.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

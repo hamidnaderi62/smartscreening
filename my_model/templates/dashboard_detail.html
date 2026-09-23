@@ -1,0 +1,1597 @@
+{% extends base_template %}
+{% load static %}
+{% load my_filters %}
+{% block content %}
+
+
+<!-- Plugins CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/font-awesome/css/all.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/choices/css/choices.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/aos/aos.css' %}">
+
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/apexcharts/css/apexcharts.css' %}">
+
+
+<!-- Theme CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/style-rtl.css' %}">
+<!-- **************** MAIN CONTENT START **************** -->
+<main>
+
+<!-- =======================
+Page Banner START -->
+<section class="pt-0">
+	<div class="container-fluid px-0">
+		<div class="card bg-blue h-100px h-md-200px rounded-0" style="background:url({% static 'images/pattern/04.png' %}) no-repeat center center; background-size:cover;">
+		</div>
+	</div>
+
+</section>
+<!-- =======================
+Page Banner END -->
+
+<!-- =======================
+Page content START -->
+<section class="pt-0">
+	<div class="container">
+		<div class="row">
+
+			<!-- Main content START -->
+			<div class="col-xl-12">
+
+				<!-- Counter boxes START -->
+				<div class="row mb-4">
+					<!-- Counter item -->
+					<div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
+						<div class="d-flex justify-content-center align-items-center p-4 bg-orange bg-opacity-15 rounded-3">
+							<span class="display-6 lh-1 text-orange mb-0"><i class="fas fa-tv fa-fw"></i></span>
+							<div class="ms-4">
+								<div class="d-flex">
+									<h5 class="purecounter mb-0 fw-bold" data-purecounter-start="0" data-purecounter-end="0"	data-purecounter-delay="200"> </h5>
+								</div>
+								<p class="mb-0 h6 fw-light">
+
+                                </p>
+							</div>
+						</div>
+					</div>
+					<!-- Counter item -->
+					<div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
+						<div class="d-flex justify-content-center align-items-center p-4 bg-purple bg-opacity-15 rounded-3">
+							<span class="display-6 lh-1 text-purple mb-0"><i class="fas fa-clipboard-check fa-fw"></i></span>
+							<div class="ms-4">
+								<div class="d-flex">
+									<h5 class="purecounter mb-0 fw-bold" data-purecounter-start="10" data-purecounter-end="10"	data-purecounter-delay="200"></h5>
+								</div>
+								<p class="mb-0 h6 fw-light">
+
+                                </p>
+							</div>
+						</div>
+					</div>
+					<!-- Counter item -->
+					<div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
+						<div class="d-flex justify-content-center align-items-center p-4 bg-success bg-opacity-10 rounded-3">
+							<span class="display-6 lh-1 text-success mb-0"><i class="fas fa-medal fa-fw"></i></span>
+							<div class="ms-4">
+								<div class="d-flex">
+									<h5 class="purecounter mb-0 fw-bold" data-purecounter-start="0" data-purecounter-end="8" data-purecounter-delay="300"></h5>
+								</div>
+								<p class="mb-0 h6 fw-light"></p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Counter boxes END -->
+
+            <!--Breast Cancer Chart START -->
+            {% if gail_score_abs_5_history %}
+				<div class="row mt-5 mb-4">
+					<div class="col-6">
+						<div class="card card-body bg-transparent border p-4 h-100">
+							<div class="row g-4">
+                                <h5>{{ report_labels.breast_5 }}</h5>
+								<!-- Content -->
+								<div class="col-sm-6 col-md-4">
+									<span class="badge text-bg-dark">{{ report_labels.change }}
+                                        {% if gail_score_abs_5_history|get_history_change > 0 %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ gail_score_abs_5_history|get_history_change  }}<i class="bi bi-arrow-up"></i></span></span>
+                                        {% else %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ gail_score_abs_5_history|get_history_change|mul:-1  }}<i class="bi bi-arrow-down"></i></span></span>
+                                        {% endif %}
+                                    </span>
+								</div>
+							</div>
+
+							<div id="chart_gail_5_history"></div>
+
+						</div>
+					</div>
+
+                    <div class="col-6">
+						<div class="card card-body bg-transparent border p-4 h-100">
+							<div class="row g-4">
+                                <h5>{{ report_labels.breast_lifetime }}</h5>
+                                <!-- Content -->
+								<div class="col-sm-6 col-md-4">
+									<span class="badge text-bg-dark">{{ report_labels.change }}
+                                        {% if gail_score_abs_90_history|get_history_change > 0 %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ gail_score_abs_90_history|get_history_change  }}<i class="bi bi-arrow-up"></i></span></span>
+                                        {% else %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ gail_score_abs_90_history|get_history_change|mul:-1  }}<i class="bi bi-arrow-down"></i></span></span>
+                                        {% endif %}
+                                    </span>
+								</div>
+							</div>
+
+							<div id="chart_gail_90_history"></div>
+
+						</div>
+					</div>
+				</div>
+            {% endif %}
+            <!--Breast Cancer END -->
+
+            <!--CRC Chart START -->
+            {% if premm_score_history %}
+				<div class="row mt-5 mb-4">
+                    <div class="col-12">
+						<div class="card card-body bg-transparent border p-4 h-100">
+							<div class="row g-4">
+                                <h5>{{ report_labels.colorectal }}</h5>
+                                <!-- Content -->
+								<div class="col-sm-6 col-md-4">
+									<span class="badge text-bg-dark">{{ report_labels.change }}
+                                        {% if premm_score_history|get_history_change > 0 %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ premm_score_history|get_history_change  }}<i class="bi bi-arrow-up"></i></span></span>
+                                        {% else %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ premm_score_history|get_history_change|mul:-1  }}<i class="bi bi-arrow-down"></i></span></span>
+                                        {% endif %}
+                                    </span>
+								</div>
+							</div>
+
+							<div id="chart_crc_history"></div>
+
+						</div>
+					</div>
+				</div>
+            {% endif %}
+            <!--CRC Chart END -->
+
+            <!--Prostate Chart START -->
+            {% if pbcg_score_high_cancer_history %}
+				<div class="row mt-5 mb-4">
+                    <div class="col-12">
+						<div class="card card-body bg-transparent border p-4 h-100">
+							<div class="row g-4">
+                                <h5>{{ report_labels.prostate }}</h5>
+                                <!-- Content -->
+								<div class="col-sm-6 col-md-4">
+									<span class="badge text-bg-dark">{{ report_labels.change }}
+                                        {% if pbcg_score_high_cancer_history|get_history_change > 0 %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ pbcg_score_high_cancer_history|get_history_change  }}<i class="bi bi-arrow-up"></i></span></span>
+                                        {% else %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ pbcg_score_high_cancer_history|get_history_change|mul:-1  }}<i class="bi bi-arrow-down"></i></span></span>
+                                        {% endif %}
+                                    </span>
+								</div>
+							</div>
+
+							<div id="chart_pbcg_history"></div>
+
+						</div>
+					</div>
+				</div>
+            {% endif %}
+            <!--Prostate Chart END -->
+
+            <!--cervical Chart START -->
+            {% if cervical_cancer_score_history %}
+				<div class="row mt-5 mb-4">
+                    <div class="col-12">
+						<div class="card card-body bg-transparent border p-4 h-100">
+							<div class="row g-4">
+                                <h5>{{ report_labels.cervical }}</h5>
+                                <!-- Content -->
+								<div class="col-sm-6 col-md-4">
+									<span class="badge text-bg-dark">{{ report_labels.change }}
+                                        {% if cervical_cancer_score_history|get_history_change > 0 %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ cervical_cancer_score_history|get_history_change  }}<i class="bi bi-arrow-up"></i></span></span>
+                                        {% else %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ cervical_cancer_score_history|get_history_change|mul:-1  }}<i class="bi bi-arrow-down"></i></span></span>
+                                        {% endif %}
+                                    </span>
+								</div>
+							</div>
+
+							<div id="chart_cervical_history"></div>
+
+						</div>
+					</div>
+				</div>
+            {% endif %}
+            <!--cervical Chart END -->
+
+            <!--Diabetes Chart START -->
+            {% if idf_score_history %}
+				<div class="row mt-5 mb-4">
+                    <div class="col-12">
+						<div class="card card-body bg-transparent border p-4 h-100">
+							<div class="row g-4">
+                                <h5>{{ report_labels.diabetes }}</h5>
+                                <!-- Content -->
+								<div class="col-sm-6 col-md-4">
+									<span class="badge text-bg-dark">{{ report_labels.change }}
+                                        {% if idf_score_history|get_history_change > 0 %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ idf_score_history|get_history_change  }}<i class="bi bi-arrow-up"></i></span></span>
+                                        {% else %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ idf_score_history|get_history_change|mul:-1  }}<i class="bi bi-arrow-down"></i></span></span>
+                                        {% endif %}
+                                    </span>
+								</div>
+							</div>
+
+							<div id="chart_diabetes_history"></div>
+
+						</div>
+					</div>
+				</div>
+            {% endif %}
+            <!--Diabetes Chart END -->
+
+            <!--ascvd Chart START -->
+            {% if ascvd_score_history %}
+				<div class="row mt-5 mb-4">
+                    <div class="col-12">
+						<div class="card card-body bg-transparent border p-4 h-100">
+							<div class="row g-4">
+                                <h5>{{ report_labels.cardiovascular }}</h5>
+                                <!-- Content -->
+								<div class="col-sm-6 col-md-4">
+									<span class="badge text-bg-dark">{{ report_labels.change }}
+                                        {% if ascvd_score_history|get_history_change > 0 %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ ascvd_score_history|get_history_change  }}<i class="bi bi-arrow-up"></i></span></span>
+                                        {% else %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ ascvd_score_history|get_history_change|mul:-1  }}<i class="bi bi-arrow-down"></i></span></span>
+                                        {% endif %}
+                                    </span>
+								</div>
+							</div>
+
+							<div id="chart_ascvd_history"></div>
+
+						</div>
+					</div>
+				</div>
+            {% endif %}
+            <!--ascvd Chart END -->
+
+            <!--Melanoma Chart START -->
+            {% if melanoma_cancer_score_history %}
+				<div class="row mt-5 mb-4">
+                    <div class="col-12">
+						<div class="card card-body bg-transparent border p-4 h-100">
+							<div class="row g-4">
+                                <h5>{{ report_labels.skin }}</h5>
+                                <!-- Content -->
+								<div class="col-sm-6 col-md-4">
+									<span class="badge text-bg-dark">{{ report_labels.change }}
+                                        {% if melanoma_cancer_score_history|get_history_change > 0 %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ melanoma_cancer_score_history|get_history_change  }}<i class="bi bi-arrow-up"></i></span></span>
+                                        {% else %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ melanoma_cancer_score_history|get_history_change|mul:-1  }}<i class="bi bi-arrow-down"></i></span></span>
+                                        {% endif %}
+                                    </span>
+								</div>
+							</div>
+
+							<div id="chart_melanoma_history"></div>
+
+						</div>
+					</div>
+				</div>
+            {% endif %}
+            <!--Melanoma Chart END -->
+
+            <!--osteoporosis Chart START -->
+            {% if osteoporosis_score_history %}
+				<div class="row mt-5 mb-4">
+                    <div class="col-12">
+						<div class="card card-body bg-transparent border p-4 h-100">
+							<div class="row g-4">
+                                <h5>{{ report_labels.osteoporosis }}</h5>
+                                <!-- Content -->
+								<div class="col-sm-6 col-md-4">
+									<span class="badge text-bg-dark">{{ report_labels.change }}
+                                        {% if osteoporosis_score_history|get_history_change > 0 %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ osteoporosis_score_history|get_history_change  }}<i class="bi bi-arrow-up"></i></span></span>
+                                        {% else %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ osteoporosis_score_history|get_history_change|mul:-1  }}<i class="bi bi-arrow-down"></i></span></span>
+                                        {% endif %}
+                                    </span>
+								</div>
+							</div>
+
+							<div id="chart_osteoporosis_history"></div>
+
+						</div>
+					</div>
+				</div>
+            {% endif %}
+            <!--osteoporosis Chart END -->
+
+             <!--ovarian Chart START -->
+            {% if ovarian_cancer_score_history %}
+				<div class="row mt-5 mb-4">
+                    <div class="col-12">
+						<div class="card card-body bg-transparent border p-4 h-100">
+							<div class="row g-4">
+                                <h5>{{ report_labels.ovarian }}</h5>
+                                <!-- Content -->
+								<div class="col-sm-6 col-md-4">
+									<span class="badge text-bg-dark">{{ report_labels.change }}
+                                        {% if ovarian_cancer_score_history|get_history_change > 0 %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ ovarian_cancer_score_history|get_history_change  }}<i class="bi bi-arrow-up"></i></span></span>
+                                        {% else %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ ovarian_cancer_score_history|get_history_change|mul:-1  }}<i class="bi bi-arrow-down"></i></span></span>
+                                        {% endif %}
+                                    </span>
+								</div>
+							</div>
+
+							<div id="chart_ovarian_history"></div>
+
+						</div>
+					</div>
+				</div>
+            {% endif %}
+            <!--ovarian Chart END -->
+
+            <!--stomach Chart START -->
+            {% if stomach_cancer_score_history %}
+				<div class="row mt-5 mb-4">
+                    <div class="col-12">
+						<div class="card card-body bg-transparent border p-4 h-100">
+							<div class="row g-4">
+                                <h5>{{ report_labels.stomach }}</h5>
+                                <!-- Content -->
+								<div class="col-sm-6 col-md-4">
+									<span class="badge text-bg-dark">{{ report_labels.change }}
+                                        {% if stomach_cancer_score_history|get_history_change > 0 %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ stomach_cancer_score_history|get_history_change  }}<i class="bi bi-arrow-up"></i></span></span>
+                                        {% else %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ stomach_cancer_score_history|get_history_change|mul:-1  }}<i class="bi bi-arrow-down"></i></span></span>
+                                        {% endif %}
+                                    </span>
+								</div>
+							</div>
+
+							<div id="chart_stomach_history"></div>
+
+						</div>
+					</div>
+				</div>
+            {% endif %}
+            <!--stomach Chart END -->
+
+            <!--stroke Chart START -->
+            {% if stroke_score_history %}
+				<div class="row mt-5 mb-4">
+                    <div class="col-12">
+						<div class="card card-body bg-transparent border p-4 h-100">
+							<div class="row g-4">
+                                <h5>{{ report_labels.stroke }}</h5>
+                                <!-- Content -->
+								<div class="col-sm-6 col-md-4">
+									<span class="badge text-bg-dark">{{ report_labels.change }}
+                                        {% if stroke_score_history|get_history_change > 0 %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ stroke_score_history|get_history_change  }}<i class="bi bi-arrow-up"></i></span></span>
+                                        {% else %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ stroke_score_history|get_history_change|mul:-1  }}<i class="bi bi-arrow-down"></i></span></span>
+                                        {% endif %}
+                                    </span>
+								</div>
+							</div>
+
+							<div id="chart_stroke_history"></div>
+
+						</div>
+					</div>
+				</div>
+            {% endif %}
+            <!--stroke Chart END -->
+
+            <!--pancreatic Chart START -->
+            {% if pancreatic_cancer_score_history %}
+				<div class="row mt-5 mb-4">
+                    <div class="col-12">
+						<div class="card card-body bg-transparent border p-4 h-100">
+							<div class="row g-4">
+                                <h5>{{ report_labels.pancreatic }}</h5>
+                                <!-- Content -->
+								<div class="col-sm-6 col-md-4">
+									<span class="badge text-bg-dark">{{ report_labels.change }}
+                                        {% if pancreatic_cancer_score_history|get_history_change > 0 %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ pancreatic_cancer_score_history|get_history_change  }}<i class="bi bi-arrow-up"></i></span></span>
+                                        {% else %}
+                                            <span class="mb-0"><span class="text-warning me-1">{{ pancreatic_cancer_score_history|get_history_change|mul:-1  }}<i class="bi bi-arrow-down"></i></span></span>
+                                        {% endif %}
+                                    </span>
+								</div>
+							</div>
+
+							<div id="chart_pancreatic_history"></div>
+
+						</div>
+					</div>
+				</div>
+            {% endif %}
+            <!--pancreatic Chart END -->
+
+            <div class="card bg-transparent border rounded-3 mb-4">
+                <!-- Card header START -->
+                <div class="card-header bg-transparent border-bottom">
+                    <h3 class="mb-0 fs-5 ff-vb">{{ report_labels.suggested_content }}</h3>
+                </div>
+                <!-- Card header END -->
+
+                <!-- Card body START for related_contents -->
+                <div class="card-body">
+                    <!-- Course table START -->
+                    <div class="table-responsive border-0 rounded-3">
+                        <!-- Table START -->
+                        <table class="table table-dark-gray align-middle p-4 mb-0 table-hover">
+                            <!-- Table head -->
+                            <thead>
+                                <tr>
+                                    <th scope="col" class="border-0 rounded-start">{{ report_labels.title }}</th>
+                                    <th scope="col" class="border-0">{{ report_labels.duration }}</th>
+                                    <th scope="col" class="border-0">{{ report_labels.content_type }}</th>
+                                    <th scope="col" class="border-0 rounded-end">{{ report_labels.details }}</th>
+                                </tr>
+                            </thead>
+
+                            <!-- Table body START -->
+                            <tbody>
+
+                                <!-- Table row -->
+                                {% for related_content in related_contents %}
+                                    <tr>
+                                    <!-- Table data -->
+                                    <td>
+                                        <div class="d-flex align-items-center position-relative">
+                                            <!-- Image -->
+                                            <div class="w-100px">
+                                                <img src="{{SMARTLIFE_IMAGE_BASE_URL}}/{{ related_content.image_file }}" class="rounded" alt="">
+                                            </div>
+                                            <!-- Title -->
+                                            <h6 class="table-responsive-title mb-0 ms-2">
+                                                <a href="#" class="stretched-link">{{ related_content.title }}</a>
+                                            </h6>
+                                        </div>
+                                    </td>
+
+                                    <!-- Table data -->
+                                    <td>{{ related_content.duration }} {{ report_labels.minutes }} </td>
+
+                                    <!-- Table data -->
+                                    <td> <span class="badge text-bg-primary">{{ related_content.content_type }}</span> </td>
+
+                                    <!-- Table data -->
+                                    <td>
+                                        <a href="{{SMARTLIFE_BASE_URL}}/content_detail_{{ report_labels.content_language }}/{{ related_content.id }}" target="_blank" class="btn btn-sm btn-success-soft me-1 mb-1 mb-md-0">{{ report_labels.more_content }}</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+
+                            </tbody>
+                            <!-- Table body END -->
+                        </table>
+                        <!-- Table END -->
+                    </div>
+                    <!-- Course table END -->
+                </div>
+                <!-- Card body END for related_contents -->
+
+            </div>
+
+            {% if 1 != 1 %}
+            <div class="card bg-transparent border rounded-3 mb-4">
+					<!-- Card header START -->
+					<div class="card-header bg-transparent border-bottom">
+						<h3 class="mb-0 fs-5 ff-vb">{{ report_labels.suggested_specialists }}</h3>
+					</div>
+					<!-- Card header END -->
+
+					<!-- Card body START for related_contents -->
+                    <div class="card-body">
+                        <!-- Course table START -->
+                        <div class="table-responsive border-0 rounded-3">
+                            <!-- Table START -->
+                            <table class="table table-dark-gray align-middle p-4 mb-0 table-hover">
+                                <!-- Table head -->
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="border-0">{{ report_labels.specialist_name }}</th>
+                                        <th scope="col" class="border-0">{{ report_labels.specialty }}</th>
+                                        <th scope="col" class="border-0">{{ report_labels.status }}</th>
+                                        <th scope="col" class="border-0 rounded-end">{{ report_labels.more_info }}</th>
+                                    </tr>
+                                </thead>
+
+                                <!-- Table body START -->
+                                <tbody>
+
+                                    <!-- Table row -->
+                                    {% for related_doctor in related_doctors %}
+                                        <tr>
+
+                                        <!-- Table data -->
+                                        <td>
+                                            <div class="d-flex align-items-center mb-3">
+                                                <!-- Avatar -->
+                                                <div class="avatar avatar-xs flex-shrink-0" >
+                                                    <img class="avatar-img rounded-circle" src="{{SMARTLIFE_IMAGE_BASE_URL}}/{{ related_doctor.image_file }}" alt="avatar">
+                                                </div>
+                                                <!-- Info -->
+                                                <div class="ms-2">
+                                                    <h6 class="mb-0 fw-light">{{ related_doctor.name }}</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <!-- Table data -->
+                                        <td> <span class="badge text-bg-primary">{{ related_doctor.doctor_tags }}</span> </td>
+
+                                        <!-- Table data -->
+                                        <td> <span class="badge bg-warning bg-opacity-15 text-warning">{{ report_labels.active }}</span> </td>
+
+                                        <!-- Table data -->
+                                        <td>
+                                            <a href="{{SMARTLIFE_BASE_URL}}/content_detail_{{ report_labels.content_language }}/{{ related_doctor.id }}" target="_blank" class="btn btn-sm btn-success-soft me-1 mb-1 mb-md-0">{{ report_labels.more_content }}</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+
+                                </tbody>
+                                <!-- Table body END -->
+                            </table>
+                            <!-- Table END -->
+                        </div>
+                        <!-- Course table END -->
+                    </div>
+                    <!-- Card body END for related_contents -->
+
+				</div>
+            {% endif %}
+
+			<!-- Main content END -->
+			</div><!-- Row END -->
+		</div>
+	</div>
+</section>
+<!-- =======================
+Page content END -->
+
+</main>
+<!-- **************** MAIN CONTENT END **************** -->
+
+
+<script>
+document.getElementById('assessmentsForm').addEventListener('submit', function(e) {
+    // Get all checked assessments
+    const checkedItems = Array.from(document.querySelectorAll('.assessment-check:checked')).map(el => el.value);
+
+    // You could do something with them here if needed
+    console.log("Selected assessments:", checkedItems);
+
+    // Form will submit normally with all checked values
+});
+</script>
+
+<!-- Bootstrap JS -->
+<script src="{% static 'vendor/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+
+<!-- Vendors -->
+<script src="{% static 'vendor/choices/js/choices.min.js' %}"></script>
+<script src="{% static 'vendor/purecounterjs/dist/purecounter_vanilla.js' %}"></script>
+<script src="{% static 'vendor/aos/aos.js' %}"></script>
+
+    <script src="{% static 'vendor/apexcharts/js/apexcharts.min.js' %}"></script>
+<!-- Template Functions -->
+<script src="{% static 'js/functions.js' %}"></script>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const dates = {{ date_history|safe }};
+    const reportDateLabel = "{{ report_labels.date }}";
+    const reportRiskLabel = "{{ report_labels.risk }}";
+
+// Breast Chart
+ {% if gail_score_abs_5_history %}
+    const gail_abs_5_Scores = {{ gail_score_abs_5_history|safe }};
+    const gail_ave_5_Scores = {{ gail_score_ave_5_history|safe }};
+    var options_gail_5 = {
+              series: [
+              {
+                name: "{{ report_labels.your_5_year }}",
+                data: gail_abs_5_Scores
+              },
+              {
+                name: "{{ report_labels.average_5_year }}",
+                data: gail_ave_5_Scores
+              }
+            ],
+              chart: {
+              height: 350,
+              type: 'line',
+              dropShadow: {
+                enabled: true,
+                color: '#000',
+                top: 18,
+                left: 7,
+                blur: 10,
+                opacity: 0.5
+              },
+              zoom: {
+                enabled: false
+              },
+              toolbar: {
+                show: false
+              }
+            },
+            colors: ['#77B6EA', '#545454'],
+            dataLabels: {
+              enabled: true,
+            },
+            stroke: {
+              curve: 'smooth'
+            },
+            title: {
+              text: '.',
+              align: 'center'
+            },
+            grid: {
+              borderColor: '#e7e7e7',
+              row: {
+                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                opacity: 0.5
+              },
+            },
+            markers: {
+              size: 1
+            },
+            xaxis: {
+              categories: dates,
+              title: {
+                text: reportDateLabel
+              }
+            },
+            yaxis: {
+              title: {
+                text: reportRiskLabel
+              },
+              min: 0,
+              max: 10
+            },
+            legend: {
+              position: 'top',
+              horizontalAlign: 'right',
+              floating: true,
+              offsetY: -25,
+              offsetX: -5
+            }
+        };
+    var chart_gail_5 = new ApexCharts(document.querySelector("#chart_gail_5_history"), options_gail_5);
+    chart_gail_5.render();
+ {% endif %}
+
+ {% if gail_score_abs_90_history %}
+    const gail_abs_90_Scores = {{ gail_score_abs_90_history|safe }};
+    const gail_ave_90_Scores = {{ gail_score_ave_90_history|safe }};
+    var options_gail_90 = {
+              series: [
+              {
+                name: "{{ report_labels.your_lifetime }}",
+                data: gail_abs_90_Scores
+              },
+              {
+                name: "{{ report_labels.average_lifetime }}",
+                data: gail_ave_90_Scores
+              }
+            ],
+              chart: {
+              height: 350,
+              type: 'line',
+              dropShadow: {
+                enabled: true,
+                color: '#000',
+                top: 18,
+                left: 7,
+                blur: 10,
+                opacity: 0.5
+              },
+              zoom: {
+                enabled: false
+              },
+              toolbar: {
+                show: false
+              }
+            },
+            colors: ['#77B6EA', '#545454'],
+            dataLabels: {
+              enabled: true,
+            },
+            stroke: {
+              curve: 'smooth'
+            },
+            title: {
+              text: '',
+              align: 'center'
+            },
+            grid: {
+              borderColor: '#e7e7e7',
+              row: {
+                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                opacity: 0.5
+              },
+            },
+            markers: {
+              size: 1
+            },
+            xaxis: {
+              categories: dates,
+              title: {
+                text: reportDateLabel
+              }
+            },
+            yaxis: {
+              title: {
+                text: reportRiskLabel
+              },
+              min: 0,
+              max: 50
+            },
+            legend: {
+              position: 'top',
+              horizontalAlign: 'right',
+              floating: true,
+              offsetY: -25,
+              offsetX: -5
+            }
+        };
+    var chart_gail_90 = new ApexCharts(document.querySelector("#chart_gail_90_history"), options_gail_90);
+    chart_gail_90.render();
+ {% endif %}
+
+// CRC Chart
+ {% if premm_score_history %}
+    const premm_Scores = {{ premm_score_history|safe }};
+    var options_crc = {
+          series: [{
+          name: '{{ report_labels.crc_risk }}',
+          data: premm_Scores
+        }],
+          chart: {
+          height: 350,
+          type: 'bar',
+        },
+        plotOptions: {
+          bar: {
+            borderRadius: 10,
+            dataLabels: {
+              position: 'top', // top, center, bottom
+            },
+          }
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (val) {
+            return val + "%";
+          },
+          offsetY: -20,
+          style: {
+            fontSize: '12px',
+            colors: ["#304758"]
+          }
+        },
+
+        xaxis: {
+          categories: dates,
+          position: 'bottom',
+          axisBorder: {
+            show: false
+          },
+          axisTicks: {
+            show: false
+          },
+          crosshairs: {
+            fill: {
+              type: 'gradient',
+              gradient: {
+                colorFrom: '#D8E3F0',
+                colorTo: '#BED1E6',
+                stops: [0, 100],
+                opacityFrom: 0.4,
+                opacityTo: 0.5,
+              }
+            }
+          },
+          tooltip: {
+            enabled: true,
+          }
+        },
+        yaxis: {
+          axisBorder: {
+            show: false
+          },
+          axisTicks: {
+            show: false,
+          },
+          labels: {
+            show: false,
+            formatter: function (val) {
+              return val + "%";
+            }
+          }
+
+        },
+        title: {
+          text: '',
+          floating: true,
+          offsetY: 330,
+          align: 'center',
+          style: {
+            color: '#444'
+          }
+        }
+        };
+    var chart_crc = new ApexCharts(document.querySelector("#chart_crc_history"), options_crc);
+    chart_crc.render();
+ {% endif %}
+
+// Prostate Chart
+ {% if pbcg_score_high_cancer_history %}
+    const pbcg_high_Scores = {{ pbcg_score_high_cancer_history|safe }};
+    const pbcg_low_Scores = {{ pbcg_score_low_cancer_history|safe }};
+    const pbcg_no_Scores = {{ pbcg_score_no_cancer_history|safe }};
+    var options_pbcg = {
+          series: [{
+          name: '{{ report_labels.high_risk }}',
+          data: pbcg_high_Scores
+        }, {
+          name: '{{ report_labels.low_risk }}',
+          data: pbcg_low_Scores
+        }, {
+          name: '{{ report_labels.no_risk }}',
+          data: pbcg_no_Scores
+        }],
+          chart: {
+          type: 'bar',
+          height: 350,
+          stacked: true,
+          toolbar: {
+            show: true
+          },
+          zoom: {
+            enabled: true
+          }
+        },
+        responsive: [{
+          breakpoint: 480,
+          options: {
+            legend: {
+              position: 'bottom',
+              offsetX: -10,
+              offsetY: 0
+            }
+          }
+        }],
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            borderRadius: 10,
+            borderRadiusApplication: 'end', // 'around', 'end'
+            borderRadiusWhenStacked: 'last', // 'all', 'last'
+            dataLabels: {
+              total: {
+                enabled: true,
+                style: {
+                  fontSize: '13px',
+                  fontWeight: 900
+                }
+              }
+            }
+          },
+        },
+        xaxis: {
+          type: 'datetime',
+          categories: dates,
+        },
+        legend: {
+          position: 'right',
+          offsetY: 40
+        },
+        colors: ['#FF0000', '#FFA500', '#00FF00'],
+        fill: {
+          opacity: 1
+        }
+        };
+
+        var chart_pbcg = new ApexCharts(document.querySelector("#chart_pbcg_history"), options_pbcg);
+        chart_pbcg.render();
+ {% endif %}
+
+// Diabetes Chart
+ {% if idf_score_history %}
+    const idfScores = {{ idf_score_history|safe }};
+    var options_diabetes = {
+        series: [{
+            name: "{{ report_labels.idf_score }}",
+            data: idfScores
+        }],
+        chart: {
+            height: 350,
+            type: 'line',
+            zoom: {
+                enabled: false
+            },
+            toolbar: {
+                show: true,
+                tools: {
+                    download: true,
+                    selection: false,
+                    zoom: false,
+                    zoomin: false,
+                    zoomout: false,
+                    pan: false,
+                    reset: false
+                }
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'straight',
+            width: 2
+        },
+        title: {
+            text: '{{ report_labels.idf_history }}',
+            align: 'left'
+        },
+        grid: {
+            row: {
+                colors: ['#f3f3f3', 'transparent'],
+                opacity: 0.5
+            },
+        },
+        xaxis: {
+            categories: dates,
+            title: {
+                text: reportDateLabel
+            }
+        },
+        yaxis: {
+            title: {
+                text: "{{ report_labels.idf_score }}"
+            },
+            min: 0,
+            max: 30
+        },
+        colors: ['#3F51B5']
+    };
+    var chart_diabetes = new ApexCharts(document.querySelector("#chart_diabetes_history"), options_diabetes);
+    chart_diabetes.render();
+ {% endif %}
+
+// ascvd Chart
+ {% if ascvd_score_history %}
+    const ascvd_Scores = {{ ascvd_score_history|safe }};
+    var options_ascvd = {
+              series: [
+              {
+                name: "{{ report_labels.cardiovascular }}",
+                data: ascvd_Scores
+              }
+            ],
+              chart: {
+              height: 350,
+              type: 'line',
+              dropShadow: {
+                enabled: true,
+                color: '#000',
+                top: 18,
+                left: 7,
+                blur: 10,
+                opacity: 0.5
+              },
+              zoom: {
+                enabled: false
+              },
+              toolbar: {
+                show: false
+              }
+            },
+            colors: ['#77B6EA'],
+            dataLabels: {
+              enabled: true,
+            },
+            stroke: {
+              curve: 'smooth'
+            },
+            title: {
+              text: '.',
+              align: 'center'
+            },
+            grid: {
+              borderColor: '#e7e7e7',
+              row: {
+                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                opacity: 0.5
+              },
+            },
+            markers: {
+              size: 1
+            },
+            xaxis: {
+              categories: dates,
+              title: {
+                text: reportDateLabel
+              }
+            },
+            yaxis: {
+              title: {
+                text: reportRiskLabel
+              },
+              min: 0,
+              max: 30
+            },
+            legend: {
+              position: 'top',
+              horizontalAlign: 'right',
+              floating: true,
+              offsetY: -25,
+              offsetX: -5
+            }
+        };
+    var chart_ascvd = new ApexCharts(document.querySelector("#chart_ascvd_history"), options_ascvd);
+    chart_ascvd.render();
+ {% endif %}
+
+// cervical Chart
+ {% if cervical_cancer_score_history %}
+    const cervical_Scores = {{ cervical_cancer_score_history|safe }};
+    var options_cervical = {
+              series: [
+              {
+                name: "{{ report_labels.cervical }}",
+                data: cervical_Scores
+              }
+            ],
+              chart: {
+              height: 350,
+              type: 'line',
+              dropShadow: {
+                enabled: true,
+                color: '#000',
+                top: 18,
+                left: 7,
+                blur: 10,
+                opacity: 0.5
+              },
+              zoom: {
+                enabled: false
+              },
+              toolbar: {
+                show: false
+              }
+            },
+            colors: ['#77B6EA'],
+            dataLabels: {
+              enabled: true,
+            },
+            stroke: {
+              curve: 'smooth'
+            },
+            title: {
+              text: '.',
+              align: 'center'
+            },
+            grid: {
+              borderColor: '#e7e7e7',
+              row: {
+                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                opacity: 0.5
+              },
+            },
+            markers: {
+              size: 1
+            },
+            xaxis: {
+              categories: dates,
+              title: {
+                text: reportDateLabel
+              }
+            },
+            yaxis: {
+              title: {
+                text: reportRiskLabel
+              },
+              min: 0,
+              max: 30
+            },
+            legend: {
+              position: 'top',
+              horizontalAlign: 'right',
+              floating: true,
+              offsetY: -25,
+              offsetX: -5
+            }
+        };
+    var chart_cervical = new ApexCharts(document.querySelector("#chart_cervical_history"), options_cervical);
+    chart_cervical.render();
+ {% endif %}
+
+// Melanoma Chart
+ {% if melanoma_cancer_score_history %}
+    const melanoma_Scores = {{ melanoma_cancer_score_history|safe }};
+    var options_melanoma = {
+              series: [
+              {
+                name: "{{ report_labels.skin }}",
+                data: melanoma_Scores
+              }
+            ],
+              chart: {
+              height: 350,
+              type: 'line',
+              dropShadow: {
+                enabled: true,
+                color: '#000',
+                top: 18,
+                left: 7,
+                blur: 10,
+                opacity: 0.5
+              },
+              zoom: {
+                enabled: false
+              },
+              toolbar: {
+                show: false
+              }
+            },
+            colors: ['#77B6EA'],
+            dataLabels: {
+              enabled: true,
+            },
+            stroke: {
+              curve: 'smooth'
+            },
+            title: {
+              text: '.',
+              align: 'center'
+            },
+            grid: {
+              borderColor: '#e7e7e7',
+              row: {
+                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                opacity: 0.5
+              },
+            },
+            markers: {
+              size: 1
+            },
+            xaxis: {
+              categories: dates,
+              title: {
+                text: reportDateLabel
+              }
+            },
+            yaxis: {
+              title: {
+                text: reportRiskLabel
+              },
+              min: 0,
+              max: 30
+            },
+            legend: {
+              position: 'top',
+              horizontalAlign: 'right',
+              floating: true,
+              offsetY: -25,
+              offsetX: -5
+            }
+        };
+    var chart_melanoma = new ApexCharts(document.querySelector("#chart_melanoma_history"), options_melanoma);
+    chart_melanoma.render();
+ {% endif %}
+
+// Osteoporosis Chart
+ {% if osteoporosis_score_history %}
+    const osteoporosis_Scores = {{ osteoporosis_score_history|safe }};
+    var options_osteoporosis = {
+              series: [
+              {
+                name: "{{ report_labels.osteoporosis }}",
+                data: osteoporosis_Scores
+              }
+            ],
+              chart: {
+              height: 350,
+              type: 'line',
+              dropShadow: {
+                enabled: true,
+                color: '#000',
+                top: 18,
+                left: 7,
+                blur: 10,
+                opacity: 0.5
+              },
+              zoom: {
+                enabled: false
+              },
+              toolbar: {
+                show: false
+              }
+            },
+            colors: ['#77B6EA'],
+            dataLabels: {
+              enabled: true,
+            },
+            stroke: {
+              curve: 'smooth'
+            },
+            title: {
+              text: '.',
+              align: 'center'
+            },
+            grid: {
+              borderColor: '#e7e7e7',
+              row: {
+                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                opacity: 0.5
+              },
+            },
+            markers: {
+              size: 1
+            },
+            xaxis: {
+              categories: dates,
+              title: {
+                text: reportDateLabel
+              }
+            },
+            yaxis: {
+              title: {
+                text: reportRiskLabel
+              },
+              min: 0,
+              max: 30
+            },
+            legend: {
+              position: 'top',
+              horizontalAlign: 'right',
+              floating: true,
+              offsetY: -25,
+              offsetX: -5
+            }
+        };
+    var chart_osteoporosis = new ApexCharts(document.querySelector("#chart_osteoporosis_history"), options_osteoporosis);
+    chart_osteoporosis.render();
+ {% endif %}
+
+// ovarian Chart
+ {% if ovarian_cancer_score_history %}
+    const ovarian_Scores = {{ ovarian_cancer_score_history|safe }};
+    var options_ovarian = {
+              series: [
+              {
+                name: "{{ report_labels.ovarian }}",
+                data: ovarian_Scores
+              }
+            ],
+              chart: {
+              height: 350,
+              type: 'line',
+              dropShadow: {
+                enabled: true,
+                color: '#000',
+                top: 18,
+                left: 7,
+                blur: 10,
+                opacity: 0.5
+              },
+              zoom: {
+                enabled: false
+              },
+              toolbar: {
+                show: false
+              }
+            },
+            colors: ['#77B6EA'],
+            dataLabels: {
+              enabled: true,
+            },
+            stroke: {
+              curve: 'smooth'
+            },
+            title: {
+              text: '.',
+              align: 'center'
+            },
+            grid: {
+              borderColor: '#e7e7e7',
+              row: {
+                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                opacity: 0.5
+              },
+            },
+            markers: {
+              size: 1
+            },
+            xaxis: {
+              categories: dates,
+              title: {
+                text: reportDateLabel
+              }
+            },
+            yaxis: {
+              title: {
+                text: reportRiskLabel
+              },
+              min: 0,
+              max: 30
+            },
+            legend: {
+              position: 'top',
+              horizontalAlign: 'right',
+              floating: true,
+              offsetY: -25,
+              offsetX: -5
+            }
+        };
+    var chart_ovarian = new ApexCharts(document.querySelector("#chart_ovarian_history"), options_ovarian);
+    chart_ovarian.render();
+ {% endif %}
+
+// stomach Chart
+ {% if stomach_cancer_score_history %}
+    const stomach_Scores = {{ stomach_cancer_score_history|safe }};
+    var options_stomach = {
+              series: [
+              {
+                name: "{{ report_labels.stomach }}",
+                data: stomach_Scores
+              }
+            ],
+              chart: {
+              height: 350,
+              type: 'line',
+              dropShadow: {
+                enabled: true,
+                color: '#000',
+                top: 18,
+                left: 7,
+                blur: 10,
+                opacity: 0.5
+              },
+              zoom: {
+                enabled: false
+              },
+              toolbar: {
+                show: false
+              }
+            },
+            colors: ['#77B6EA'],
+            dataLabels: {
+              enabled: true,
+            },
+            stroke: {
+              curve: 'smooth'
+            },
+            title: {
+              text: '.',
+              align: 'center'
+            },
+            grid: {
+              borderColor: '#e7e7e7',
+              row: {
+                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                opacity: 0.5
+              },
+            },
+            markers: {
+              size: 1
+            },
+            xaxis: {
+              categories: dates,
+              title: {
+                text: reportDateLabel
+              }
+            },
+            yaxis: {
+              title: {
+                text: reportRiskLabel
+              },
+              min: 0,
+              max: 30
+            },
+            legend: {
+              position: 'top',
+              horizontalAlign: 'right',
+              floating: true,
+              offsetY: -25,
+              offsetX: -5
+            }
+        };
+    var chart_stomach = new ApexCharts(document.querySelector("#chart_stomach_history"), options_stomach);
+    chart_stomach.render();
+ {% endif %}
+
+// pancreatic Chart
+ {% if pancreatic_cancer_score_history %}
+    const pancreatic_Scores = {{ pancreatic_cancer_score_history|safe }};
+    var options_pancreatic = {
+              series: [
+              {
+                name: "{{ report_labels.pancreatic }}",
+                data: pancreatic_Scores
+              }
+            ],
+              chart: {
+              height: 350,
+              type: 'line',
+              dropShadow: {
+                enabled: true,
+                color: '#000',
+                top: 18,
+                left: 7,
+                blur: 10,
+                opacity: 0.5
+              },
+              zoom: {
+                enabled: false
+              },
+              toolbar: {
+                show: false
+              }
+            },
+            colors: ['#77B6EA'],
+            dataLabels: {
+              enabled: true,
+            },
+            stroke: {
+              curve: 'smooth'
+            },
+            title: {
+              text: '.',
+              align: 'center'
+            },
+            grid: {
+              borderColor: '#e7e7e7',
+              row: {
+                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                opacity: 0.5
+              },
+            },
+            markers: {
+              size: 1
+            },
+            xaxis: {
+              categories: dates,
+              title: {
+                text: reportDateLabel
+              }
+            },
+            yaxis: {
+              title: {
+                text: reportRiskLabel
+              },
+              min: 0,
+              max: 30
+            },
+            legend: {
+              position: 'top',
+              horizontalAlign: 'right',
+              floating: true,
+              offsetY: -25,
+              offsetX: -5
+            }
+        };
+    var chart_pancreatic = new ApexCharts(document.querySelector("#chart_pancreatic_history"), options_pancreatic);
+    chart_pancreatic.render();
+ {% endif %}
+
+// stroke Chart
+ {% if stroke_score_history %}
+    const stroke_Scores = {{ stroke_score_history|safe }};
+    var options_stroke = {
+              series: [
+              {
+                name: "{{ report_labels.stroke }}",
+                data: stroke_Scores
+              }
+            ],
+              chart: {
+              height: 350,
+              type: 'line',
+              dropShadow: {
+                enabled: true,
+                color: '#000',
+                top: 18,
+                left: 7,
+                blur: 10,
+                opacity: 0.5
+              },
+              zoom: {
+                enabled: false
+              },
+              toolbar: {
+                show: false
+              }
+            },
+            colors: ['#77B6EA'],
+            dataLabels: {
+              enabled: true,
+            },
+            stroke: {
+              curve: 'smooth'
+            },
+            title: {
+              text: '.',
+              align: 'center'
+            },
+            grid: {
+              borderColor: '#e7e7e7',
+              row: {
+                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                opacity: 0.5
+              },
+            },
+            markers: {
+              size: 1
+            },
+            xaxis: {
+              categories: dates,
+              title: {
+                text: reportDateLabel
+              }
+            },
+            yaxis: {
+              title: {
+                text: reportRiskLabel
+              },
+              min: 0,
+              max: 30
+            },
+            legend: {
+              position: 'top',
+              horizontalAlign: 'right',
+              floating: true,
+              offsetY: -25,
+              offsetX: -5
+            }
+        };
+    var chart_stroke = new ApexCharts(document.querySelector("#chart_stroke_history"), options_stroke);
+    chart_stroke.render();
+ {% endif %}
+
+});
+</script>
+
+<style>
+.chart-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+</style>
+
+{% endblock %}

@@ -1,19 +1,20 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="{{ CURRENT_LANGUAGE }}" dir="{% if IS_RTL %}rtl{% else %}ltr{% endif %}">
 
 <head>
-	<title>Eduport - قالب HTML دوره آنلاین و آموزش</title>
+	<title>{% if CURRENT_LANGUAGE == 'fa' %}غربالگری هوشمند سلامت - ورود{% elif CURRENT_LANGUAGE == 'ar' %}الفحص الصحي الذكي - تسجيل الدخول{% else %}Smart Screening - Login{% endif %}</title>
 
 	<!-- Meta Tags -->
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="author" content="">
-	<meta name="description" content="Eduport - قالب HTML دوره آنلاین و آموزش">
+	<meta name="description" content="{% if CURRENT_LANGUAGE == 'fa' %}Eduport - قالب HTML دوره آنلاین و آموزش{% elif CURRENT_LANGUAGE == 'ar' %}Eduport - قالب HTML للدورات عبر الإنترنت والتعليم{% else %}Eduport - Online Course and Education HTML Template{% endif %}">
 
 	<!-- Dark mode -->
 	<script>
 		const storedTheme = localStorage.getItem('theme')
- 
+
 		const getPreferredTheme = () => {
 			if (storedTheme) {
 				return storedTheme
@@ -32,7 +33,7 @@
 		setTheme(getPreferredTheme())
 
 		window.addEventListener('DOMContentLoaded', () => {
-		    var el = document.querySelector('.theme-icon-active');
+			var el = document.querySelector('.theme-icon-active');
 			if(el != 'undefined' && el != null) {
 				const showActiveTheme = theme => {
 				const activeThemeIcon = document.querySelector('.theme-icon-active use')
@@ -67,7 +68,7 @@
 
 			}
 		})
-		
+
 	</script>
 
 	<!-- Favicon -->
@@ -87,7 +88,7 @@
 <!-- **************** MAIN CONTENT START **************** -->
 <main>
 	<section class="p-0 d-flex align-items-center position-relative overflow-hidden">
-	
+
 		<div class="container-fluid">
 			<div class="row">
 				<!-- left -->
@@ -95,31 +96,11 @@
 					<div class="p-3 p-lg-5">
 						<!-- Title -->
 						<div class="text-center">
-							<h2 class="fw-bold fs-3">به بزرگترین انجمن ما خوش آمدید</h2>
-							<p class="mb-0 h6 fw-light">بیایید امروز چیز جدیدی یاد بگیریم!</p>
+							<h2 class="fw-bold fs-3">{% if CURRENT_LANGUAGE == 'fa' %}غربالگری هوشمند سلامت{% elif CURRENT_LANGUAGE == 'ar' %}الفحص الصحي الذكي{% else %}Smart Health Screening{% endif %}</h2>
+							<p class="mb-0 h6 fw-light">{% if CURRENT_LANGUAGE == 'fa' %}پیشگیری هوشمندانه ، زندگی بهتر{% elif CURRENT_LANGUAGE == 'ar' %}الوقاية الذكية، حياة أفضل{% else %}Smart Prevention, Better Life{% endif %}</p>
 						</div>
 						<!-- SVG Image -->
 						<img src="{% static 'images/element/02.svg' %}" class="mt-5" alt="">
-						<!-- Info -->
-						<div class="d-sm-flex mt-5 align-items-center justify-content-center">
-							<!-- Avatar group -->
-							<ul class="avatar-group mb-2 mb-sm-0">
-								<li class="avatar avatar-sm">
-									<img class="avatar-img rounded-circle" src="{% static 'images/avatar/01.jpg' %}" alt="avatar">
-								</li>
-								<li class="avatar avatar-sm">
-									<img class="avatar-img rounded-circle" src="{% static 'images/avatar/02.jpg' %}" alt="avatar">
-								</li>
-								<li class="avatar avatar-sm">
-									<img class="avatar-img rounded-circle" src="{% static 'images/avatar/03.jpg' %}" alt="avatar">
-								</li>
-								<li class="avatar avatar-sm">
-									<img class="avatar-img rounded-circle" src="{% static 'images/avatar/04.jpg' %}" alt="avatar">
-								</li>
-							</ul>
-							<!-- Content -->
-							<p class="mb-0 h6 fw-light ms-0 ms-sm-3"> بیش از 100 دانشجو به ما پیوستند، حالا نوبت شماست.</p>
-						</div>
 					</div>
 				</div>
 
@@ -129,72 +110,88 @@
 						<div class="col-sm-10 col-xl-8 m-auto">
 							<!-- Title -->
 							<span class="mb-0 fs-1">👋</span>
-							<h1 class="fs-4">ورود به حساب کاربری</h1>
-							<p class="mb-4">از دیدن شما خوشحالم! لطفا با حساب کاربری خود وارد شوید.</p>
+							<h1 class="fs-4">{% if CURRENT_LANGUAGE == 'fa' %}ورود به حساب کاربری{% elif CURRENT_LANGUAGE == 'ar' %}مرحباً بعودتك!{% else %}Welcome Back!{% endif %}</h1>
+							<p class="mb-4">{% if CURRENT_LANGUAGE == 'fa' %}از دیدن شما خوشحالم! لطفا با حساب کاربری خود وارد شوید.{% elif CURRENT_LANGUAGE == 'ar' %}يسعدنا رؤيتك! يرجى تسجيل الدخول إلى حسابك.{% else %}Glad to see you! Please log in to your account.{% endif %}</p>
 
-							<!-- Form START -->
-							<form>
-								<!-- Email -->
-								<div class="mb-4">
-									<label for="exampleInputEmail1" class="form-label">ایمیل *</label>
-									<div class="input-group input-group-lg">
-										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-envelope-fill"></i></span>
-										<input type="email" class="form-control border-0 bg-light rounded-end ps-1" placeholder="***@gmail.com" id="exampleInputEmail1">
-									</div>
-								</div>
-								<!-- Password -->
-								<div class="mb-4">
-									<label for="inputPassword5" class="form-label">رمز عبور *</label>
-									<div class="input-group input-group-lg">
-										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="fas fa-lock"></i></span>
-										<input type="password" class="form-control border-0 bg-light rounded-end ps-1" placeholder="********" id="inputPassword5">
-									</div>
-									<div id="passwordHelpBlock" class="form-text">
-										رمز عبور شما باید حداقل 8 کاراکتر باشد 
-									</div>
-								</div>
-								<!-- Check box -->
-								<div class="mb-4 d-flex justify-content-between mb-4">
-									<div class="form-check">
-										<input type="checkbox" class="form-check-input" id="exampleCheck1">
-										<label class="form-check-label" for="exampleCheck1">مرا به خاطر بسپار</label>
-									</div>
-									<div class="text-primary-hover">
-										<a href="forgot-password.html" class="text-secondary">
-											<u>رمز خود را فراموش کرده اید؟</u>
-										</a>
-									</div>
-								</div>
-								<!-- Button -->
-								<div class="align-items-center mt-0">
-									<div class="d-grid">
-										<button class="btn btn-primary mb-0" type="button">ورود</button>
-									</div>
-								</div>
-							</form>
-							<!-- Form END -->
+							{% if messages %}
+                                {% for message in messages %}
+                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                     {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
 
-							<!-- Social buttons and divider -->
-							<div class="row">
-								<!-- Divider with text -->
-								<div class="position-relative my-4">
-									<hr>
-									<p class="small position-absolute top-50 start-50 translate-middle bg-body px-5">یـا</p>
-								</div>
+                            <!-- Form START -->
+                            <form method="POST" action="{% url 'account:login' %}">
+                                {% csrf_token %}
+                                <!-- Username -->
+                                <div class="mb-4">
+                                    <label for="username" class="form-label">{% if CURRENT_LANGUAGE == 'fa' %}نام کاربری *{% elif CURRENT_LANGUAGE == 'ar' %}اسم المستخدم *{% else %}Username *{% endif %}</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-light rounded-start border-0 text-secondary px-3">
+                                            <i class="bi bi-person-fill"></i>
+                                        </span>
+                                        <input type="text"
+                                           class="form-control border-0 bg-light rounded-end ps-1"
+                                           name="username"
+                                           id="username"
+                                           required
+                                           autofocus
+                                           oninvalid="this.setCustomValidity('{% if CURRENT_LANGUAGE == 'fa' %}لطفاً نام کاربری خود را وارد کنید{% elif CURRENT_LANGUAGE == 'ar' %}يرجى إدخال اسم المستخدم{% else %}Please enter your username{% endif %}')"
+                                           oninput="this.setCustomValidity('')">
+                                    </div>
+                                </div>
+                                <!-- Password -->
+                                <div class="mb-4">
+                                    <label for="password" class="form-label">{% if CURRENT_LANGUAGE == 'fa' %}رمز عبور *{% elif CURRENT_LANGUAGE == 'ar' %}كلمة المرور *{% else %}Password *{% endif %}</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-light rounded-start border-0 text-secondary px-3">
+                                            <i class="fas fa-lock"></i>
+                                        </span>
+                                        <input type="password"
+                                               minlength="8"
+                                               class="form-control border-0 bg-light rounded-end ps-1"
+                                               placeholder="********"
+                                               name="password"
+                                               id="password"
+                                               >
+                                    </div>
+                                    <div id="passwordHelpBlock" class="form-text">
+                                        {% if CURRENT_LANGUAGE == 'fa' %}رمز عبور شما باید حداقل 8 کاراکتر باشد{% elif CURRENT_LANGUAGE == 'ar' %}يجب أن تتكون كلمة المرور من 8 أحرف على الأقل{% else %}Your password must be at least 8 characters long{% endif %}
+                                    </div>
+                                    <div class="invalid-feedback" id="password-error">
+                                        <!-- Error message will be inserted here by JavaScript -->
+                                    </div>
+                                </div>
 
-								<!-- Social btn -->
-								<div class="col-xxl-6 d-grid">
-									<a href="#" class="btn bg-google mb-2 mb-xxl-0"><i class="fab fa-fw fa-google text-white me-2"></i>ورود با Google</a>
-								</div>
-								<!-- Social btn -->
-								<div class="col-xxl-6 d-grid">
-									<a href="#" class="btn bg-facebook mb-0"><i class="fab fa-fw fa-facebook-f me-2"></i>ورود با Facebook</a>
-								</div>
-							</div>
+
+                                <!-- Check box -->
+                                <div class="mb-4 d-flex justify-content-between mb-4">
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                                        <label class="form-check-label" for="remember_me">{% if CURRENT_LANGUAGE == 'fa' %}مرا به خاطر بسپار{% elif CURRENT_LANGUAGE == 'ar' %}تذكرني{% else %}Remember me{% endif %}</label>
+                                    </div>
+                                    <div class="text-primary-hover">
+                                        <a href="" class="text-secondary">
+                                            <u>{% if CURRENT_LANGUAGE == 'fa' %}رمز خود را فراموش کرده اید؟{% elif CURRENT_LANGUAGE == 'ar' %}نسيت كلمة المرور؟{% else %}Forgot your password?{% endif %}</u>
+                                        </a>
+                                    </div>
+                                </div>
+                                <!-- Button -->
+                                <div class="align-items-center mt-0">
+                                    <div class="d-grid">
+                                        <button class="btn btn-primary mb-0" type="submit">{% if CURRENT_LANGUAGE == 'fa' %}ورود{% elif CURRENT_LANGUAGE == 'ar' %}تسجيل الدخول{% else %}Login{% endif %}</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <!-- Form END -->
+
 
 							<!-- Sign up link -->
 							<div class="mt-4 text-center">
-								<span>حساب کاربری ندارید؟ <a href="sign-up.html">ثبت نام</a></span>
+								<span>{% if CURRENT_LANGUAGE == 'fa' %}حساب کاربری ندارید؟{% elif CURRENT_LANGUAGE == 'ar' %}ليس لديك حساب؟{% else %}Don't have an account?{% endif %}
+                                    <a href="{% url 'account:register' %}">{% if CURRENT_LANGUAGE == 'fa' %}ثبت نام{% elif CURRENT_LANGUAGE == 'ar' %}إنشاء حساب{% else %}Sign up{% endif %}</a></span>
 							</div>
 						</div>
 					</div> <!-- Row END -->
@@ -213,6 +210,39 @@
 
 <!-- Template Functions -->
 <script src="{% static 'js/functions.js' %}"></script>
+
+
+<script>
+function validateForm() {
+    const passwordInput = document.getElementById('password');
+    const passwordError = document.getElementById('password-error');
+    let isValid = true;
+
+    // Reset errors
+    passwordError.textContent = '';
+    passwordInput.classList.remove('is-invalid');
+
+    // Validate
+    if (passwordInput.value.length === 0) {
+        passwordError.innerText = '{% if CURRENT_LANGUAGE == 'fa' %}لطفا رمز عبور را وارد کنید{% elif CURRENT_LANGUAGE == 'ar' %}يرجى إدخال كلمة المرور{% else %}Please enter your password{% endif %}';
+        isValid = false;
+    }
+    else if (passwordInput.value.length < 8) {
+        passwordError.innerText = '{% if CURRENT_LANGUAGE == 'fa' %}رمز عبور باید حداقل 8 کاراکتر باشد{% elif CURRENT_LANGUAGE == 'ar' %}يجب أن تتكون كلمة المرور من 8 أحرف على الأقل{% else %}Password must be at least 8 characters long{% endif %}';
+        isValid = false;
+    }
+
+    return isValid;
+}
+
+// Form submission
+document.querySelector('form').addEventListener('submit', function(e) {
+    if (!validateForm()) {
+        e.preventDefault(); // Stop form if invalid
+    }
+    // Form will submit naturally if valid
+});
+</script>
 
 </body>
 

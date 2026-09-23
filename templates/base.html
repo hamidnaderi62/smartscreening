@@ -1,17 +1,1 @@
-{% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    {% include "includes/header_references.html" %}
-</head>
-
-<body>
-  {% include "includes/header.html" %}
-
-  {% block content %}
-  {% endblock %}
-
-  {% include "includes/footer.html" %}
-  {% include "includes/footer_references.html" %}
-</body>
-</html>
+{% extends 'base_raw.html' %}

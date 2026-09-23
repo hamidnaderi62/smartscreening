@@ -1,0 +1,9 @@
+{% extends base_template %}
+{% load my_filters %}
+{% block content %}
+<main class="container py-5"><div class="d-flex justify-content-between align-items-center mb-4"><h1 class="h3">{{ cpanel_labels.screening_reports }} {{ organization.display_title|default:organization.title }}</h1><a href="{% url 'cpanel:organization_dashboard' %}" class="btn btn-outline-primary">{{ cpanel_labels.dashboard }}</a></div>
+{% if selected_user %}<p>{{ cpanel_labels.user }}: <strong>{{ selected_user.username }}</strong></p>{% endif %}
+<div class="table-responsive card"><table class="table align-middle mb-0"><thead><tr><th>{{ cpanel_labels.user }}</th><th>{{ cpanel_labels.report_code }}</th><th>{{ cpanel_labels.date }}</th><th>{{ cpanel_labels.actions }}</th></tr></thead><tbody>
+{% for screening in screenings %}<tr><td>{{ screening.userid.username }}</td><td>{{ screening.code }}</td><td>{{ screening.created|localized_datetime:cpanel_language }}</td><td><a href="{% url 'my_model:dashboard_comprehensive' code=screening.code %}?user_id={{ screening.userid_id }}" target="_blank" class="btn btn-sm btn-primary">{{ cpanel_labels.view_report }}</a><a href="{% url 'my_model:pdf_report' model_id=screening.id %}" target="_blank" class="btn btn-sm btn-success ms-1">PDF</a></td></tr>{% empty %}<tr><td colspan="4">{{ cpanel_labels.no_reports }}</td></tr>{% endfor %}
+</tbody></table></div></main>
+{% endblock %}

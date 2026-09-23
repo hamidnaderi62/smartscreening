@@ -1,0 +1,80 @@
+{% extends base_template %}
+{% load static %}
+{% block content %}
+
+<!-- Plugins CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/font-awesome/css/all.min.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/tiny-slider/tiny-slider.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'vendor/glightbox/css/glightbox.css' %}">
+<!-- Theme CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/style-rtl.css' %}">
+
+<main>
+<section>
+	<div class="container">
+		<div class="row mb-4">
+			<div class="col-lg-8 mx-auto text-center">
+				<h2 class="fs-3">{% if CURRENT_LANGUAGE == 'fa' %}برنامه‌های غربالگری{% elif CURRENT_LANGUAGE == 'ar' %}خطط الفحص{% else %}Screening Plans{% endif %}</h2>
+				<p class="mb-0">{% if CURRENT_LANGUAGE == 'fa' %}برنامه غربالگری مورد نظر خود را انتخاب کنید{% elif CURRENT_LANGUAGE == 'ar' %}اختر خطة الفحص المطلوبة{% else %}Select your desired screening plan{% endif %}</p>
+			</div>
+		</div>
+
+		<ul class="nav nav-pills nav-pills-bg-soft justify-content-sm-center mb-4 px-3" id="screening-tab" role="tablist">
+			<li class="nav-item me-2 me-sm-5"><button class="nav-link mb-2 mb-md-0 active" id="screeing-male" data-bs-toggle="pill" data-bs-target="#screeing-tabs-1" type="button" role="tab" aria-controls="screeing-tabs-1" aria-selected="false">{% if CURRENT_LANGUAGE == 'fa' %}غربالگری مردان{% elif CURRENT_LANGUAGE == 'ar' %}فحص الرجال{% else %}Men's Screening{% endif %}</button></li>
+			<li class="nav-item me-2 me-sm-5"><button class="nav-link mb-2 mb-md-0" id="screeing_female" data-bs-toggle="pill" data-bs-target="#screeing-tabs-2" type="button" role="tab" aria-controls="screeing-tabs-2" aria-selected="false">{% if CURRENT_LANGUAGE == 'fa' %}غربالگری زنان{% elif CURRENT_LANGUAGE == 'ar' %}فحص النساء{% else %}Women's Screening{% endif %}</button></li>
+		</ul>
+
+		<div class="tab-content" id="screeing-tabContent">
+			<div class="tab-pane fade show active" id="screeing-tabs-1" role="tabpanel" aria-labelledby="screeing-tab-1">
+				<form id="assessmentsForm" method="post" action="{% url 'my_model:question' %}">
+				{% csrf_token %}
+				<div class="row g-4">
+				{% for assessment in assessments %}
+					{% if 'Male' in assessment.groups %}
+					<div class="col-sm-6 col-lg-4 col-xl-3"><div class="card shadow h-100">
+						<img src="{% static 'images/assessments/'|add:assessment.image %}" class="card-img-top" alt="course image">
+						<div class="card-body pb-0"><h5 class="card-title fw-normal"><a href="#">{{ assessment.display_title }}</a></h5><p class="mb-2 text-truncate-2"></p></div>
+						<div class="card-footer pt-0 pb-3"><hr><div class="d-flex justify-content-center"><span class="h6 fw-light mb-0"><div class="form-check form-switch form-check-md"><input class="form-check-input assessment-check" type="checkbox" name="selected_assessments" value="{{ assessment.id }}" {% if assessment.active == 1 %} checked {% endif %}><label class="form-check-label" for="checkPrivacy6"></label></div></span></div></div>
+					</div></div>
+					{% endif %}
+				{% endfor %}
+				</div>
+				<div class="row justify-content-center"><div class="col-md-6 text-center"><button type="submit" class="btn btn-primary btn-lg w-100 mt-4 mb-0">{% if CURRENT_LANGUAGE == 'fa' %}شروع کنید{% elif CURRENT_LANGUAGE == 'ar' %}ابدأ الآن{% else %}Start Now{% endif %}</button></div></div>
+				</form>
+			</div>
+
+			<div class="tab-pane fade show" id="screeing-tabs-2" role="tabpanel" aria-labelledby="screeing-tab-2">
+				<form id="assessmentsFormFemale" method="post" action="{% url 'my_model:question' %}">
+				{% csrf_token %}
+				<div class="row g-4">
+				{% for assessment in assessments %}
+					{% if 'Female' in assessment.groups %}
+					<div class="col-sm-6 col-lg-4 col-xl-3"><div class="card shadow h-100">
+						<img src="{% static 'images/assessments/'|add:assessment.image %}" class="card-img-top" alt="course image">
+						<div class="card-body pb-0"><h5 class="card-title fw-normal"><a href="#">{{ assessment.display_title }}</a></h5><p class="mb-2 text-truncate-2"></p></div>
+						<div class="card-footer pt-0 pb-3"><hr><div class="d-flex justify-content-center"><span class="h6 fw-light mb-0"><div class="form-check form-switch form-check-md"><input class="form-check-input assessment-check" type="checkbox" name="selected_assessments" value="{{ assessment.id }}" {% if assessment.active == 1 %} checked {% endif %}><label class="form-check-label" for="checkPrivacy6"></label></div></span></div></div>
+					</div></div>
+					{% endif %}
+				{% endfor %}
+				</div>
+				<div class="row justify-content-center"><div class="col-md-6 text-center"><button type="submit" class="btn btn-primary btn-lg w-100 mt-4 mb-0">{% if CURRENT_LANGUAGE == 'fa' %}شروع کنید{% elif CURRENT_LANGUAGE == 'ar' %}ابدأ الآن{% else %}Start Now{% endif %}</button></div></div>
+				</form>
+			</div>
+		</div>
+	</div>
+</section>
+</main>
+
+<script>
+document.getElementById('assessmentsForm').addEventListener('submit', function(e) {
+    const checkedItems = Array.from(document.querySelectorAll('.assessment-check:checked')).map(el => el.value);
+    console.log("Selected assessments:", checkedItems);
+});
+</script>
+<script src="{% static 'vendor/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'vendor/tiny-slider/tiny-slider-rtl.js' %}"></script>
+<script src="{% static 'vendor/glightbox/js/glightbox.js' %}"></script>
+<script src="{% static 'vendor/purecounterjs/dist/purecounter_vanilla.js' %}"></script>
+<script src="{% static 'js/functions.js' %}"></script>
+{% endblock %}

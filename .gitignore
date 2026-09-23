@@ -1,17 +1,54 @@
-# created by virtualenv automatically
-*.pyc
+# Python bytecode and caches
 __pycache__/
-db.sqlite3
-.env
-*.log
-media/
-staticfiles/
-*.pot
 *.py[cod]
+*.pyo
+*.pyd
 *.egg-info/
-.DS_Store
-*.ckpt
-*.pth
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Local virtual environments and interpreter artifacts
+share/
+.venv/
+.venv*/
+venv/
+env/
 Lib/
 Scripts/
+Include/
+pyvenv.cfg
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Local databases, uploads, collected assets, and logs
+*.sqlite3
+db.sqlite3
+media/
+static/
+staticfiles/
+*.log
+
+# Generated reports and temporary files
 *.pdf
+*.html.tmp
+*.json.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Optional machine-learning artifacts
+*.ckpt
+*.pth

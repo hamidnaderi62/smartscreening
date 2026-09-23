@@ -2,6 +2,7 @@ class Pancreatic_RiskCalculator:
 
     def calculate_risk( previous_cancer,
                         family_pancreatic_cancer,
+                        alcohol,
                         smoking,
                         blood_glucose,
                         blood_group,
@@ -14,6 +15,13 @@ class Pancreatic_RiskCalculator:
 
         if family_pancreatic_cancer == 'Yes':
             pancreatic_cancer_score += 10
+
+        if alcohol >= 4:
+            pancreatic_cancer_score += 6
+        elif alcohol >= 3:
+            pancreatic_cancer_score += 4
+        elif alcohol >= 2:
+            pancreatic_cancer_score += 2
 
         if smoking > 0:
             pancreatic_cancer_score += 3

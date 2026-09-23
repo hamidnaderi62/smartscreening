@@ -23,7 +23,7 @@ class Osteoporosis_RiskCalculator:
             osteoporosis_score += 3
 
         if have_bmd_test == 'Yes':
-            osteoporosis_score += 4
+            osteoporosis_score += 0
 
         if result_bmd_test == 'Dont know':
             osteoporosis_score += 0
@@ -32,7 +32,7 @@ class Osteoporosis_RiskCalculator:
         elif result_bmd_test == 'Low BMD':
             osteoporosis_score += 2
         elif result_bmd_test == 'Osteoporosis':
-            osteoporosis_score += 10
+            osteoporosis_score += 40
 
         if blood_glucose == 'Yes':
             osteoporosis_score += 2

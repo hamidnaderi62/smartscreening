@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ organization_language }}" dir="{% if organization_language == 'fa' or organization_language == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ organization.title }} | {{ org_labels.site_title }}</title>
+    <link rel="stylesheet" href="{% static 'css/style-rtl.css' %}">
+</head>
+<body>
+<main class="container py-5">
+    <div class="row align-items-center g-5">
+        <div class="col-lg-6 text-center">
+            {% if organization.image %}
+                <img src="{{ organization.image.url }}" class="img-fluid rounded-4 shadow" alt="{{ organization.display_title|default:organization.title }}">
+            {% else %}
+                <img src="{% static 'images/element/02.svg' %}" class="img-fluid" alt="{{ organization.display_title|default:organization.title }}">
+            {% endif %}
+        </div>
+        <div class="col-lg-6">
+            {% if organization.logo %}
+                <img src="{{ organization.logo.url }}" class="img-fluid mb-4" style="max-height: 100px; max-width: 260px" alt="{{ organization.display_title|default:organization.title }}">
+            {% endif %}
+            <h1>{{ organization.display_title|default:organization.title }}</h1>
+            <p class="lead">{{ organization.display_sentence|default:org_labels.organization_welcome }}</p>
+            <div class="d-flex gap-2 flex-wrap mt-4">
+                <a class="btn btn-primary" href="{% url 'account:org_register' org_slug=organization.slug %}">{{ org_labels.register_users }}</a>
+                <a class="btn btn-outline-dark" href="{% url 'account:org_login' org_slug=organization.slug %}">{{ org_labels.login_users }}</a>
+                {% if request.user.is_authenticated and request.user.profile.is_org_admin %}
+                    <a class="btn btn-outline-success" href="{% url 'cpanel:organization_dashboard' %}">{{ org_labels.organization_dashboard }}</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,61 @@
+{% extends base_template %}
+{% load static my_filters %}
+{% block title %}{{ cpanel_labels.dashboard }} · {{ organization.display_title|default:organization.title }}{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/smart-home.css' %}">
+<link rel="stylesheet" href="{% static 'css/organization-dashboard.css' %}">
+{% endblock %}
+{% block content %}
+<main class="org-dashboard-page">
+    <section class="org-dashboard-hero">
+        <div class="container org-dashboard-hero-inner">
+            <div class="org-dashboard-hero-copy">
+                <span class="org-eyebrow"><i class="bi bi-buildings"></i>{{ cpanel_labels.workspace }}</span>
+                <div class="org-title-lockup">
+                    {% if organization.logo %}<img src="{{ organization.logo.url }}" alt="{{ organization.display_title|default:organization.title }}">{% else %}<span class="org-title-mark"><i class="bi bi-building-heart"></i></span>{% endif %}
+                    <div><span class="org-title-label">{{ cpanel_labels.overview }}</span><h1>{{ organization.display_title|default:organization.title }}</h1></div>
+                </div>
+                <p>{% if organization.display_sentence %}{{ organization.display_sentence }}{% else %}{{ cpanel_labels.overview }}{% endif %}</p>
+                <div class="org-hero-actions">
+                    <a class="btn org-btn-primary" href="{% url 'cpanel:organization_reports' %}"><i class="bi bi-bar-chart-line me-2"></i>{{ cpanel_labels.screening_reports }}</a>
+                    <a class="btn org-btn-ghost" href="{% url 'cpanel:admin_users_list' %}"><i class="bi bi-people me-2"></i>{{ cpanel_labels.manage_members }}</a>
+                </div>
+            </div>
+            <div class="org-hero-summary">
+                <div class="org-summary-top"><span>{{ cpanel_labels.organization_status }}</span><b><i class="bi bi-check-circle-fill"></i>{{ cpanel_labels.active }}</b></div>
+                <div class="org-summary-number">{{ user_count }}</div>
+                <div class="org-summary-caption">{{ cpanel_labels.active_members }}</div>
+                <div class="org-summary-progress"><span style="width: {{ active_member_percent }}%;"></span></div>
+                <div class="org-summary-foot"><span>{{ cpanel_labels.active_members_ratio }}</span><strong>{{ active_member_percent }}%</strong></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container org-dashboard-content">
+        <div class="org-kpi-grid">
+            <article class="org-kpi-card org-kpi-blue"><span class="org-kpi-icon"><i class="bi bi-person-check"></i></span><div><small>{{ cpanel_labels.active_members }}</small><strong>{{ user_count }}</strong><span>{{ cpanel_labels.organization_users }}</span></div></article>
+            <article class="org-kpi-card org-kpi-purple"><span class="org-kpi-icon"><i class="bi bi-people"></i></span><div><small>{{ cpanel_labels.total_members }}</small><strong>{{ total_user_count }}</strong><span>{{ cpanel_labels.organization_users }}</span></div></article>
+            <article class="org-kpi-card org-kpi-green"><span class="org-kpi-icon"><i class="bi bi-activity"></i></span><div><small>{{ cpanel_labels.screening_count }}</small><strong>{{ screening_count }}</strong><span>{{ cpanel_labels.latest_activity }}</span></div></article>
+            <article class="org-kpi-card org-kpi-orange"><span class="org-kpi-icon"><i class="bi bi-calendar2-check"></i></span><div><small>{{ cpanel_labels.monthly_screenings }}</small><strong>{{ monthly_screening_count }}</strong><span>{{ today_screening_count }} {{ cpanel_labels.today_screenings }}</span></div></article>
+        </div>
+
+        <div class="org-dashboard-grid">
+            <section class="org-panel org-activity-panel">
+                <div class="org-panel-heading"><div><span class="org-panel-kicker">{{ cpanel_labels.latest_activity }}</span><h2>{{ cpanel_labels.recent_screenings }}</h2></div><a class="org-panel-link" href="{% url 'cpanel:organization_reports' %}">{{ cpanel_labels.view_all_reports }} <i class="bi bi-arrow-up-right"></i></a></div>
+                <div class="org-table-wrap"><table class="org-table"><thead><tr><th>{{ cpanel_labels.user }}</th><th>{{ cpanel_labels.code }}</th><th>{{ cpanel_labels.date }}</th><th></th></tr></thead><tbody>
+                    {% for screening in recent_screenings %}<tr><td><span class="org-avatar"><i class="bi bi-person"></i></span><strong>{{ screening.userid.username }}</strong></td><td><span class="org-code">{{ screening.code }}</span></td><td>{{ screening.created|localized_datetime:cpanel_language }}</td><td><a class="org-row-action" href="{% url 'my_model:dashboard_comprehensive' code=screening.code %}?user_id={{ screening.userid_id }}" target="_blank" aria-label="{{ cpanel_labels.view }}"><i class="bi bi-arrow-up-right"></i></a></td></tr>{% empty %}<tr><td class="org-table-empty" colspan="4"><i class="bi bi-activity"></i>{{ cpanel_labels.no_activity }}</td></tr>{% endfor %}
+                </tbody></table></div>
+            </section>
+
+            <aside class="org-side-column">
+                <section class="org-panel org-actions-panel"><div class="org-panel-heading"><div><span class="org-panel-kicker">{{ cpanel_labels.workspace }}</span><h2>{{ cpanel_labels.quick_actions }}</h2></div><i class="bi bi-lightning-charge org-panel-heading-icon"></i></div><div class="org-action-list"><a href="{% url 'cpanel:admin_users_list' %}"><span class="org-action-icon org-action-blue"><i class="bi bi-person-gear"></i></span><span><strong>{{ cpanel_labels.manage_members }}</strong><small>{{ cpanel_labels.active_members }} · {{ user_count }}</small></span><i class="bi bi-chevron-right"></i></a><a href="{% url 'cpanel:organization_reports' %}"><span class="org-action-icon org-action-purple"><i class="bi bi-file-earmark-bar-graph"></i></span><span><strong>{{ cpanel_labels.view_all_reports }}</strong><small>{{ screening_count }} {{ cpanel_labels.screening_count }}</small></span><i class="bi bi-chevron-right"></i></a></div></section>
+                <section class="org-panel org-status-panel"><span class="org-panel-kicker">{{ cpanel_labels.organization_status }}</span><h2>{{ organization.display_title|default:organization.title }}</h2><p>{{ cpanel_labels.active_members_ratio }}</p><div class="org-status-bar"><span style="width: {{ active_member_percent }}%;"></span></div><div class="org-status-values"><strong>{{ active_member_percent }}%</strong><small>{{ user_count }}/{{ total_user_count }} {{ cpanel_labels.total_members }}</small></div></section>
+            </aside>
+        </div>
+
+        <section class="org-panel org-members-panel"><div class="org-panel-heading"><div><span class="org-panel-kicker">{{ cpanel_labels.organization_users }}</span><h2>{{ cpanel_labels.organization_users }}</h2></div><a class="org-panel-link" href="{% url 'cpanel:admin_users_list' %}">{{ cpanel_labels.view_all }} <i class="bi bi-arrow-up-right"></i></a></div><div class="org-member-grid">
+            {% for user in org_users %}<a class="org-member-card" href="{% url 'cpanel:organization_reports' %}?user_id={{ user.id }}"><span class="org-member-avatar"><i class="bi bi-person"></i></span><span class="org-member-copy"><strong>{{ user.username }}</strong><small>{{ user.profile.code }}</small></span><span class="org-member-count"><strong>{{ user.screening_count }}</strong><small>{{ cpanel_labels.screening_count }}</small></span><i class="bi bi-arrow-up-right org-member-arrow"></i></a>{% empty %}<div class="org-table-empty"><i class="bi bi-people"></i>{{ cpanel_labels.no_users }}</div>{% endfor %}
+        </div></section>
+    </section>
+</main>
+{% endblock %}

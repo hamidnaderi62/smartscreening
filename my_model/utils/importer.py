@@ -1,7 +1,7 @@
 from django.http import JsonResponse,HttpResponse
 from ..models import MyModel
-from ..utils.breast_cancer import *
-from ..utils.cervical import *
+from ..utils.breast_cancer import BreastCancer
+from ..utils.cervical import Cervical_RiskCalculator
 import pandas as pd
 from pathlib import Path
 import os

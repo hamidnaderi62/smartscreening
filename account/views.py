@@ -1,198 +1,122 @@
-from django.contrib.auth.models import User
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth import get_user_model, login, logout
 from django.contrib import messages
-from django.contrib.auth.hashers import make_password
-from django.core.cache import cache
-from django.conf import settings
-from django.contrib.admin.models import LogEntry, ADDITION
-from django.contrib.contenttypes.models import ContentType
-from .models import Organization, Profile
+from django.db import transaction
+from django.shortcuts import redirect, render
+
+from .auth_views import user_login_ar, user_login_en, user_login_fa
+from .forms import RegistrationForm
+from .models import OrganizationMembership, Profile
+from my_model.services.localization import (
+    language_for_request,
+    localized_reverse,
+    normalize_language,
+)
+
 
 User = get_user_model()
 
-def org_register_fa(request, org_slug):
-    # Get the organization or return 404
-    organization = get_object_or_404(Organization, slug=org_slug)
 
-    if request.user.is_authenticated:
-        return redirect('home:home_fa')  # Adjust to your home URL
+def ensure_profile(user, organization=None, user_type='Person', is_org_admin=False):
+    profile, _ = Profile.objects.get_or_create(
+        user=user,
+        defaults={
+            'code': str(user.pk),
+            'language': getattr(organization, 'default_language', 'fa'),
+        },
+    )
+    changed_fields = []
+    if not profile.code:
+        profile.code = str(user.pk)
+        changed_fields.append('code')
+    if organization is not None and profile.organization_id != organization.id:
+        profile.organization = organization
+        changed_fields.append('organization')
+    if profile.user_type != user_type:
+        profile.user_type = user_type
+        changed_fields.append('user_type')
+    if profile.is_org_admin != is_org_admin:
+        profile.is_org_admin = is_org_admin
+        changed_fields.append('is_org_admin')
+    if changed_fields:
+        profile.save(update_fields=changed_fields)
 
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password1 = request.POST.get('password1')
-        password2 = request.POST.get('password2')
-
-        # Check if passwords match
-        if password1 != password2:
-            messages.error(request, "کلمه های عبور یکسان نمی باشند")
-            return render(request, 'account/org_register_fa.html', {'organization': organization})
-
-        # Check if username already exists
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "نام کاربری تکراری می باشد")
-            return render(request, 'account/org_register_fa.html', {'organization': organization})
-
-        # Create user
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=password1
-        )
-
-        # Create profile and associate with organization
-        Profile.objects.create(
+    if organization is not None:
+        OrganizationMembership.objects.update_or_create(
             user=user,
             organization=organization,
-            code=organization.code  # Or generate a unique code
+            defaults={
+                'role': 'admin' if is_org_admin else 'member',
+                'is_active': True,
+            },
         )
+    return profile
 
-        login(request, user)
-        request.session['organization_id'] = organization.id
-        request.session['user_type'] = user.profile.user_type
-        request.session['username'] = user.username
 
-        return redirect('home:home_fa')  # Adjust to your home URL
-
-    return render(request, 'account/org_register_fa.html', {'organization': organization})
-
-def org_login_fa(request, org_slug):
-    # Redirect if already logged in
-    organization = get_object_or_404(Organization, slug=org_slug)
-
+def _registration_view(request, template_name, redirect_name):
     if request.user.is_authenticated:
-        return redirect('/home_fa')
+        return redirect(redirect_name)
 
-    User = get_user_model()
+    form = RegistrationForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        with transaction.atomic():
+            user = form.save()
+            profile = ensure_profile(user)
+            profile.phone_number = form.cleaned_data.get('phone_number', '')
+            profile.save(update_fields=('phone_number',))
+        login(request, user)
+        return redirect(redirect_name)
 
-    if request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        remember_me = request.POST.get('remember_me')  # 'on' or None
+    if form.errors:
+        for errors in form.errors.get_json_data().values():
+            for error in errors:
+                messages.error(request, error['message'])
+    return render(request, template_name, {'form': form})
 
-        # Rate limiting check
-        cache_key = f'login_attempts_{username}'
-        login_attempts = cache.get(cache_key, 0)
 
-        if login_attempts >= settings.MAX_LOGIN_ATTEMPTS:
-            messages.error(request, "تعداد تلاش‌های شما بیش از حد بوده است. لطفاً 30 دقیقه دیگر تلاش کنید.")
+def _localized_registration_view(request, language):
+    return _registration_view(
+        request,
+        'account/register.html',
+        localized_reverse('home:home', language),
+    )
 
-            # Log the lockout with system user or anonymous user fallback
-            try:
-                system_user = User.objects.get(username='system')
-            except User.DoesNotExist:
-                system_user = User.objects.first()  # Fallback to first admin user
 
-            LogEntry.objects.log_action(
-                user_id=system_user.id,  # Never pass None
-                content_type_id=ContentType.objects.get_for_model(User).pk,
-                object_id=None,
-                object_repr=f'Account locked: {username}',
-                action_flag=ADDITION,
-                change_message=f'IP: {request.META.get("REMOTE_ADDR")}'
-            )
-            return render(request, 'account/org_login_fa.html', {'organization': organization})
+def user_register_fa(request):
+    return _localized_registration_view(request, 'fa')
 
-        # Authenticate user
-        user = authenticate(request, username=username, password=password)
 
-        if user is not None:
-            # Reset attempt counter
-            cache.delete(cache_key)
+def user_register_en(request):
+    return _localized_registration_view(request, 'en')
 
-            print(organization)
-            print(user.profile.organization)
-            if user.profile.organization == organization:
-                login(request, user)
-                request.session['organization_id'] = organization.id
-                request.session['organization_slug'] = organization.slug
-                request.session['user_type'] = user.profile.user_type
-                request.session['username'] = user.username
 
-                # Set session expiry
-                request.session.set_expiry(None if remember_me == 'on' else 0)
+def user_register_ar(request):
+    return _localized_registration_view(request, 'ar')
 
-                # Log successful login
-                LogEntry.objects.log_action(
-                    user_id=user.id,
-                    content_type_id=ContentType.objects.get_for_model(User).pk,
-                    object_id=user.id,
-                    object_repr=f'Successful login: {username}',
-                    action_flag=ADDITION,
-                    change_message=f'IP: {request.META.get("REMOTE_ADDR")}'
-                )
-                return redirect('/home_fa')
-            else:
-                messages.error(request, "شما عضو این سازمان نیستید")
 
-        else:
-            # Increment failed attempt counter
-            login_attempts += 1
-            cache.set(cache_key, login_attempts, settings.LOGIN_ATTEMPTS_TIMEOUT)
+def user_register(request):
+    language = normalize_language(language_for_request(request))
+    return _localized_registration_view(request, language)
 
-            # Get system user for logging
-            try:
-                system_user = User.objects.get(username='system')
-            except User.DoesNotExist:
-                system_user = User.objects.first()  # Fallback to first admin user
 
-            remaining_attempts = settings.MAX_LOGIN_ATTEMPTS - login_attempts
-
-            # Log failed attempt
-            LogEntry.objects.log_action(
-                user_id=system_user.id,  # Never pass None
-                content_type_id=ContentType.objects.get_for_model(User).pk,
-                object_id=None,
-                object_repr=f'Failed login: {username}',
-                action_flag=ADDITION,
-                change_message=f'Remaining: {remaining_attempts}, IP: {request.META.get("REMOTE_ADDR")}'
-            )
-
-            if not User.objects.filter(username=username).exists():
-                messages.error(request, "کاربری با این نام کاربری وجود ندارد")
-            else:
-                messages.error(request, f"نام کاربری یا رمز عبور اشتباه است. {remaining_attempts} تلاش باقی مانده")
-
-    return render(request, 'account/org_login_fa.html', {'organization': organization})
-
-def org_logout_fa1(request):
-    # Store organization slug before clearing session
-    org_slug = None
-    if 'organization_id' in request.session:
-        try:
-            organization = Organization.objects.get(id=request.session['organization_id'])
-            org_slug = organization.slug
-        except (KeyError, Organization.DoesNotExist):
-            pass
-
-    # Logout and clear session
+def user_logout(request):
+    language = normalize_language(language_for_request(request))
     logout(request)
-    request.session.flush()  # This clears all session data
+    return redirect(localized_reverse('home:home', language))
 
-    # Redirect appropriately
-    if org_slug:
-        return redirect('account:org_login_fa', org_slug=org_slug)
-    else:
-        return redirect('home:home_fa')  # Fallback redirect
 
-def org_logout_fa(request):
-    # Store organization slug before clearing session
-    org_slug = None
-    if 'organization_slug' in request.session:
-        try:
-            org_slug = request.session['organization_slug']
-        except (KeyError, Organization.DoesNotExist):
-            pass
-
-    # Logout and clear session
+def user_logout_fa(request):
     logout(request)
-    request.session.flush()  # This clears all session data
-    request.session['organization_slug'] = org_slug
+    return redirect(localized_reverse('home:home', 'fa'))
 
-    # Redirect appropriately
-    if org_slug:
-        return redirect('account:org_login_fa', org_slug=org_slug)
-    else:
-        return redirect('home:home_fa')  # Fallback redirect
 
+def user_logout_en(request):
+    logout(request)
+    return redirect(localized_reverse('home:home', 'en'))
+
+
+def user_logout_ar(request):
+    logout(request)
+    return redirect(localized_reverse('home:home', 'ar'))
+
+
+user_logout_fa1 = user_logout_fa

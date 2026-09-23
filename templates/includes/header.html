@@ -1,106 +1,57 @@
-{% load static %}
+{% load static i18n %}
 
-<!-- Header START -->
-<header class="navbar-light navbar-sticky header-static">
-	<!-- Logo Nav START -->
-	<nav class="navbar navbar-expand-xl">
-		<div class="container">
-			<!-- Logo START -->
+<header class="smart-site-header">
+    <nav class="navbar navbar-expand-xl smart-navbar" aria-label="{{ SITE_LABELS.main_navigation }}">
+        <div class="container">
+            <a class="smart-brand-lockup" href="{% url 'home:home' %}" aria-label="{% translate 'Smart Screening' %}">
+                <span class="smart-brand-symbol"><i class="bi bi-heart-pulse-fill"></i></span>
+                <span class="smart-brand-name"><strong>Smart</strong><small>Screening</small></span>
+            </a>
 
-			<!-- Logo END -->
+            <button class="navbar-toggler smart-navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#smartNavbarCollapse" aria-controls="smartNavbarCollapse" aria-expanded="false" aria-label="{% translate 'Toggle navigation' %}">
+                <i class="bi bi-list"></i>
+            </button>
 
-			<!-- Responsive navbar toggler -->
-			<button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-animation">
-					<span></span>
-					<span></span>
-					<span></span>
-				</span>
-			</button>
+            <div class="collapse navbar-collapse" id="smartNavbarCollapse">
+                <ul class="navbar-nav smart-nav-links mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home:home' %}"><i class="bi bi-house-heart me-1"></i>{% translate 'Home' %}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'my_model:screening_list' %}"><i class="bi bi-stars me-1"></i>{% translate 'Smart Screening' %}</a></li>
+                    {% if request.user.is_authenticated %}<li class="nav-item"><a class="nav-link" href="{% url 'followup:list' %}"><i class="bi bi-calendar2-heart me-1"></i>{{ SITE_LABELS.follow_up }}</a></li>{% endif %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home:home' %}#smart-how-it-works"><i class="bi bi-signpost-2 me-1"></i>{{ SITE_LABELS.how_it_works }}</a></li>
+                </ul>
 
-			<!-- Main navbar START -->
-			<div class="navbar-collapse w-100 collapse" id="navbarCollapse">
-
-				<!-- Nav Main menu START -->
-                {% if request.resolver_match.url_name == "home_fa" %}
-                    <ul class="navbar-nav navbar-nav-scroll mx-auto">
-                        <li class="nav-item"><a class="nav-link" href="{% url "home:home_fa" %}">صفحه اصلی</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#content_video"> محتوای آموزشی</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#blog"> مقالات</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#doctor"> متخصصین</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#event"> رویداد</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#team">تیم ما</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#donate">نذر سلامت</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#market">بازار سلامت</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#review">دیدگاه کاربران</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#faq">سوالات متداول</a></li>
-                    </ul>
-                {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{% url "home:home_fa" %}">صفحه اصلی</a></li>
-                {% endif %}
-				<!-- Nav Main menu END -->
-
-			</div>
-			<!-- Main navbar END -->
-
-            {% if request.user.is_authenticated %}
-                <!-- Profile START -->
-                <div class="dropdown ms-1 ms-lg-0">
-                    <a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img class="avatar-img rounded-circle" src="{% static 'images/avatar/11.jpg' %}" alt="avatar">
-                    </a>
-                    <ul class="dropdown-menu dropdown-animation dropdown-menu-end shadow pt-3" aria-labelledby="profileDropdown">
-                        <!-- Profile info -->
-                        <li class="px-3 mb-3">
-                            <div class="d-flex align-items-center">
-                                <!-- Avatar -->
-                                <div class="avatar me-3">
-                                    <img class="avatar-img rounded-circle shadow" src="{% static 'images/avatar/01.jpg' %}" alt="avatar">
-                                </div>
-                                <div>
-                                    <a class="h6" href="#">{{ request.user.username }}</a>
-                                    <p class="small m-0">{{ request.user.email }}</p>
-                                </div>
-                            </div>
-                        </li>
-                        <li> <hr class="dropdown-divider"></li>
-                        <!-- Links -->
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-person fa-fw me-2"></i>ویرایش</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>تنظیمات</a></li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-info-circle fa-fw me-2"></i>پشتیبانی</a></li>
-                        <li><a class="dropdown-item bg-danger-soft-hover" href="#"><i class="bi bi-power fa-fw me-2"></i>خروج</a></li>
-                        <li> <hr class="dropdown-divider"></li>
-                        <!-- Dark mode options START -->
-                        <li>
-                            <div class="bg-light dark-mode-switch theme-icon-active d-flex align-items-center p-1 rounded mt-2">
-                                <button type="button" class="btn btn-sm mb-0" data-bs-theme-value="light">
-                                    <svg style="transform: scale(-1,1)" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-sun fa-fw mode-switch" viewBox="0 0 16 16">
-                                        <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
-                                        <use href="#"></use>
-                                    </svg> روشن
-                                </button>
-                                <button type="button" class="btn btn-sm mb-0" data-bs-theme-value="dark">
-                                    <svg style="transform: scale(-1,1)" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-moon-stars fa-fw mode-switch" viewBox="0 0 16 16">
-                                        <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278zM4.858 1.311A7.269 7.269 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.316 7.316 0 0 0 5.205-2.162c-.337.042-.68.063-1.029.063-4.61 0-8.343-3.714-8.343-8.29 0-1.167.242-2.278.681-3.286z"/>
-                                        <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
-                                        <use href="#"></use>
-                                    </svg> تیره
-                                </button>
-                                <button type="button" class="btn btn-sm mb-0 active" data-bs-theme-value="auto">
-                                    <svg style="transform: scale(-1,1)" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-circle-half fa-fw mode-switch" viewBox="0 0 16 16">
-                                        <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
-                                        <use href="#"></use>
-                                    </svg> خودکار
-                                </button>
-                            </div>
-                        </li>
-                        <!-- Dark mode options END-->
-                    </ul>
+                <div class="smart-header-actions">
+                    <div class="dropdown smart-language-dropdown">
+                        <button class="smart-language-trigger dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ SITE_LABELS.select_language }}">
+                            <span class="smart-globe"><i class="bi bi-globe2"></i></span>
+                            <span class="smart-language-current-code">{{ CURRENT_LANGUAGE|upper }}</span>
+                            {% for language in LANGUAGE_SWITCH_URLS %}{% if language.code == CURRENT_LANGUAGE %}<span class="smart-language-current-name">{{ language.name }}</span>{% endif %}{% endfor %}
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end smart-language-menu">
+                            <div class="smart-language-heading"><span>{{ SITE_LABELS.choose_language }}</span><i class="bi bi-translate"></i></div>
+                            {% for language in LANGUAGE_SWITCH_URLS %}
+                                <form method="post" action="{% url 'set_language' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="language" value="{{ language.code }}">
+                                    <input type="hidden" name="next" value="{{ language.url }}">
+                                    <button class="smart-language-option{% if language.code == CURRENT_LANGUAGE %} is-active{% endif %}" type="submit"{% if language.code == CURRENT_LANGUAGE %} aria-current="true"{% endif %}>
+                                        <span class="smart-language-dot smart-language-dot-{{ language.code }}"></span>
+                                        <span class="smart-language-name">{{ language.name }}</span>
+                                        <small>{{ language.code|upper }}</small>
+                                        {% if language.code == CURRENT_LANGUAGE %}<i class="bi bi-check2"></i>{% endif %}
+                                    </button>
+                                </form>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% if request.user.is_authenticated %}
+                        <a class="smart-account-button smart-account-button-dark" href="{% url 'home:home' %}"><i class="bi bi-grid-1x2-fill me-1"></i>{{ SITE_LABELS.dashboard }}</a>
+                        <a class="smart-account-button smart-account-button-light" href="{% url 'account:logout' %}">{% translate 'Log out' %}</a>
+                    {% else %}
+                        <a class="smart-account-button smart-account-button-dark" href="{% url 'account:login' %}">{% translate 'Log in' %}<i class="bi bi-arrow-up-right ms-1"></i></a>
+                    {% endif %}
                 </div>
-                <!-- Profile START -->
-            {% endif %}
-		</div>
-	</nav>
-	<!-- Logo Nav END -->
+            </div>
+        </div>
+    </nav>
 </header>
-<!-- Header END -->

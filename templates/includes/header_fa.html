@@ -22,20 +22,19 @@
 			<div class="navbar-collapse w-100 collapse" id="navbarCollapse">
 
 				<!-- Nav Main menu START -->
-                {% if request.resolver_match.url_name == "home_fa" %}
+                {% if request.resolver_match.url_name == "home_fa" or request.resolver_match.url_name == "home" and CURRENT_LANGUAGE == "fa" %}
                     <ul class="navbar-nav navbar-nav-scroll mx-auto">
                         <li class="nav-item"><a class="nav-link" href="#">صفحه اصلی</a></li>
                         <li class="nav-item"><a class="nav-link" href="#screening"> غربالگری هوشمند</a></li>
                         <li class="nav-item"><a class="nav-link" href="#blog"> مقالات و اخبار</a></li>
                         <li class="nav-item"><a class="nav-link" href="#team"> تیم ما</a></li>
                         <li class="nav-item"><a class="nav-link" href="#advisor"> مشاوران</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#ecg">تحلیل نوار قلب</a></li>
                         <li class="nav-item"><a class="nav-link" href="#review">دیدگاه کاربران</a></li>
                         <li class="nav-item"><a class="nav-link" href="#faq">سوالات متداول</a></li>
                     </ul>
                 {% else %}
                     <ul>
-                        <li class="nav-item"><a class="nav-link" href="{% url "home:home_fa" %}">صفحه اصلی</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url "home:home" %}">صفحه اصلی</a></li>
                     </ul>
                 {% endif %}
 				<!-- Nav Main menu END -->
@@ -44,17 +43,6 @@
 			<!-- Main navbar END -->
 
             {% if request.user.is_authenticated %}
-                <!-- Profile START -->
-                {% if request.user.profile.user_type == 'Organization' %}
-                    <ul class="navbar-nav navbar-nav-scroll me-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle active" href="#" id="demoMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">پنل مدیریت</a>
-                        <ul class="dropdown-menu" aria-labelledby="demoMenu">
-                            <li> <a class="dropdown-item" href="{% url "cpanel:admin_users_list_fa" %}">لیست کاربران</a></li>
-                        </ul>
-                    </li>
-                </ul>
-                {% endif %}
                 <div class="dropdown ms-1 ms-lg-0">
                     <a class="avatar avatar-sm p-0" href="#" id="profileDropdown" role="button" data-bs-auto-close="outside" data-bs-display="static" data-bs-toggle="dropdown" aria-expanded="false">
                         {% if request.user.profile.image %}
@@ -74,8 +62,12 @@
                         </li>
                         <li> <hr class="dropdown-divider"></li>
                         <!-- Links -->
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear fa-fw me-2"></i>تنظیمات</a></li>
-                        <li><a class="dropdown-item bg-danger-soft-hover" href="{% url 'account:org_logout_fa' %}"><i class="bi bi-power fa-fw me-2"></i>خروج</a></li>
+                        {% if request.user.profile.is_org_admin %}
+                        <li><a class="dropdown-item" href="{% url 'cpanel:organization_dashboard' %}"><i class="bi bi-building fa-fw me-2"></i>داشبورد سازمان</a></li>
+                        <li><a class="dropdown-item" href="{% url 'cpanel:organization_reports' %}"><i class="bi bi-file-earmark-text fa-fw me-2"></i>گزارش سازمان</a></li>
+                        <li> <hr class="dropdown-divider"></li>
+                        {% endif %}
+                        <li><a class="dropdown-item bg-danger-soft-hover" href="{% url 'account:logout' %}"><i class="bi bi-power fa-fw me-2"></i>خروج</a></li>
                         <li> <hr class="dropdown-divider"></li>
                         <!-- Dark mode options START -->
                         <li>
@@ -107,16 +99,10 @@
 
             {% else %}
                 <div class="navbar-nav ms-2">
-                    {% if request.session.organization_slug %}
-                    <a href="{% url 'account:org_login_fa' org_slug=request.session.organization_slug %}"
-                       class="btn btn-sm btn-dark mb-0">
+
+                    <a href="{% url 'account:login' %}" class="btn btn-sm btn-dark mb-0">
                        ورود
                     </a>
-                    {% else %}
-                    <a href="{% url 'account:org_login_fa' org_slug='smartcancer' %}" class="btn btn-sm btn-dark mb-0">
-                       ورود عمومی
-                    </a>
-                    {% endif %}
                 </div>
             {% endif %}
 		</div>
