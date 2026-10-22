@@ -1,0 +1,52 @@
+{% extends 'base_raw.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/doctor-dashboard.css' %}">
+<main class="doctor-shell">
+  <div class="container py-4 py-lg-5">
+    <div class="doctor-hero mb-4">
+      <div>
+        <span class="doctor-eyebrow">SmartScreening · {{ labels.dashboard }}</span>
+        <h1>{{ labels.welcome|cut:'{name}' }}{{ doctor.display_name }}</h1>
+        <p class="mb-0">{{ doctor.clinic_name|default:'' }}</p>
+      </div>
+      <div class="doctor-hero-actions">
+        {% if doctor.image %}<img class="doctor-avatar" src="{{ doctor.image.url }}" alt="{{ doctor.display_name }}">{% else %}<span class="doctor-avatar doctor-avatar-fallback"><i class="bi bi-person-badge"></i></span>{% endif %}
+        <a class="btn btn-light" href="{% url 'doctor:logout' %}">{{ labels.logout }}</a>
+      </div>
+    </div>
+    {% if messages %}{% for message in messages %}<div class="alert alert-success">{{ message }}</div>{% endfor %}{% endif %}
+    <div class="row g-3 mb-4">
+      <div class="col-md-4"><div class="doctor-stat doctor-stat-warning"><span>{{ labels.pending }}</span><strong>{{ counts.pending }}</strong><i class="bi bi-hourglass-split"></i></div></div>
+      <div class="col-md-4"><div class="doctor-stat doctor-stat-success"><span>{{ labels.reviewed }}</span><strong>{{ counts.reviewed }}</strong><i class="bi bi-check2-circle"></i></div></div>
+      <div class="col-md-4"><div class="doctor-stat doctor-stat-primary"><span>{{ labels.total }}</span><strong>{{ counts.total }}</strong><i class="bi bi-folder2-open"></i></div></div>
+    </div>
+    <div class="doctor-panel">
+      <div class="doctor-panel-header">
+        <div><h2>{{ labels.dashboard }}</h2><p>{{ doctor.bio|default:'' }}</p></div>
+        <div class="btn-group" role="group">
+          <a class="btn btn-sm {% if status_filter == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status=all">{{ labels.all }}</a>
+          <a class="btn btn-sm {% if status_filter == 'pending' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status=pending">{{ labels.pending }}</a>
+          <a class="btn btn-sm {% if status_filter == 'reviewed' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status=reviewed">{{ labels.reviewed }}</a>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table doctor-table align-middle mb-0">
+          <thead><tr><th>{{ labels.patient }}</th><th>{{ labels.disease }}</th><th>{{ labels.status }}</th><th>{{ labels.received }}</th><th></th></tr></thead>
+          <tbody>
+          {% for referral in referrals %}
+            <tr>
+              <td><strong>{{ referral.patient.get_full_name|default:referral.patient.username }}</strong><small>{{ referral.screening.code }}</small></td>
+              <td>{{ referral.display_assessment_title }}<small>{{ referral.display_result_status|default:'' }}</small></td>
+              <td><span class="doctor-status doctor-status-{{ referral.status }}">{% if referral.status == 'pending' %}{{ labels.pending_label }}{% elif referral.status == 'reviewed' %}{{ labels.reviewed_label }}{% elif referral.status == 'closed' %}{{ labels.closed_label }}{% else %}{{ labels.cancelled_label }}{% endif %}</span></td>
+              <td>{{ referral.created|date:'Y-m-d H:i' }}</td>
+              <td><a class="btn btn-sm btn-primary-soft" href="{% url 'doctor:referral_detail' referral_id=referral.id %}">{{ labels.open }} <i class="bi bi-arrow-up-right"></i></a></td>
+            </tr>
+          {% empty %}<tr><td colspan="5" class="text-center py-5 text-muted">{{ labels.no_referrals }}</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

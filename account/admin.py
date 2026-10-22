@@ -1,19 +1,38 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from . import models
+
+
+@admin.action(description='Enable follow-up and PDF SMS for selected organizations')
+def enable_organization_sms(modeladmin, request, queryset):
+    updated = queryset.update(followup_sms_enabled=True, pdf_report_sms_enabled=True)
+    modeladmin.message_user(request, f'SMS enabled for {updated} organization(s).', messages.SUCCESS)
+
+@admin.action(description='Disable follow-up and PDF SMS for selected organizations')
+def disable_organization_sms(modeladmin, request, queryset):
+    updated = queryset.update(followup_sms_enabled=False, pdf_report_sms_enabled=False)
+    modeladmin.message_user(request, f'SMS disabled for {updated} organization(s).', messages.SUCCESS)
 
 
 @admin.register(models.Organization)
 class OrganizationAdmin(admin.ModelAdmin):
-    list_display = ('title', 'slug', 'code', 'default_language', 'admin_user', 'is_active')
-    list_filter = ('is_active',)
+    list_display = (
+        'title', 'slug', 'code', 'default_language', 'admin_user',
+        'followup_sms_enabled', 'pdf_report_sms_enabled', 'is_active',
+    )
+    list_filter = ('is_active', 'followup_sms_enabled', 'pdf_report_sms_enabled')
     search_fields = ('title', 'slug', 'code', 'admin_user__username')
     prepopulated_fields = {'slug': ('title',)}
+    actions = (enable_organization_sms, disable_organization_sms)
     fieldsets = (
         ('Organization identity', {
             'fields': ('title', 'title_en', 'title_ar', 'code', 'slug', 'website', 'is_active'),
         }),
         ('Public page content', {
             'fields': ('sentence', 'sentence_en', 'sentence_ar', 'image', 'logo', 'default_language'),
+        }),
+        ('SMS notifications', {
+            'fields': ('followup_sms_enabled', 'pdf_report_sms_enabled'),
+            'description': 'These settings control SMS delivery for this organization. New organizations have both options enabled.',
         }),
         ('Authentication page branding', {
             'fields': ('brand_primary_color', 'brand_accent_color', 'brand_surface_color'),

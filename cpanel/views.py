@@ -29,7 +29,7 @@ CPANEL_LABELS = {
         'quick_actions': 'دسترسی سریع', 'manage_members': 'مدیریت اعضا',
         'view_all_reports': 'مشاهده همه گزارش‌ها', 'latest_activity': 'آخرین فعالیت‌ها',
         'organization_status': 'وضعیت سازمان', 'no_activity': 'هنوز فعالیتی ثبت نشده است.',
-        'active_members_ratio': 'نسبت اعضای فعال',
+        'active_members_ratio': 'نسبت اعضای فعال', 'total_users': 'کل کاربران',
         'user_count': 'تعداد کاربران', 'screening_count': 'تعداد غربالگری‌ها',
         'organization_users': 'کاربران سازمان', 'view_all': 'مشاهده همه',
         'username': 'نام کاربری', 'user': 'کاربر', 'code': 'کد',
@@ -52,7 +52,7 @@ CPANEL_LABELS = {
         'quick_actions': 'Quick actions', 'manage_members': 'Manage members',
         'view_all_reports': 'View all reports', 'latest_activity': 'Latest activity',
         'organization_status': 'Organization status', 'no_activity': 'No activity recorded yet.',
-        'active_members_ratio': 'Active member ratio',
+        'active_members_ratio': 'Active member ratio', 'total_users': 'Total users',
         'user_count': 'Users', 'screening_count': 'Screenings',
         'organization_users': 'Organization users', 'view_all': 'View all',
         'username': 'Username', 'user': 'User', 'code': 'Code',
@@ -75,7 +75,7 @@ CPANEL_LABELS = {
         'quick_actions': 'إجراءات سريعة', 'manage_members': 'إدارة الأعضاء',
         'view_all_reports': 'عرض جميع التقارير', 'latest_activity': 'آخر الأنشطة',
         'organization_status': 'حالة المؤسسة', 'no_activity': 'لم يتم تسجيل أي نشاط بعد.',
-        'active_members_ratio': 'نسبة الأعضاء النشطين',
+        'active_members_ratio': 'نسبة الأعضاء النشطين', 'total_users': 'إجمالي المستخدمين',
         'user_count': 'المستخدمون', 'screening_count': 'الفحوصات',
         'organization_users': 'مستخدمو المؤسسة', 'view_all': 'عرض الكل',
         'username': 'اسم المستخدم', 'user': 'المستخدم', 'code': 'الرمز',
@@ -154,6 +154,39 @@ def _organization_users(organization, query='', include_inactive=False):
     return users
 
 
+def _organization_screenings(organization, active_only=True):
+    memberships = OrganizationMembership.objects.filter(
+        organization=organization,
+        role='member',
+    )
+    if active_only:
+        memberships = memberships.filter(is_active=True)
+    return MyModel.objects.filter(
+        userid_id__in=memberships.values('user_id'),
+    ).select_related('userid')
+
+
+def _organization_metrics(organization):
+    memberships = OrganizationMembership.objects.filter(
+        organization=organization,
+        role='member',
+    )
+    active_memberships = memberships.filter(is_active=True)
+    total_user_count = memberships.values('user_id').distinct().count()
+    active_user_count = active_memberships.values('user_id').distinct().count()
+    screenings = _organization_screenings(organization)
+    now = timezone.localtime(timezone.now())
+    return {
+        'total_user_count': total_user_count,
+        'active_user_count': active_user_count,
+        'screening_count': screenings.count(),
+        'today_screening_count': screenings.filter(created__date=now.date()).count(),
+        'monthly_screening_count': screenings.filter(
+            created__year=now.year,
+            created__month=now.month,
+        ).count(),
+    }
+
 @organization_admin_required
 def organization_dashboard_fa(request):
     return _organization_dashboard(request, 'fa')
@@ -169,36 +202,17 @@ def _organization_dashboard(request, language):
     users = _organization_users(organization).annotate(
         screening_count=Count('screenings', distinct=True),
     ).order_by('-screening_count', '-date_joined')
-
-    memberships = OrganizationMembership.objects.filter(
-        organization=organization,
-        role='member',
-    )
-    active_user_count = memberships.filter(is_active=True).count()
-    total_user_count = memberships.count()
-
-    screenings = MyModel.objects.filter(
-        userid__organization_memberships__organization=organization,
-        userid__organization_memberships__is_active=True,
-    ).select_related('userid')
+    metrics = _organization_metrics(organization)
+    screenings = _organization_screenings(organization)
     recent_screenings = screenings.order_by('-created')[:10]
-    now = timezone.localtime(timezone.now())
-    active_member_percent = round((active_user_count / total_user_count) * 100) if total_user_count else 0
+    active_member_percent = round((metrics['active_user_count'] / metrics['total_user_count']) * 100) if metrics['total_user_count'] else 0
 
     return render(request, 'organization_dashboard.html', _cpanel_context(request, organization, language, **{
         'org_users': users[:8],
-        'user_count': active_user_count,
-        'total_user_count': total_user_count,
-        'screening_count': screenings.count(),
-        'today_screening_count': screenings.filter(created__date=now.date()).count(),
-        'monthly_screening_count': screenings.filter(
-            created__year=now.year,
-            created__month=now.month,
-        ).count(),
+        **metrics,
         'active_member_percent': active_member_percent,
         'recent_screenings': recent_screenings,
     }))
-
 
 @organization_admin_required
 def admin_users_list_fa(request):
@@ -219,8 +233,12 @@ def _admin_users_list(request, language):
     )
     paginator = Paginator(users, 20)
     org_users = paginator.get_page(request.GET.get('page'))
+    metrics = _organization_metrics(organization)
     return render(request, 'admin_users_list.html', _cpanel_context(request, organization, language, **{
         'org_users': org_users,
+        'user_count': metrics['total_user_count'],
+        'active_user_count': metrics['active_user_count'],
+        'screening_count': metrics['screening_count'],
     }))
 
 
@@ -263,15 +281,13 @@ def _organization_reports(request, language):
     organization = request.organization
     user_id = request.GET.get('user_id')
     selected_user = None
-    screenings = MyModel.objects.filter(
-        userid__organization_memberships__organization=organization,
-        userid__organization_memberships__is_active=True,
-    ).select_related('userid').order_by('-created')
+    screenings = _organization_screenings(organization).order_by('-created')
 
     if user_id:
         selected_user = get_object_or_404(
             User.objects.filter(
                 organization_memberships__organization=organization,
+                organization_memberships__role='member',
                 organization_memberships__is_active=True,
             ).distinct(),
             id=user_id,

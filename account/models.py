@@ -50,6 +50,16 @@ class Organization(models.Model):
         choices=LANGUAGE_CHOICES,
         default='fa',
     )
+    followup_sms_enabled = models.BooleanField(
+        default=True,
+        verbose_name='Enable follow-up SMS',
+        help_text='Allow scheduled follow-up reminder SMS messages for this organization.',
+    )
+    pdf_report_sms_enabled = models.BooleanField(
+        default=True,
+        verbose_name='Send PDF report link by SMS',
+        help_text='Allow sending the screening PDF report link by SMS for this organization.',
+    )
     admin_user = models.OneToOneField(
         User,
         on_delete=models.SET_NULL,

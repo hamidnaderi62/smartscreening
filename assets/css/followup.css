@@ -152,6 +152,19 @@
 .followup-dot-one { top: 12px; left: 47px; }
 .followup-dot-two { right: 2px; bottom: 57px; background: #ffae70; box-shadow: 0 0 0 6px rgba(255, 174, 112, .12); }
 
+.followup-upcoming { position: relative; z-index: 3; max-width: 940px; margin-top: -46px; padding-bottom: 28px; }
+.followup-upcoming-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 14px; padding: 0 4px; }
+.followup-upcoming-heading h2 { margin: 7px 0 0; color: var(--followup-ink); font-size: 1.3rem; font-weight: 800; }
+.followup-upcoming-heading .followup-card-kicker i { margin-inline-end: 5px; }
+.followup-upcoming-count { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 12px; color: #fff; background: var(--followup-blue); font-weight: 800; }
+.followup-upcoming-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.followup-upcoming-card { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 15px 16px; border: 1px solid #e7eaf2; border-radius: 15px; background: #fff; box-shadow: 0 10px 24px rgba(20, 34, 76, .05); }
+.followup-upcoming-icon { display: grid; width: 38px; height: 38px; flex: 0 0 auto; place-items: center; border-radius: 12px; color: var(--followup-blue); background: #edf2ff; }
+.followup-upcoming-card > div { min-width: 0; flex: 1; }
+.followup-upcoming-card small, .followup-upcoming-card strong, .followup-upcoming-card span { display: block; }
+.followup-upcoming-card small { overflow: hidden; color: var(--followup-blue); font-size: .65rem; font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+.followup-upcoming-card strong { margin: 3px 0; overflow: hidden; color: var(--followup-ink); font-size: .82rem; text-overflow: ellipsis; white-space: nowrap; }
+.followup-upcoming-card div span { color: var(--followup-muted); font-size: .68rem; line-height: 1.55; }
 .followup-content {
     position: relative;
     z-index: 2;
@@ -239,7 +252,9 @@ html[dir='rtl'] .followup-reminder-line { right: 18px; left: auto; }
     .followup-hero { padding: 58px 0 78px; }
     .followup-hero-inner { display: block; }
     .followup-hero-visual { margin-top: 38px; }
-    .followup-content { margin-top: -25px; padding-bottom: 65px; }
+    .followup-upcoming { margin-top: -25px; }
+    .followup-upcoming-grid { grid-template-columns: 1fr; }
+    .followup-content { margin-top: 0; padding-bottom: 65px; }
     .followup-card { padding: 25px 20px 18px; }
     .followup-card::before { right: 20px; left: 20px; }
     .followup-card-heading { flex-direction: column; gap: 12px; }

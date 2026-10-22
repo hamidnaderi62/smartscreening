@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'my_model.apps.MyModelConfig',
     'cpanel.apps.CpanelConfig',
     'followup.apps.FollowupConfig',
+    'doctor.apps.DoctorConfig',
 ]
 
 MIDDLEWARE = [
@@ -164,6 +165,7 @@ KAVENEGAR_SENDER = os.environ.get('KAVENEGAR_SENDER', '')
 KAVENEGAR_BASE_URL = os.environ.get('KAVENEGAR_BASE_URL', 'https://api.kavenegar.com')
 KAVENEGAR_TIMEOUT = int(os.environ.get('KAVENEGAR_TIMEOUT', '15'))
 SMARTSCREENING_PUBLIC_URL = os.environ.get('SMARTSCREENING_PUBLIC_URL', '')
+REPORT_ACCESS_TOKEN_MAX_AGE = int(os.environ.get('REPORT_ACCESS_TOKEN_MAX_AGE', str(60 * 60 * 24 * 365)))
 
 
 # Security settings for login attempts

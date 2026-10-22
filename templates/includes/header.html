@@ -17,7 +17,7 @@
                     <li class="nav-item"><a class="nav-link" href="{% url 'home:home' %}"><i class="bi bi-house-heart me-1"></i>{% translate 'Home' %}</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'my_model:screening_list' %}"><i class="bi bi-stars me-1"></i>{% translate 'Smart Screening' %}</a></li>
                     {% if request.user.is_authenticated %}<li class="nav-item"><a class="nav-link" href="{% url 'followup:list' %}"><i class="bi bi-calendar2-heart me-1"></i>{{ SITE_LABELS.follow_up }}</a></li>{% endif %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'home:home' %}#smart-how-it-works"><i class="bi bi-signpost-2 me-1"></i>{{ SITE_LABELS.how_it_works }}</a></li>
+                    {% if not request.user.is_authenticated %}<li class="nav-item"><a class="nav-link" href="{% url 'home:home' %}#smart-how-it-works"><i class="bi bi-signpost-2 me-1"></i>{{ SITE_LABELS.how_it_works }}</a></li>{% endif %}
                 </ul>
 
                 <div class="smart-header-actions">
@@ -48,7 +48,8 @@
                         <a class="smart-account-button smart-account-button-dark" href="{% url 'home:home' %}"><i class="bi bi-grid-1x2-fill me-1"></i>{{ SITE_LABELS.dashboard }}</a>
                         <a class="smart-account-button smart-account-button-light" href="{% url 'account:logout' %}">{% translate 'Log out' %}</a>
                     {% else %}
-                        <a class="smart-account-button smart-account-button-dark" href="{% url 'account:login' %}">{% translate 'Log in' %}<i class="bi bi-arrow-up-right ms-1"></i></a>
+                        <a class="smart-account-button smart-account-button-dark" href="{% url 'account:org_login' org_slug='pouyamed' %}">{% translate 'Log in' %}<i class="bi bi-arrow-up-right ms-1"></i></a>
+                        <a class="smart-account-button smart-account-button-light" href="{% url 'account:org_register' org_slug='pouyamed' %}">{% translate 'Register' %}</a>
                     {% endif %}
                 </div>
             </div>

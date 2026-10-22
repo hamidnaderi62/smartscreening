@@ -23,8 +23,8 @@
             </div>
             <div class="org-hero-summary">
                 <div class="org-summary-top"><span>{{ cpanel_labels.organization_status }}</span><b><i class="bi bi-check-circle-fill"></i>{{ cpanel_labels.active }}</b></div>
-                <div class="org-summary-number">{{ user_count }}</div>
-                <div class="org-summary-caption">{{ cpanel_labels.active_members }}</div>
+                <div class="org-summary-number">{{ active_user_count }}</div>
+                <div class="org-summary-caption">{{ cpanel_labels.active_users }}</div>
                 <div class="org-summary-progress"><span style="width: {{ active_member_percent }}%;"></span></div>
                 <div class="org-summary-foot"><span>{{ cpanel_labels.active_members_ratio }}</span><strong>{{ active_member_percent }}%</strong></div>
             </div>
@@ -33,8 +33,8 @@
 
     <section class="container org-dashboard-content">
         <div class="org-kpi-grid">
-            <article class="org-kpi-card org-kpi-blue"><span class="org-kpi-icon"><i class="bi bi-person-check"></i></span><div><small>{{ cpanel_labels.active_members }}</small><strong>{{ user_count }}</strong><span>{{ cpanel_labels.organization_users }}</span></div></article>
-            <article class="org-kpi-card org-kpi-purple"><span class="org-kpi-icon"><i class="bi bi-people"></i></span><div><small>{{ cpanel_labels.total_members }}</small><strong>{{ total_user_count }}</strong><span>{{ cpanel_labels.organization_users }}</span></div></article>
+            <article class="org-kpi-card org-kpi-blue"><span class="org-kpi-icon"><i class="bi bi-person-check"></i></span><div><small>{{ cpanel_labels.active_users }}</small><strong>{{ active_user_count }}</strong><span>{{ cpanel_labels.organization_users }}</span></div></article>
+            <article class="org-kpi-card org-kpi-purple"><span class="org-kpi-icon"><i class="bi bi-people"></i></span><div><small>{{ cpanel_labels.total_users }}</small><strong>{{ total_user_count }}</strong><span>{{ cpanel_labels.organization_users }}</span></div></article>
             <article class="org-kpi-card org-kpi-green"><span class="org-kpi-icon"><i class="bi bi-activity"></i></span><div><small>{{ cpanel_labels.screening_count }}</small><strong>{{ screening_count }}</strong><span>{{ cpanel_labels.latest_activity }}</span></div></article>
             <article class="org-kpi-card org-kpi-orange"><span class="org-kpi-icon"><i class="bi bi-calendar2-check"></i></span><div><small>{{ cpanel_labels.monthly_screenings }}</small><strong>{{ monthly_screening_count }}</strong><span>{{ today_screening_count }} {{ cpanel_labels.today_screenings }}</span></div></article>
         </div>
@@ -48,8 +48,8 @@
             </section>
 
             <aside class="org-side-column">
-                <section class="org-panel org-actions-panel"><div class="org-panel-heading"><div><span class="org-panel-kicker">{{ cpanel_labels.workspace }}</span><h2>{{ cpanel_labels.quick_actions }}</h2></div><i class="bi bi-lightning-charge org-panel-heading-icon"></i></div><div class="org-action-list"><a href="{% url 'cpanel:admin_users_list' %}"><span class="org-action-icon org-action-blue"><i class="bi bi-person-gear"></i></span><span><strong>{{ cpanel_labels.manage_members }}</strong><small>{{ cpanel_labels.active_members }} · {{ user_count }}</small></span><i class="bi bi-chevron-right"></i></a><a href="{% url 'cpanel:organization_reports' %}"><span class="org-action-icon org-action-purple"><i class="bi bi-file-earmark-bar-graph"></i></span><span><strong>{{ cpanel_labels.view_all_reports }}</strong><small>{{ screening_count }} {{ cpanel_labels.screening_count }}</small></span><i class="bi bi-chevron-right"></i></a></div></section>
-                <section class="org-panel org-status-panel"><span class="org-panel-kicker">{{ cpanel_labels.organization_status }}</span><h2>{{ organization.display_title|default:organization.title }}</h2><p>{{ cpanel_labels.active_members_ratio }}</p><div class="org-status-bar"><span style="width: {{ active_member_percent }}%;"></span></div><div class="org-status-values"><strong>{{ active_member_percent }}%</strong><small>{{ user_count }}/{{ total_user_count }} {{ cpanel_labels.total_members }}</small></div></section>
+                <section class="org-panel org-actions-panel"><div class="org-panel-heading"><div><span class="org-panel-kicker">{{ cpanel_labels.workspace }}</span><h2>{{ cpanel_labels.quick_actions }}</h2></div><i class="bi bi-lightning-charge org-panel-heading-icon"></i></div><div class="org-action-list"><a href="{% url 'cpanel:admin_users_list' %}"><span class="org-action-icon org-action-blue"><i class="bi bi-person-gear"></i></span><span><strong>{{ cpanel_labels.manage_members }}</strong><small>{{ cpanel_labels.active_users }} · {{ active_user_count }}</small></span><i class="bi bi-chevron-right"></i></a><a href="{% url 'cpanel:organization_reports' %}"><span class="org-action-icon org-action-purple"><i class="bi bi-file-earmark-bar-graph"></i></span><span><strong>{{ cpanel_labels.view_all_reports }}</strong><small>{{ screening_count }} {{ cpanel_labels.screening_count }}</small></span><i class="bi bi-chevron-right"></i></a></div></section>
+                <section class="org-panel org-status-panel"><span class="org-panel-kicker">{{ cpanel_labels.organization_status }}</span><h2>{{ organization.display_title|default:organization.title }}</h2><p>{{ cpanel_labels.active_members_ratio }}</p><div class="org-status-bar"><span style="width: {{ active_member_percent }}%;"></span></div><div class="org-status-values"><strong>{{ active_member_percent }}%</strong><small>{{ active_user_count }}/{{ total_user_count }} {{ cpanel_labels.total_users }}</small></div></section>
             </aside>
         </div>
 

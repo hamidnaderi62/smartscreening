@@ -15,7 +15,6 @@ class FollowUpProgram(models.Model):
     """Admin-defined follow-up rules for one screening assessment."""
 
     assessment_id = models.PositiveSmallIntegerField(
-        unique=True,
         choices=ASSESSMENT_CHOICES,
         help_text='The disease/assessment this follow-up program belongs to.',
     )
@@ -203,3 +202,37 @@ class FollowUpReminder(models.Model):
 
     def __str__(self):
         return f'{self.get_kind_display()} / {self.get_status_display()} / {self.scheduled_for:%Y-%m-%d}'
+
+
+class ScreeningReportDelivery(models.Model):
+    '''Independent SMS delivery record for a screening PDF report link.'''
+
+    STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('sent', 'Sent'),
+        ('failed', 'Failed'),
+        ('cancelled', 'Cancelled'),
+    )
+
+    screening = models.OneToOneField(
+        MyModel,
+        on_delete=models.CASCADE,
+        related_name='report_sms_delivery',
+    )
+    scheduled_for = models.DateTimeField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    attempts = models.PositiveIntegerField(default=0)
+    language = models.CharField(max_length=5, default='fa')
+    sent_at = models.DateTimeField(null=True, blank=True)
+    provider_message_id = models.CharField(max_length=100, blank=True)
+    provider_status = models.PositiveIntegerField(null=True, blank=True)
+    last_error = models.TextField(blank=True)
+    message = models.TextField(blank=True, help_text='Rendered SMS body kept for delivery auditing.')
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ('status', 'scheduled_for')
+
+    def __str__(self):
+        return f'PDF report / {self.get_status_display()} / {self.scheduled_for:%Y-%m-%d}'

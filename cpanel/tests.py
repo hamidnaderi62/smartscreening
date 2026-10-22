@@ -98,3 +98,27 @@ class OrganizationDashboardTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
+
+
+
+class PlatformDashboardTests(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_user(
+            username='platform-admin',
+            password='Safe-password-123!',
+            is_staff=True,
+        )
+
+    def test_staff_dashboard_is_available_in_all_languages(self):
+        self.client.force_login(self.admin)
+        for language in ('fa', 'en', 'ar'):
+            with self.subTest(language=language):
+                response = self.client.get(f'/{language}/cpanel/platform/')
+                self.assertEqual(response.status_code, 200)
+                self.assertTemplateUsed(response, 'platform_dashboard.html')
+
+    def test_non_staff_user_cannot_open_platform_dashboard(self):
+        user = User.objects.create_user(username='regular-user', password='Safe-password-123!')
+        self.client.force_login(user)
+        response = self.client.get('/fa/cpanel/platform/')
+        self.assertEqual(response.status_code, 302)

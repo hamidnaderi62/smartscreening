@@ -26,16 +26,31 @@ Page Banner START -->
         <div class="row mt-4" >
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <div style="text-align: center">
+            <div class="screening-report-actions" aria-label="{% if CURRENT_LANGUAGE == 'fa' %}عملیات گزارش{% elif CURRENT_LANGUAGE == 'ar' %}إجراءات التقرير{% else %}Report actions{% endif %}">
                 {% if my_model_instance %}
-                <a target="_blank" href="{% url 'my_model:dashboard_comprehensive' code=my_model_instance.code %}" class="btn btn-primary me-2">
-                    <i class="fas fa-file-medical"></i> {% if CURRENT_LANGUAGE == 'fa' %}مشاهده گزارش جامع غربالگری{% elif CURRENT_LANGUAGE == 'ar' %}عرض تقرير الفحص الشامل{% else %}View Comprehensive Screening Report{% endif %}
+                <a target="_blank" rel="noopener" href="{% url 'my_model:dashboard_comprehensive' code=my_model_instance.code %}" class="screening-report-action screening-report-action-primary">
+                    <span class="screening-report-action-icon"><i class="fas fa-file-medical"></i></span>
+                    <span class="screening-report-action-copy">
+                        <strong>{% if CURRENT_LANGUAGE == 'fa' %}گزارش جامع غربالگری{% elif CURRENT_LANGUAGE == 'ar' %}تقرير الفحص الشامل{% else %}Comprehensive report{% endif %}</strong>
+                        <small>{% if CURRENT_LANGUAGE == 'fa' %}روند و جزئیات نتایج{% elif CURRENT_LANGUAGE == 'ar' %}الاتجاهات وتفاصيل النتائج{% else %}Trends and detailed results{% endif %}</small>
+                    </span>
+                    <i class="fas fa-chevron-right screening-report-action-arrow screening-report-action-chevron"></i>
                 </a>
-                <a href="{% url 'my_model:pdf_report' model_id=my_model_instance.id %}" class="btn btn-success me-2">
-                    <i class="fas fa-file-pdf"></i> {% if CURRENT_LANGUAGE == 'fa' %}دانلود گزارش PDF{% elif CURRENT_LANGUAGE == 'ar' %}تحميل تقرير PDF{% else %}Download PDF Report{% endif %}
+                <a href="{% url 'my_model:pdf_report' model_id=my_model_instance.id %}" class="screening-report-action screening-report-action-success">
+                    <span class="screening-report-action-icon"><i class="fas fa-file-pdf"></i></span>
+                    <span class="screening-report-action-copy">
+                        <strong>{% if CURRENT_LANGUAGE == 'fa' %}دانلود گزارش PDF{% elif CURRENT_LANGUAGE == 'ar' %}تحميل تقرير PDF{% else %}Download PDF report{% endif %}</strong>
+                        <small>{% if CURRENT_LANGUAGE == 'fa' %}نسخه قابل ذخیره و اشتراک‌گذاری{% elif CURRENT_LANGUAGE == 'ar' %}نسخة للحفظ والمشاركة{% else %}Save and share a copy{% endif %}</small>
+                    </span>
+                    <i class="fas fa-download screening-report-action-arrow"></i>
                 </a>
-                <button onclick="window.print()" class="btn btn-primary me-2">
-                    <i class="fas fa-print"></i> {% if CURRENT_LANGUAGE == 'fa' %}چاپ گزارش{% elif CURRENT_LANGUAGE == 'ar' %}طباعة التقرير{% else %}Print Report{% endif %}
+                <button type="button" onclick="window.print()" class="screening-report-action screening-report-action-neutral">
+                    <span class="screening-report-action-icon"><i class="fas fa-print"></i></span>
+                    <span class="screening-report-action-copy">
+                        <strong>{% if CURRENT_LANGUAGE == 'fa' %}چاپ گزارش{% elif CURRENT_LANGUAGE == 'ar' %}طباعة التقرير{% else %}Print report{% endif %}</strong>
+                        <small>{% if CURRENT_LANGUAGE == 'fa' %}چاپ سریع خلاصه نتایج{% elif CURRENT_LANGUAGE == 'ar' %}طباعة سريعة لملخص النتائج{% else %}Print the result summary{% endif %}</small>
+                    </span>
+                    <i class="fas fa-print screening-report-action-arrow"></i>
                 </button>
                 {% endif %}
             </div>
@@ -60,43 +75,36 @@ Page content START -->
 
 				<!-- Counter boxes START -->
 				<div class="row mb-4">
-					<!-- Counter item -->
+					<!-- Completed assessments -->
 					<div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
-						<div class="d-flex justify-content-center align-items-center p-4 bg-orange bg-opacity-15 rounded-3">
-							<span class="display-6 lh-1 text-orange mb-0"><i class="fas fa-tv fa-fw"></i></span>
-							<div class="ms-4">
-								<div class="d-flex">
-									<h5 class="purecounter mb-0 fw-bold" data-purecounter-start="0" data-purecounter-end=" {{ selected_assessments|length }}"	data-purecounter-delay="200"> {{ selected_assessments|length }}</h5>
-								</div>
-								<p class="mb-0 h6 fw-light">
-                                    {% if CURRENT_LANGUAGE == 'fa' %}ارزیابی‌های ریسک انجام شده{% elif CURRENT_LANGUAGE == 'ar' %}تقييمات المخاطر المكتملة{% else %}Risk Assessments Completed{% endif %}
-                                </p>
+						<div class="screening-summary-card screening-summary-card-orange">
+							<div class="screening-summary-icon"><i class="fas fa-chart-pie fa-fw"></i></div>
+							<div class="screening-summary-content">
+								<span class="screening-summary-label">{% if CURRENT_LANGUAGE == 'fa' %}ارزیابی‌های انجام‌شده{% elif CURRENT_LANGUAGE == 'ar' %}التقييمات المكتملة{% else %}Assessments completed{% endif %}</span>
+								<strong class="screening-summary-value">{{ selected_assessments|length }}</strong>
+								<small class="screening-summary-meta">{% if CURRENT_LANGUAGE == 'fa' %}در این غربالگری{% elif CURRENT_LANGUAGE == 'ar' %}في هذا الفحص{% else %}In this screening{% endif %}</small>
 							</div>
 						</div>
 					</div>
-					<!-- Counter item -->
+					<!-- Patient age -->
 					<div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
-						<div class="d-flex justify-content-center align-items-center p-4 bg-purple bg-opacity-15 rounded-3">
-							<span class="display-6 lh-1 text-purple mb-0"><i class="fas fa-clipboard-check fa-fw"></i></span>
-							<div class="ms-4">
-								<div class="d-flex">
-									<h5 class="purecounter mb-0 fw-bold" data-purecounter-start="10" data-purecounter-end="{{ my_model_instance.age }}"	data-purecounter-delay="200">{{ age }}</h5>
-								</div>
-								<p class="mb-0 h6 fw-light">
-                                    {% if CURRENT_LANGUAGE == 'fa' %}سال{% elif CURRENT_LANGUAGE == 'ar' %}سنة{% else %}Years{% endif %}
-                                </p>
+						<div class="screening-summary-card screening-summary-card-purple">
+							<div class="screening-summary-icon"><i class="fas fa-user-clock fa-fw"></i></div>
+							<div class="screening-summary-content">
+								<span class="screening-summary-label">{% if CURRENT_LANGUAGE == 'fa' %}سن هنگام غربالگری{% elif CURRENT_LANGUAGE == 'ar' %}العمر وقت الفحص{% else %}Age at screening{% endif %}</span>
+								<strong class="screening-summary-value">{{ age }}</strong>
+								<small class="screening-summary-meta">{% if CURRENT_LANGUAGE == 'fa' %}سال{% elif CURRENT_LANGUAGE == 'ar' %}سنة{% else %}years{% endif %}</small>
 							</div>
 						</div>
 					</div>
-					<!-- Counter item -->
+					<!-- Screening date -->
 					<div class="col-sm-6 col-lg-4 mb-3 mb-lg-0">
-						<div class="d-flex justify-content-center align-items-center p-4 bg-success bg-opacity-10 rounded-3">
-							<span class="display-6 lh-1 text-success mb-0"><i class="fas fa-medal fa-fw"></i></span>
-							<div class="ms-4">
-								<div class="d-flex">
-									<h5 class="purecounter mb-0 fw-bold" data-purecounter-start="0" data-purecounter-end="8" data-purecounter-delay="300"></h5>
-								</div>
-								<p class="mb-0 h6 fw-light"></p>
+						<div class="screening-summary-card screening-summary-card-green">
+							<div class="screening-summary-icon"><i class="fas fa-calendar-check fa-fw"></i></div>
+							<div class="screening-summary-content">
+								<span class="screening-summary-label">{% if CURRENT_LANGUAGE == 'fa' %}تاریخ غربالگری{% elif CURRENT_LANGUAGE == 'ar' %}تاريخ الفحص{% else %}Screening date{% endif %}</span>
+								<strong class="screening-summary-value screening-summary-date">{{ screening_date }}</strong>
+								<small class="screening-summary-meta">{% if CURRENT_LANGUAGE == 'fa' %}آخرین ارزیابی{% elif CURRENT_LANGUAGE == 'ar' %}آخر تقييم{% else %}Latest assessment{% endif %}</small>
 							</div>
 						</div>
 					</div>
@@ -206,6 +214,9 @@ Page content START -->
 				</div>
 
                 {% if my_model_instance %}
+                <div class="text-center my-4">
+                    <a href="{% url "doctor:recommendations" screening_id=my_model_instance.id %}" class="btn btn-outline-primary me-2"><i class="bi bi-person-heart"></i> {% if CURRENT_LANGUAGE == "fa" %}انتخاب پزشک برای پیگیری{% elif CURRENT_LANGUAGE == "ar" %}اختيار طبيب للمتابعة{% else %}Choose a doctor for follow-up{% endif %}</a>
+                </div>
                 <form method="post" >
                     {% csrf_token %}
                     <div class="row g-4 g-lg-0 align-items-center">

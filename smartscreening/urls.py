@@ -24,6 +24,7 @@ urlpatterns += i18n_patterns(
     path('my_model/', include('my_model.urls', namespace='my_model')),
     path('cpanel/', include('cpanel.urls', namespace='cpanel')),
     path('followup/', include('followup.urls', namespace='followup')),
+    path('doctor/', include('doctor.urls', namespace='doctor')),
 )
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

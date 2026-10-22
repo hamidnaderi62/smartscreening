@@ -72,11 +72,7 @@ class OrganizationRegistrationTests(TestCase):
 
         self.assertRedirects(
             response,
-            localized_reverse(
-                'account:organization_home',
-                'fa',
-                kwargs={'org_slug': self.organization.slug},
-            ),
+            localized_reverse('home:home', 'fa'),
         )
         user = User.objects.get(username='screening-user')
         self.assertEqual(user.profile.organization, self.organization)

@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from django.conf import settings
 from reportlab.lib import colors
 from reportlab.lib.colors import HexColor
-from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
@@ -21,6 +21,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
     Image,
+    KeepTogether,
     PageBreak,
     Paragraph,
     SimpleDocTemplate,
@@ -65,7 +66,6 @@ PDF_EXCLUDED_ASSESSMENT_KEYS = frozenset({'risk_score', 'max_score', 'risk_level
 
 REPORT_LABELS = {
     'en': {
-        'confidential': 'Confidential health screening report',
         'report_title': 'Comprehensive Health Screening Report',
         'report_summary': 'A clear summary of screening results, answers, recommendations, and changes over time.',
         'report_date': 'Report date', 'patient_code': 'Patient code',
@@ -89,10 +89,10 @@ REPORT_LABELS = {
         'no_doctor_comment': 'No doctor comment has been added.', 'important': 'Important information',
         'recommendation_fallback': 'Discuss this result with a healthcare professional.',
         'important_text': 'Screening results estimate risk based on the information provided at the time of assessment. They are not a diagnosis, do not predict individual outcomes with certainty, and should be reviewed by a licensed healthcare professional. Seek urgent care for urgent or severe symptoms.',
-        'not_provided': 'Not provided', 'score': 'Score',
+        'not_provided': 'Not provided', 'score': 'Score', 'page': 'Page',
     },
     'fa': {
-        'confidential': 'گزارش محرمانه غربالگری سلامت', 'report_title': 'گزارش جامع غربالگری سلامت',
+        'report_title': 'گزارش جامع غربالگری سلامت',
         'report_summary': 'خلاصه‌ای روشن از نتایج، پاسخ‌ها، توصیه‌ها و تغییرات غربالگری در طول زمان.',
         'report_date': 'تاریخ گزارش', 'patient_code': 'کد بیمار', 'age_gender': 'سن / جنسیت',
         'screening_date': 'تاریخ غربالگری', 'assessments_included': 'تعداد ارزیابی‌ها', 'value': 'مقدار',
@@ -113,10 +113,10 @@ REPORT_LABELS = {
         'no_doctor_comment': 'یادداشت پزشکی ثبت نشده است.', 'important': 'اطلاعات مهم',
         'recommendation_fallback': 'این نتیجه را با یک متخصص مراقبت‌های سلامت بررسی کنید.',
         'important_text': 'نتایج غربالگری بر اساس اطلاعات زمان ارزیابی، خطر را تخمین می‌زنند. این نتایج تشخیص نیستند و باید توسط پزشک بررسی شوند. در صورت علائم شدید یا اورژانسی فوراً به مراکز درمانی مراجعه کنید.',
-        'not_provided': 'ارائه نشده', 'score': 'امتیاز',
+        'not_provided': 'ارائه نشده', 'score': 'امتیاز', 'page': 'صفحه',
     },
     'ar': {
-        'confidential': 'تقرير فحص صحي سري', 'report_title': 'تقرير الفحص الصحي الشامل',
+        'report_title': 'تقرير الفحص الصحي الشامل',
         'report_summary': 'ملخص واضح للنتائج والإجابات والتوصيات والتغييرات مع مرور الوقت.',
         'report_date': 'تاريخ التقرير', 'patient_code': 'رمز المريض', 'age_gender': 'العمر / الجنس',
         'screening_date': 'تاريخ الفحص', 'assessments_included': 'التقييمات المشمولة', 'value': 'القيمة',
@@ -137,13 +137,17 @@ REPORT_LABELS = {
         'no_doctor_comment': 'لم تتم إضافة ملاحظة للطبيب.', 'important': 'معلومات مهمة',
         'recommendation_fallback': 'ناقش هذه النتيجة مع طبيب أو أخصائي رعاية صحية.',
         'important_text': 'تقدّر نتائج الفحص الخطورة بناءً على المعلومات المقدمة وقت التقييم. ليست تشخيصاً ويجب مراجعتها من طبيب مرخص. اطلب رعاية عاجلة عند وجود أعراض شديدة أو طارئة.',
-        'not_provided': 'غير متوفر', 'score': 'النتيجة',
+        'not_provided': 'غير متوفر', 'score': 'النتيجة', 'page': 'صفحة',
     },
 }
 
 
 def _report_labels(language):
     return REPORT_LABELS[normalize_language(language)]
+
+
+def _is_rtl_language(language):
+    return normalize_language(language) in {'fa', 'ar'}
 
 
 def _register_fonts():
@@ -189,17 +193,53 @@ def _shape_rtl(value):
     return get_display(arabic_reshaper.reshape(value))
 
 
-def _escaped(value):
-    return html.escape(_shape_rtl(_text(value))).replace('\n', '<br/>')
+def _rtl_wrapped_lines(value, style=None, max_width=CONTENT_WIDTH):
+    """Wrap RTL text before bidi shaping so ReportLab cannot reorder lines."""
+    raw = _text(value)
+    regular, _ = _register_fonts()
+    font_name = getattr(style, 'fontName', regular)
+    font_size = getattr(style, 'fontSize', 9)
+    lines = []
+
+    for paragraph in raw.splitlines() or ['']:
+        words = paragraph.split()
+        if not words:
+            lines.append('')
+            continue
+        current = ''
+        for word in words:
+            candidate = f'{current} {word}'.strip()
+            candidate_width = pdfmetrics.stringWidth(
+                _shape_rtl(candidate), font_name, font_size,
+            )
+            if current and candidate_width > max_width:
+                lines.append(current)
+                current = word
+            else:
+                current = candidate
+        if current:
+            lines.append(current)
+    return lines
 
 
-def _p(value, style):
-    return Paragraph(_escaped(value), style)
+def _escaped(value, style=None, max_width=CONTENT_WIDTH):
+    raw = _text(value)
+    if any('\u0600' <= character <= '\u06ff' for character in raw):
+        return '<br/>'.join(
+            html.escape(_shape_rtl(line))
+            for line in _rtl_wrapped_lines(raw, style, max_width)
+        )
+    return html.escape(raw).replace('\n', '<br/>')
 
 
-def _styles():
+def _p(value, style, max_width=CONTENT_WIDTH):
+    return Paragraph(_escaped(value, style, max_width), style)
+
+
+def _styles(language='en'):
     regular, bold = _register_fonts()
     base = getSampleStyleSheet()
+    text_alignment = TA_RIGHT if _is_rtl_language(language) else 0
     return {
         'title': ParagraphStyle(
             'ReportTitle', parent=base['Title'], fontName=bold, fontSize=22,
@@ -211,43 +251,93 @@ def _styles():
         ),
         'h1': ParagraphStyle(
             'ReportHeading1', parent=base['Heading1'], fontName=bold, fontSize=15,
-            leading=19, textColor=NAVY, spaceBefore=6 * mm, spaceAfter=3 * mm,
+            leading=19, textColor=NAVY, alignment=text_alignment,
+            spaceBefore=6 * mm, spaceAfter=3 * mm,
         ),
         'h2': ParagraphStyle(
             'ReportHeading2', parent=base['Heading2'], fontName=bold, fontSize=11,
-            leading=14, textColor=BLUE, spaceBefore=3 * mm, spaceAfter=2 * mm,
+            leading=14, textColor=BLUE, alignment=text_alignment,
+            spaceBefore=3 * mm, spaceAfter=2 * mm,
+        ),
+        'section': ParagraphStyle(
+            'ReportSection', parent=base['Heading1'], fontName=bold, fontSize=13.5,
+            leading=17, textColor=NAVY, alignment=text_alignment,
+            spaceBefore=0, spaceAfter=0,
+        ),
+        'chart_title': ParagraphStyle(
+            'ReportChartTitle', parent=base['Heading2'], fontName=bold, fontSize=10.5,
+            leading=13, textColor=NAVY, alignment=text_alignment,
+            spaceBefore=0, spaceAfter=0,
         ),
         'body': ParagraphStyle(
             'ReportBody', parent=base['BodyText'], fontName=regular, fontSize=9,
-            leading=13, textColor=HexColor('#263238'), spaceAfter=2 * mm,
+            leading=13, textColor=HexColor('#263238'), alignment=text_alignment,
+            spaceAfter=2 * mm,
         ),
         'small': ParagraphStyle(
             'ReportSmall', parent=base['BodyText'], fontName=regular, fontSize=7.5,
-            leading=10, textColor=MUTED,
+            leading=10, textColor=MUTED, alignment=text_alignment,
         ),
         'table': ParagraphStyle(
             'ReportTable', parent=base['BodyText'], fontName=regular, fontSize=8,
-            leading=10, textColor=HexColor('#263238'),
+            leading=10, textColor=HexColor('#263238'), alignment=text_alignment,
         ),
         'table_bold': ParagraphStyle(
             'ReportTableBold', parent=base['BodyText'], fontName=bold, fontSize=8,
-            leading=10, textColor=NAVY,
+            leading=10, textColor=NAVY, alignment=text_alignment,
+        ),
+        'table_header': ParagraphStyle(
+            'ReportTableHeader', parent=base['BodyText'], fontName=bold, fontSize=8,
+            leading=10, textColor=colors.white, alignment=text_alignment,
         ),
         'callout': ParagraphStyle(
             'ReportCallout', parent=base['BodyText'], fontName=regular, fontSize=9,
-            leading=13, textColor=NAVY, leftIndent=3 * mm, rightIndent=3 * mm,
+            leading=13, textColor=NAVY, alignment=text_alignment,
+            leftIndent=3 * mm, rightIndent=3 * mm,
         ),
     }
 
 
-def _table(rows, widths, styles, *, header=True, row_background=LIGHT_GREY):
+def _section_header(title, styles, rtl=False):
+    """Create a strong visual divider for each major report section."""
+    heading = Paragraph(_escaped(title), styles['section'])
+    accent = ''
+    row = [[heading, accent]] if rtl else [[accent, heading]]
+    widths = [CONTENT_WIDTH - 5 * mm, 5 * mm] if rtl else [5 * mm, CONTENT_WIDTH - 5 * mm]
+    table = Table(row, colWidths=widths, rowHeights=[11 * mm], hAlign='RIGHT' if rtl else 'LEFT')
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), HexColor('#F1F6FA')),
+        ('BACKGROUND', (1, 0), (1, 0), NAVY) if rtl else ('BACKGROUND', (0, 0), (0, 0), NAVY),
+        ('BOX', (0, 0), (-1, -1), 0.6, HexColor('#D9E2EC')),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 3),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+    ]))
+    return table
+
+
+def _table(rows, widths, styles, *, header=True, row_background=LIGHT_GREY, rtl=False):
+    if rtl:
+        rows = [list(reversed(row)) if len(row) > 1 else row for row in rows]
+        widths = list(reversed(widths))
     prepared = []
     for row_index, row in enumerate(rows):
         prepared.append([
-            _p(value, styles['table_bold'] if row_index == 0 and header else styles['table'])
-            for value in row
+            _p(
+                value,
+                styles['table_header'] if row_index == 0 and header else styles['table'],
+                max_width=max(width - 10, 25),
+            )
+            for value, width in zip(row, widths)
         ])
-    table = Table(prepared, colWidths=widths, repeatRows=1 if header else 0, hAlign='LEFT')
+    table = Table(
+        prepared,
+        colWidths=widths,
+        repeatRows=1 if header else 0,
+        hAlign='RIGHT' if rtl else 'LEFT',
+    )
     commands = [
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('GRID', (0, 0), (-1, -1), 0.35, HexColor('#D9E2EC')),
@@ -286,6 +376,7 @@ def _logo_path(organization):
 
 def _page_decor(organization, regular, bold, labels, language='en'):
     language = normalize_language(language)
+    rtl = _is_rtl_language(language)
     organization_title = _text(
         getattr(organization, f'title_{language}', None)
         or getattr(organization, 'title', None)
@@ -295,13 +386,28 @@ def _page_decor(organization, regular, bold, labels, language='en'):
 
     def draw(canvas, doc):
         canvas.saveState()
+        content_right = PAGE_WIDTH - doc.rightMargin
+        header_bottom = PAGE_HEIGHT - 21 * mm
+
+        # Branded header panel. It stays inside the reserved top margin so it
+        # never overlaps report content, including on pages with large tables.
+        canvas.setFillColor(colors.white)
         canvas.setStrokeColor(HexColor('#D9E2EC'))
         canvas.setLineWidth(0.6)
-        canvas.line(doc.leftMargin, PAGE_HEIGHT - 18 * mm, PAGE_WIDTH - doc.rightMargin, PAGE_HEIGHT - 18 * mm)
+        canvas.roundRect(
+            doc.leftMargin, header_bottom, CONTENT_WIDTH, 15 * mm,
+            2.5 * mm, fill=1, stroke=1,
+        )
+        canvas.setFillColor(BLUE)
+        if rtl:
+            canvas.roundRect(content_right - 2 * mm, header_bottom, 2 * mm, 15 * mm, 1 * mm, fill=1, stroke=0)
+        else:
+            canvas.roundRect(doc.leftMargin, header_bottom, 2 * mm, 15 * mm, 1 * mm, fill=1, stroke=0)
         if logo_path:
             try:
+                logo_x = content_right - 25 * mm if rtl else doc.leftMargin
                 canvas.drawImage(
-                    logo_path, doc.leftMargin, PAGE_HEIGHT - 16 * mm,
+                    logo_path, logo_x, PAGE_HEIGHT - 18 * mm,
                     width=25 * mm, height=12 * mm, preserveAspectRatio=True,
                     anchor='sw', mask='auto',
                 )
@@ -309,14 +415,37 @@ def _page_decor(organization, regular, bold, labels, language='en'):
                 logger.warning('Unable to add organization logo to PDF', exc_info=True)
         canvas.setFont(bold, 8)
         canvas.setFillColor(NAVY)
-        canvas.drawRightString(PAGE_WIDTH - doc.rightMargin, PAGE_HEIGHT - 12 * mm, _shape_rtl(organization_title))
+        if rtl:
+            text_x = content_right - 29 * mm
+            canvas.drawRightString(text_x, PAGE_HEIGHT - 11 * mm, _shape_rtl(organization_title))
+            canvas.setFont(regular, 7)
+            canvas.setFillColor(MUTED)
+            canvas.drawRightString(text_x, PAGE_HEIGHT - 16 * mm, _shape_rtl(labels['report_title']))
+        else:
+            text_x = doc.leftMargin + 29 * mm
+            canvas.drawString(text_x, PAGE_HEIGHT - 11 * mm, organization_title)
+            canvas.setFont(regular, 7)
+            canvas.setFillColor(MUTED)
+            canvas.drawString(text_x, PAGE_HEIGHT - 16 * mm, labels['report_title'])
 
+        canvas.setFillColor(HexColor('#F7F9FB'))
         canvas.setStrokeColor(HexColor('#D9E2EC'))
-        canvas.line(doc.leftMargin, 14 * mm, PAGE_WIDTH - doc.rightMargin, 14 * mm)
+        canvas.setLineWidth(0.6)
+        canvas.roundRect(doc.leftMargin, 5 * mm, CONTENT_WIDTH, 8 * mm, 2 * mm, fill=1, stroke=0)
+        canvas.line(doc.leftMargin, 15 * mm, content_right, 15 * mm)
+
+        # Clean footer: only product identity and page number.
         canvas.setFont(regular, 7)
         canvas.setFillColor(MUTED)
-        canvas.drawString(doc.leftMargin, 9 * mm, _shape_rtl(labels['confidential']))
-        canvas.drawRightString(PAGE_WIDTH - doc.rightMargin, 9 * mm, f'Page {canvas.getPageNumber()}')
+        page_number = str(canvas.getPageNumber())
+        if language == 'fa':
+            page_number = page_number.translate(str.maketrans('0123456789', '۰۱۲۳۴۵۶۷۸۹'))
+        if rtl:
+            canvas.drawRightString(content_right - 4 * mm, 9 * mm, 'SmartScreening')
+            canvas.drawString(doc.leftMargin + 4 * mm, 9 * mm, _shape_rtl(f"{labels['page']} {page_number}"))
+        else:
+            canvas.drawString(doc.leftMargin + 4 * mm, 9 * mm, 'SmartScreening')
+            canvas.drawRightString(content_right - 4 * mm, 9 * mm, f"{labels['page']} {page_number}")
         canvas.restoreState()
 
     return draw
@@ -588,16 +717,19 @@ def _render_history_chart(title, series, spec, language='en'):
                         )
 
     axis.set_xticks(x_positions)
-    axis.set_xticklabels([format_localized_date(date, language) for date in dates], rotation=35, ha='right', fontsize=7)
+    rtl = _is_rtl_language(language)
+    axis.set_xticklabels(
+        [format_localized_date(date, language) for date in dates],
+        rotation=35, ha='left' if rtl else 'right', fontsize=7,
+    )
     axis.set_ylabel(spec.get('ylabel', 'Risk'))
-    axis.set_title(spec.get('title') or f'{title.replace("_", " ")} history', loc='left', fontsize=10, fontweight='bold')
     if spec.get('y_max') is not None:
         axis.set_ylim(bottom=0, top=spec['y_max'])
     else:
         axis.set_ylim(bottom=0)
     axis.grid(axis='y', alpha=0.25)
     axis.set_axisbelow(True)
-    axis.legend(loc='upper left', fontsize=7, frameon=False)
+    axis.legend(loc='upper right' if rtl else 'upper left', fontsize=7, frameon=False)
     for spine in ('top', 'right'):
         axis.spines[spine].set_visible(False)
     fig.tight_layout()
@@ -620,15 +752,91 @@ def _trend_chart_images(history, selected_assessments, language='en'):
     return images
 
 
+def _chart_panel(title, chart_spec, trend_image, styles, rtl=False):
+    """Place a chart title and its image inside one contained report card."""
+    chart_title = chart_spec.get('title') or f'{title.replace("_", " ")} history'
+    heading = Paragraph(_escaped(chart_title), styles['chart_title'])
+    accent = ''
+    heading_row = [[heading, accent]] if rtl else [[accent, heading]]
+    heading_widths = [CONTENT_WIDTH - 15 * mm, 5 * mm] if rtl else [5 * mm, CONTENT_WIDTH - 15 * mm]
+    heading_table = Table(
+        heading_row,
+        colWidths=heading_widths,
+        rowHeights=[9 * mm],
+        hAlign='RIGHT' if rtl else 'LEFT',
+    )
+    heading_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), HexColor('#EEF5FB')),
+        ('BACKGROUND', (1, 0), (1, 0), BLUE) if rtl else ('BACKGROUND', (0, 0), (0, 0), BLUE),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 7),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 7),
+        ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+    ]))
+    chart = Image(trend_image, width=168 * mm, height=63 * mm)
+    panel = Table([[heading_table], [chart]], colWidths=[CONTENT_WIDTH], hAlign='RIGHT' if rtl else 'LEFT')
+    panel.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+        ('BOX', (0, 0), (-1, -1), 0.7, HexColor('#C9D8E5')),
+        ('LINEBELOW', (0, 0), (-1, 0), 0.5, HexColor('#D9E2EC')),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 5),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+        ('TOPPADDING', (0, 0), (-1, -1), 5),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+    ]))
+    # Keep the heading and chart image together. Without this wrapper a
+    # Table is allowed to split between its rows at a page boundary.
+    return KeepTogether([panel])
+
+
 def _risk_color(item):
-    status = str(item.get('display_status') or item.get('status_en') or '').lower()
-    if 'high' in status:
+    band = _risk_band(item)
+    if band == 'high':
         return RED
-    if any(word in status for word in ('moderate', 'average', 'intermediate', 'borderline')):
+    if band == 'moderate':
         return AMBER
-    if 'low' in status:
+    if band == 'low':
         return GREEN
     return BLUE
+
+
+def _risk_band(item):
+    """Return a language-independent risk band from localized status values."""
+    status_values = ' '.join(
+        str(item.get(key) or '')
+        for key in ('display_status', 'status_en', 'status_fa', 'status_ar')
+    ).casefold()
+
+    # Check the middle band first because phrases such as
+    # "moderate-high"/"متوسط-بالا" also contain a high-risk word.
+    if any(word in status_values for word in (
+        'moderate', 'average', 'intermediate', 'borderline',
+        'متوسط', 'میانگین', 'متوسط', 'متوسطة', 'حدية',
+    )):
+        return 'moderate'
+    if any(word in status_values for word in (
+        'high', 'very high', 'زیاد', 'خیلی زیاد', 'بالا',
+        'عالية', 'عالي', 'مرتفع',
+    )):
+        return 'high'
+    if any(word in status_values for word in (
+        'low', 'کم', 'پایین', 'منخفض', 'منخفضة',
+    )):
+        return 'low'
+    return 'unknown'
+
+
+def _risk_tint(item):
+    band = _risk_band(item)
+    if band == 'high':
+        return HexColor('#FFF1F1')
+    if band == 'moderate':
+        return HexColor('#FFF8E8')
+    if band == 'low':
+        return HexColor('#EDF9F2')
+    return HexColor('#EEF5FB')
 
 
 def _assessment_image_path(item):
@@ -640,7 +848,7 @@ def _assessment_image_path(item):
     return path if os.path.exists(path) else None
 
 
-def _assessment_card(item, styles, labels):
+def _assessment_card(item, styles, labels, rtl=False):
     """Build the same visual language used by the web dashboard cards."""
     color = _risk_color(item)
     image_path = _assessment_image_path(item)
@@ -654,11 +862,27 @@ def _assessment_card(item, styles, labels):
         ('BACKGROUND', (0, 0), (-1, -1), color),
         ('BOX', (0, 0), (-1, -1), 0, color),
     ]))
-    details = Table([
-        [Paragraph(_escaped(title), styles['h2']), Paragraph(f'<font color="{color_value}"><b>{_escaped(status)}</b></font>', styles['table'])],
+    title_paragraph = Paragraph(_escaped(title), styles['h2'])
+    status_paragraph = Paragraph(
+        f'<font color="{color_value}"><b>{_escaped(status)}</b></font>',
+        styles['table'],
+    )
+    # Shape the complete RTL sentence in one pass. Shaping the label and the
+    # recommendation separately reverses their order around the colon.
+    recommendation_text = f"{labels['recommendation']}: {recommendation}"
+    recommendation_paragraph = Paragraph(
+        f'<b>{_escaped(recommendation_text)}</b>',
+        styles['table'],
+    )
+    details_rows = [
+        [status_paragraph, title_paragraph] if rtl else [title_paragraph, status_paragraph],
         [progress, ''],
-        [Paragraph(f"<b>{labels['recommendation']}:</b> {_escaped(recommendation)}", styles['table']), ''],
-    ], colWidths=[105 * mm, 37 * mm])
+        [recommendation_paragraph, ''],
+    ]
+    details = Table(
+        details_rows,
+        colWidths=[37 * mm, 105 * mm] if rtl else [105 * mm, 37 * mm],
+    )
     details.setStyle(TableStyle([
         ('SPAN', (0, 1), (1, 1)),
         ('SPAN', (0, 2), (1, 2)),
@@ -668,10 +892,15 @@ def _assessment_card(item, styles, labels):
         ('TOPPADDING', (0, 0), (-1, -1), 2),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
     ]))
-    card = Table([[image, details]], colWidths=[28 * mm, 152 * mm])
+    card = Table(
+        [[details, image]] if rtl else [[image, details]],
+        colWidths=[152 * mm, 28 * mm] if rtl else [28 * mm, 152 * mm],
+    )
     card.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, -1), LIGHT_GREY),
         ('BOX', (0, 0), (-1, -1), 0.6, HexColor('#D9E2EC')),
+        ('BACKGROUND', (1, 0), (1, 0), _risk_tint(item)) if not rtl else ('BACKGROUND', (0, 0), (0, 0), _risk_tint(item)),
+        ('LINEBEFORE', (0, 0), (0, -1), 3, color) if rtl else ('LINEAFTER', (-1, 0), (-1, -1), 3, color),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('LEFTPADDING', (0, 0), (-1, -1), 6),
         ('RIGHTPADDING', (0, 0), (-1, -1), 6),
@@ -787,12 +1016,27 @@ def _answer_rows(section, labels):
     return rows
 
 
+def _doctor_comment_text(record, labels):
+    """Combine legacy and referral comments for the printable report."""
+    comments = []
+    if getattr(record, "doctor_comment", ""):
+        comments.append(record.doctor_comment)
+    try:
+        referrals = record.doctor_referrals.select_related("doctor").exclude(doctor_comment="")
+        for referral in referrals:
+            comments.append(f"{referral.doctor.display_name}: {referral.doctor_comment}")
+    except AttributeError:
+        logger.exception("Unable to load doctor referral comments for screening %s", record.pk)
+    return "\n".join(comments) or labels["no_doctor_comment"]
+
+
 def generate_pdf_report(record, selected_assessments, request=None):
     """Create a complete, branded report for one screening record."""
     language = language_for_request(request) if request else get_language()
     language = normalize_language(language)
+    rtl = _is_rtl_language(language)
     labels = _report_labels(language)
-    styles = _styles()
+    styles = _styles(language)
     organization = _organization_for(record)
     snapshot = _localized_snapshot(
         _common_snapshot(record.get_screening_data(), record),
@@ -839,30 +1083,33 @@ def generate_pdf_report(record, selected_assessments, request=None):
         [labels['screening_date'], format_localized_datetime(record.created, language)],
         [labels['assessments_included'], len(selected_assessments)],
     ]
-    story.append(_table([[labels['patient_info'], labels['value']], *patient_rows], [60 * mm, 120 * mm], styles))
+    story.append(_table(
+        [[labels['patient_info'], labels['value']], *patient_rows],
+        [60 * mm, 120 * mm],
+        styles,
+        rtl=rtl,
+    ))
     story.append(Spacer(1, 4 * mm))
     story.append(Paragraph(
         _escaped(labels['disclaimer']),
         styles['callout'],
     ))
 
-    story.append(Paragraph(_escaped(labels['results']), styles['h1']))
+    story.append(_section_header(labels['results'], styles, rtl=rtl))
+    story.append(Spacer(1, 3 * mm))
     for item in selected_assessments:
-        story.append(_assessment_card(item, styles, labels))
+        story.append(_assessment_card(item, styles, labels, rtl=rtl))
         story.append(Spacer(1, 3 * mm))
 
     if trend_images:
-        story.append(Paragraph(_escaped(labels['history']), styles['h1']))
+        story.append(_section_header(labels['history'], styles, rtl=rtl))
+        story.append(Spacer(1, 3 * mm))
         story.append(Paragraph(
             _escaped(labels['history_intro']),
             styles['body'],
         ))
         for title, chart_spec, trend_image in trend_images:
-            story.append(Paragraph(
-                _escaped(f"{title.replace('_', ' ')} — {chart_spec.get('title', 'History')}"),
-                styles['h2'],
-            ))
-            story.append(Image(trend_image, width=175 * mm, height=67 * mm))
+            story.append(_chart_panel(title, chart_spec, trend_image, styles, rtl=rtl))
             item = next((item for item in selected_assessments if item['title'] == title), None)
             points = _primary_points(history, title, chart_spec)
             current = points[-1][1] if points else (float(item.get('score') or 0) if item else 0)
@@ -872,17 +1119,19 @@ def generate_pdf_report(record, selected_assessments, request=None):
             story.append(_table([
                 [labels['previous'], labels['current'], labels['change']],
                 [_text(previous), _text(current), change],
-            ], [60 * mm, 60 * mm, 60 * mm], styles))
+            ], [60 * mm, 60 * mm, 60 * mm], styles, rtl=rtl))
             story.append(Spacer(1, 3 * mm))
     else:
-        story.append(Paragraph(_escaped(labels['history']), styles['h1']))
+        story.append(_section_header(labels['history'], styles, rtl=rtl))
+        story.append(Spacer(1, 3 * mm))
         story.append(Paragraph(
             _escaped(labels['first_history']),
             styles['body'],
         ))
 
     story.append(PageBreak())
-    story.append(Paragraph(_escaped(labels['questions']), styles['h1']))
+    story.append(_section_header(labels['questions'], styles, rtl=rtl))
+    story.append(Spacer(1, 3 * mm))
     story.append(Paragraph(
         _escaped(labels['questions_intro']),
         styles['body'],
@@ -896,7 +1145,7 @@ def generate_pdf_report(record, selected_assessments, request=None):
         story.append(Paragraph(_escaped(section_title), styles['h2']))
         rows = _answer_rows(snapshot.get(section_name, {}), labels)
         if len(rows) > 1:
-            story.append(_table(rows, [85 * mm, 95 * mm], styles))
+            story.append(_table(rows, [85 * mm, 95 * mm], styles, rtl=rtl))
 
     for item in selected_assessments:
         title = item.get('display_title') or item.get('title_en') or item.get('title', '').replace('_', ' ')
@@ -906,13 +1155,14 @@ def generate_pdf_report(record, selected_assessments, request=None):
             labels,
         )
         if len(assessment_rows) > 1:
-            story.append(_table(assessment_rows, [85 * mm, 95 * mm], styles))
+            story.append(_table(assessment_rows, [85 * mm, 95 * mm], styles, rtl=rtl))
         else:
             story.append(Paragraph(_escaped(labels['no_answers']), styles['body']))
         story.append(Spacer(1, 2 * mm))
 
     story.append(PageBreak())
-    story.append(Paragraph(_escaped(labels['recommendations']), styles['h1']))
+    story.append(_section_header(labels['recommendations'], styles, rtl=rtl))
+    story.append(Spacer(1, 3 * mm))
     story.append(Paragraph(
         _escaped(labels['recommendations_intro']),
         styles['body'],
@@ -924,11 +1174,12 @@ def generate_pdf_report(record, selected_assessments, request=None):
             item.get('display_status') or item.get('status_en') or labels['not_provided'],
             item.get('display_recommendation') or item.get('recommendation_en') or labels['recommendation_fallback'],
         ])
-    story.append(_table(recommendation_rows, [45 * mm, 42 * mm, 93 * mm], styles))
+    story.append(_table(recommendation_rows, [45 * mm, 42 * mm, 93 * mm], styles, rtl=rtl))
     story.append(Paragraph(_escaped(labels['doctor_note']), styles['h2']))
     story.append(_table(
-        [[labels['clinical_comment']], [record.doctor_comment or labels['no_doctor_comment']]],
+        [[labels["clinical_comment"]], [_doctor_comment_text(record, labels)]],
         [CONTENT_WIDTH], styles, header=True,
+        rtl=rtl,
     ))
     story.append(Spacer(1, 7 * mm))
     story.append(Paragraph(_escaped(labels['important']), styles['h2']))

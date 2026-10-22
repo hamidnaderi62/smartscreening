@@ -1,0 +1,108 @@
+{% extends base_template %}
+{% load static my_filters %}
+
+{% block title %}{{ platform_labels.title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/platform-dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="platform-dashboard">
+    <section class="platform-hero">
+        <div class="container platform-hero-inner">
+            <div class="platform-hero-copy">
+                <span class="platform-eyebrow"><i class="bi bi-shield-lock-fill"></i>{{ platform_labels.eyebrow }}</span>
+                <h1>{{ platform_labels.title }}</h1>
+                <p>{{ platform_labels.subtitle }}</p>
+                <div class="platform-hero-actions">
+                    <a class="btn platform-btn-primary" href="{% url 'admin:index' %}"><i class="bi bi-box-arrow-up-right me-2"></i>{{ platform_labels.open_admin }}</a>
+                    <a class="btn platform-btn-ghost" href="{% url 'home:home' %}"><i class="bi bi-grid-1x2 me-2"></i>{{ platform_labels.organization_admin }}</a>
+                </div>
+            </div>
+            <div class="platform-hero-orbit" aria-hidden="true">
+                <div class="platform-orbit-ring platform-orbit-ring-one"></div>
+                <div class="platform-orbit-ring platform-orbit-ring-two"></div>
+                <div class="platform-orbit-core"><i class="bi bi-heart-pulse-fill"></i></div>
+                <span class="platform-orbit-dot platform-orbit-dot-one"><i class="bi bi-buildings"></i></span>
+                <span class="platform-orbit-dot platform-orbit-dot-two"><i class="bi bi-people"></i></span>
+                <span class="platform-orbit-dot platform-orbit-dot-three"><i class="bi bi-activity"></i></span>
+            </div>
+        </div>
+    </section>
+
+    <section class="container platform-content">
+        <div class="platform-kpi-grid">
+            <article class="platform-kpi platform-kpi-blue">
+                <span class="platform-kpi-icon"><i class="bi bi-buildings"></i></span>
+                <div><small>{{ platform_labels.organizations }}</small><strong>{{ organization_count }}</strong><span>{{ active_organization_count }} {{ platform_labels.active_organizations }}</span></div>
+            </article>
+            <article class="platform-kpi platform-kpi-purple">
+                <span class="platform-kpi-icon"><i class="bi bi-people"></i></span>
+                <div><small>{{ platform_labels.users }}</small><strong>{{ user_count }}</strong><span>{{ active_user_count }} {{ platform_labels.active_users }}</span></div>
+            </article>
+            <article class="platform-kpi platform-kpi-green">
+                <span class="platform-kpi-icon"><i class="bi bi-activity"></i></span>
+                <div><small>{{ platform_labels.screenings }}</small><strong>{{ screening_count }}</strong><span>{{ today_screening_count }} {{ platform_labels.today_screenings }}</span></div>
+            </article>
+            <article class="platform-kpi platform-kpi-orange">
+                <span class="platform-kpi-icon"><i class="bi bi-calendar2-heart"></i></span>
+                <div><small>{{ platform_labels.followup_programs }}</small><strong>{{ followup_program_count }}</strong><span>{{ active_followup_program_count }} {{ platform_labels.active_programs }}</span></div>
+            </article>
+        </div>
+
+        <div class="platform-main-grid">
+            <section class="platform-panel platform-actions-panel">
+                <div class="platform-panel-heading">
+                    <div><span class="platform-panel-kicker">{{ platform_labels.platform_status }}</span><h2>{{ platform_labels.quick_actions }}</h2></div>
+                    <i class="bi bi-lightning-charge-fill platform-panel-heading-icon"></i>
+                </div>
+                <div class="platform-action-grid">
+                    <a class="platform-action-card platform-action-blue" href="{% url 'admin:account_organization_changelist' %}"><i class="bi bi-buildings"></i><span><strong>{{ platform_labels.manage_organizations }}</strong><small>{{ organization_count }} {{ platform_labels.organizations }}</small></span><i class="bi bi-arrow-up-right"></i></a>
+                    <a class="platform-action-card platform-action-purple" href="{% url 'admin:auth_user_changelist' %}"><i class="bi bi-person-gear"></i><span><strong>{{ platform_labels.manage_users }}</strong><small>{{ active_user_count }} {{ platform_labels.active_users }}</small></span><i class="bi bi-arrow-up-right"></i></a>
+                    <a class="platform-action-card platform-action-cyan" href="{% url 'admin:account_organizationmembership_changelist' %}"><i class="bi bi-diagram-3"></i><span><strong>{{ platform_labels.manage_memberships }}</strong><small>{{ platform_labels.organizations }}</small></span><i class="bi bi-arrow-up-right"></i></a>
+                    <a class="platform-action-card platform-action-green" href="{% url 'admin:my_model_mymodel_changelist' %}"><i class="bi bi-file-earmark-medical"></i><span><strong>{{ platform_labels.manage_screenings }}</strong><small>{{ screening_count }} {{ platform_labels.screenings }}</small></span><i class="bi bi-arrow-up-right"></i></a>
+                    <a class="platform-action-card platform-action-orange" href="{% url 'admin:followup_followupprogram_changelist' %}"><i class="bi bi-signpost-split"></i><span><strong>{{ platform_labels.manage_programs }}</strong><small>{{ active_followup_program_count }} {{ platform_labels.active_programs }}</small></span><i class="bi bi-arrow-up-right"></i></a>
+                    <a class="platform-action-card platform-action-red" href="{% url 'admin:followup_followupplan_changelist' %}"><i class="bi bi-calendar2-check"></i><span><strong>{{ platform_labels.manage_plans }}</strong><small>{{ active_plan_count }} {{ platform_labels.active_plans }}</small></span><i class="bi bi-arrow-up-right"></i></a>
+                    <a class="platform-action-card platform-action-indigo" href="{% url 'admin:followup_followupreminder_changelist' %}"><i class="bi bi-chat-square-text"></i><span><strong>{{ platform_labels.manage_reminders }}</strong><small>{{ pending_reminder_count }} {{ platform_labels.pending_reminders }}</small></span><i class="bi bi-arrow-up-right"></i></a>
+                    <a class="platform-action-card platform-action-slate" href="{% url 'admin:account_profile_changelist' %}"><i class="bi bi-person-vcard"></i><span><strong>{{ platform_labels.manage_users }}</strong><small>{{ organization_admin_count }} {{ platform_labels.organization_admins }}</small></span><i class="bi bi-arrow-up-right"></i></a>
+                </div>
+            </section>
+
+            <aside class="platform-panel platform-health-panel">
+                <div class="platform-panel-heading"><div><span class="platform-panel-kicker">{{ platform_labels.platform_status }}</span><h2>{{ platform_labels.followup_programs }}</h2></div><i class="bi bi-activity platform-panel-heading-icon"></i></div>
+                <div class="platform-health-row"><span><i class="bi bi-check-circle-fill"></i>{{ platform_labels.active_programs }}</span><strong>{{ active_followup_program_count }}/{{ followup_program_count }}</strong></div>
+                <div class="platform-health-bar"><span style="width: {% if followup_program_count %}{% widthratio active_followup_program_count followup_program_count 100 %}{% else %}0{% endif %}%;"></span></div>
+                <div class="platform-health-row"><span><i class="bi bi-hourglass-split"></i>{{ platform_labels.pending_reminders }}</span><strong>{{ pending_reminder_count }}</strong></div>
+                <div class="platform-health-row"><span><i class="bi bi-exclamation-circle-fill"></i>{{ platform_labels.failed_reminders }}</span><strong class="{% if failed_reminder_count %}platform-danger{% endif %}">{{ failed_reminder_count }}</strong></div>
+                <div class="platform-health-row"><span><i class="bi bi-send-check-fill"></i>{{ platform_labels.sent_reminders }}</span><strong>{{ sent_reminder_count }}</strong></div>
+                <div class="platform-health-divider"></div>
+                <div class="platform-mini-stats"><div><strong>{{ monthly_screening_count }}</strong><small>{{ platform_labels.monthly_screenings }}</small></div><div><strong>{{ organization_admin_count }}</strong><small>{{ platform_labels.organization_admin }}</small></div></div>
+            </aside>
+        </div>
+
+        <div class="platform-data-grid">
+            <section class="platform-panel platform-table-panel">
+                <div class="platform-panel-heading"><div><span class="platform-panel-kicker">{{ platform_labels.organizations }}</span><h2>{{ platform_labels.recent_organizations }}</h2></div><a class="platform-view-all" href="{% url 'admin:account_organization_changelist' %}">{{ platform_labels.view_all }} <i class="bi bi-arrow-up-right"></i></a></div>
+                <div class="platform-table-wrap"><table class="platform-table"><thead><tr><th>{{ platform_labels.organizations }}</th><th>{{ platform_labels.created }}</th><th>{{ platform_labels.sms_settings }}</th><th></th></tr></thead><tbody>
+                    {% for organization in recent_organizations %}<tr><td><span class="platform-avatar platform-avatar-org"><i class="bi bi-building"></i></span><strong>{{ organization.display_title|default:organization.title }}</strong></td><td><span class="platform-status {% if organization.is_active %}platform-status-active{% else %}platform-status-inactive{% endif %}">{% if organization.is_active %}{{ platform_labels.active }}{% else %}{{ platform_labels.inactive }}{% endif %}</span></td><td><div class="platform-sms-status"><span class="{% if organization.followup_sms_enabled %}platform-status-active{% else %}platform-status-inactive{% endif %}">{{ platform_labels.followup_sms }}: {% if organization.followup_sms_enabled %}{{ platform_labels.enabled }}{% else %}{{ platform_labels.disabled }}{% endif %}</span><span class="{% if organization.pdf_report_sms_enabled %}platform-status-active{% else %}platform-status-inactive{% endif %}">{{ platform_labels.pdf_sms }}: {% if organization.pdf_report_sms_enabled %}{{ platform_labels.enabled }}{% else %}{{ platform_labels.disabled }}{% endif %}</span></div></td><td><a class="platform-row-link" href="{% url 'admin:account_organization_change' organization.pk %}"><i class="bi bi-arrow-up-right"></i></a></td></tr>{% empty %}<tr><td colspan="4" class="platform-empty">{{ platform_labels.no_data }}</td></tr>{% endfor %}
+                </tbody></table></div>
+            </section>
+
+            <section class="platform-panel platform-table-panel">
+                <div class="platform-panel-heading"><div><span class="platform-panel-kicker">{{ platform_labels.users }}</span><h2>{{ platform_labels.recent_users }}</h2></div><a class="platform-view-all" href="{% url 'admin:auth_user_changelist' %}">{{ platform_labels.view_all }} <i class="bi bi-arrow-up-right"></i></a></div>
+                <div class="platform-table-wrap"><table class="platform-table"><thead><tr><th>{{ platform_labels.user }}</th><th>{{ platform_labels.created }}</th><th></th></tr></thead><tbody>
+                    {% for recent_user in recent_users %}<tr><td><span class="platform-avatar"><i class="bi bi-person"></i></span><strong>{{ recent_user.username }}</strong></td><td>{{ recent_user.date_joined|localized_datetime:platform_language }}</td><td><a class="platform-row-link" href="{% url 'admin:auth_user_change' recent_user.pk %}"><i class="bi bi-arrow-up-right"></i></a></td></tr>{% empty %}<tr><td colspan="3" class="platform-empty">{{ platform_labels.no_data }}</td></tr>{% endfor %}
+                </tbody></table></div>
+            </section>
+        </div>
+
+        <section class="platform-panel platform-table-panel">
+            <div class="platform-panel-heading"><div><span class="platform-panel-kicker">{{ platform_labels.screenings }}</span><h2>{{ platform_labels.recent_screenings }}</h2></div><a class="platform-view-all" href="{% url 'admin:my_model_mymodel_changelist' %}">{{ platform_labels.view_all }} <i class="bi bi-arrow-up-right"></i></a></div>
+            <div class="platform-table-wrap"><table class="platform-table"><thead><tr><th>{{ platform_labels.screening_code }}</th><th>{{ platform_labels.user }}</th><th>{{ platform_labels.created }}</th><th></th></tr></thead><tbody>
+                {% for screening in recent_screenings %}<tr><td><span class="platform-code">{{ screening.code|default:'—' }}</span></td><td><strong>{{ screening.userid.username }}</strong></td><td>{{ screening.created|localized_datetime:platform_language }}</td><td><a class="platform-row-link" href="{% url 'admin:my_model_mymodel_change' screening.pk %}"><i class="bi bi-arrow-up-right"></i></a></td></tr>{% empty %}<tr><td colspan="4" class="platform-empty">{{ platform_labels.no_data }}</td></tr>{% endfor %}
+            </tbody></table></div>
+        </section>
+    </section>
+</main>
+{% endblock %}

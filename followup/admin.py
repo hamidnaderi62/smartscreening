@@ -1,7 +1,7 @@
 from django.contrib import admin, messages
 
-from .models import FollowUpPlan, FollowUpProgram, FollowUpReminder, FollowUpStep
-from .services import queue_manual_pdf_sms, send_follow_up_reminder
+from .models import FollowUpPlan, FollowUpProgram, FollowUpReminder, FollowUpStep, ScreeningReportDelivery
+from .services import send_follow_up_reminder, send_report_sms
 
 
 class FollowUpStepInline(admin.TabularInline):
@@ -17,28 +17,12 @@ class FollowUpStepInline(admin.TabularInline):
 @admin.register(FollowUpProgram)
 class FollowUpProgramAdmin(admin.ModelAdmin):
     list_display = (
-        'assessment_id', 'title_en', 'trigger_statuses',
-        'send_pdf_sms', 'pdf_sms_delay_days', 'is_active',
+        'assessment_id', 'title_en', 'trigger_statuses', 'is_active',
     )
-    list_filter = ('is_active', 'send_pdf_sms')
+    list_filter = ('is_active',)
     search_fields = ('title', 'title_en', 'title_ar', 'trigger_statuses')
     inlines = (FollowUpStepInline,)
-
-
-@admin.action(description='Send PDF report SMS now')
-def send_pdf_sms_action(modeladmin, request, queryset):
-    sent = failed = 0
-    for plan in queryset:
-        reminder = queue_manual_pdf_sms(plan)
-        if reminder.status == 'sent':
-            sent += 1
-        else:
-            failed += 1
-    modeladmin.message_user(
-        request,
-        f'PDF SMS sent: {sent}; failed: {failed}.',
-        messages.SUCCESS if not failed else messages.WARNING,
-    )
+    exclude = ('send_pdf_sms', 'pdf_sms_delay_days')
 
 
 @admin.action(description='Mark selected follow-up plans completed')
@@ -66,8 +50,34 @@ class FollowUpPlanAdmin(admin.ModelAdmin):
     list_filter = ('status', 'language', 'program')
     search_fields = ('user__username', 'user__email', 'screening__code', 'result_status')
     readonly_fields = ('started_at', 'completed_at', 'next_reminder_at')
-    actions = (send_pdf_sms_action, complete_plans)
+    actions = (complete_plans,)
 
+
+@admin.action(description='Send selected PDF report SMS now')
+def send_report_sms_now(modeladmin, request, queryset):
+    sent = failed = 0
+    for delivery in queryset.filter(status__in=('pending', 'failed')):
+        send_report_sms(delivery)
+        if delivery.status == 'sent':
+            sent += 1
+        else:
+            failed += 1
+    modeladmin.message_user(
+        request,
+        f'PDF report SMS sent: {sent}; failed: {failed}.',
+        messages.SUCCESS if not failed else messages.WARNING,
+    )
+
+@admin.register(ScreeningReportDelivery)
+class ScreeningReportDeliveryAdmin(admin.ModelAdmin):
+    list_display = ('screening', 'language', 'scheduled_for', 'status', 'attempts', 'sent_at', 'provider_message_id')
+    list_filter = ('status', 'scheduled_for')
+    search_fields = ('screening__code', 'screening__userid__username', 'provider_message_id')
+    readonly_fields = (
+        'attempts', 'sent_at', 'provider_message_id', 'provider_status',
+        'last_error', 'message', 'created', 'updated',
+    )
+    actions = (send_report_sms_now,)
 
 @admin.action(description='Send selected pending/failed SMS now')
 def send_reminders_now(modeladmin, request, queryset):

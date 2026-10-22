@@ -24,6 +24,7 @@ HOME_LABELS = {
         'hero_title': 'سلامت خود را با داده‌های قابل فهم دنبال کنید.',
         'hero_text': 'غربالگری هوشمند به شما کمک می‌کند عوامل خطر مهم را زودتر ببینید، مسیر بعدی را بهتر بشناسید و گفت‌وگوی آگاهانه‌تری با پزشک داشته باشید.',
         'start': 'شروع غربالگری',
+        'register': 'ثبت نام',
         'learn': 'چطور کار می‌کند؟',
         'secure': 'حریم خصوصی شما در اولویت است',
         'secure_text': 'اطلاعات غربالگری شما فقط برای ارائه بینش شخصی و پیگیری بهتر استفاده می‌شود.',
@@ -51,6 +52,7 @@ HOME_LABELS = {
         'my_screenings': 'غربالگری‌های من',
         'reports': 'گزارش‌ها',
         'organization_admin': 'داشبورد سازمان',
+        'platform_admin': 'مرکز کنترل پلتفرم',
         'screening_count': 'تعداد غربالگری',
         'tracks_count': 'حوزه‌های بررسی‌شده',
         'last_activity': 'آخرین فعالیت',
@@ -76,6 +78,7 @@ HOME_LABELS = {
         'hero_title': 'Understand your health before it becomes urgent.',
         'hero_text': 'Smart Screening helps you spot important risk factors earlier, understand what to do next, and have more informed conversations with your doctor.',
         'start': 'Start a screening',
+        'register': 'Register',
         'learn': 'How it works',
         'secure': 'Your privacy comes first',
         'secure_text': 'Your screening information is used to provide personal insight and better follow-up.',
@@ -103,6 +106,7 @@ HOME_LABELS = {
         'my_screenings': 'My screenings',
         'reports': 'Reports',
         'organization_admin': 'Organization dashboard',
+        'platform_admin': 'Platform control center',
         'screening_count': 'Screenings completed',
         'tracks_count': 'Health areas explored',
         'last_activity': 'Last activity',
@@ -128,6 +132,7 @@ HOME_LABELS = {
         'hero_title': 'افهم صحتك قبل أن تصبح الحالة طارئة.',
         'hero_text': 'يساعدك الفحص الذكي على اكتشاف عوامل الخطر مبكراً، وفهم الخطوة التالية، وإجراء محادثة أكثر وعياً مع طبيبك.',
         'start': 'ابدأ الفحص',
+        'register': 'إنشاء حساب',
         'learn': 'كيف يعمل؟',
         'secure': 'خصوصيتك أولاً',
         'secure_text': 'تُستخدم معلومات الفحص لتقديم رؤية شخصية ومتابعة أفضل.',
@@ -155,6 +160,7 @@ HOME_LABELS = {
         'my_screenings': 'فحوصاتي',
         'reports': 'التقارير',
         'organization_admin': 'لوحة تحكم المؤسسة',
+        'platform_admin': 'مركز التحكم بالمنصة',
         'screening_count': 'الفحوصات المكتملة',
         'tracks_count': 'مجالات الصحة المستكشفة',
         'last_activity': 'آخر نشاط',
@@ -191,6 +197,7 @@ def home(request):
         'recent_screenings': [],
         'last_screening': None,
         'is_org_admin': False,
+        'is_platform_admin': False,
         'organization': None,
     }
 
@@ -223,6 +230,7 @@ def home(request):
             'recent_screenings': screenings,
             'last_screening': screenings[0] if screenings else None,
             'is_org_admin': bool(getattr(profile, 'is_org_admin', False)),
+            'is_platform_admin': bool(request.user.is_staff),
             'organization': organization,
         })
 

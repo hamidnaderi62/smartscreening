@@ -217,11 +217,7 @@ def _org_register(request, org_slug, language):
     organization = get_object_or_404(Organization, slug=org_slug, is_active=True)
 
     if request.user.is_authenticated:
-        return redirect(localized_reverse(
-            'account:organization_home',
-            language,
-            kwargs={'org_slug': organization.slug},
-        ))
+        return redirect(localized_reverse('home:home', language))
 
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
@@ -238,11 +234,7 @@ def _org_register(request, org_slug, language):
                 )
             login(request, user)
             _organization_context(request, organization)
-            return redirect(localized_reverse(
-                'account:organization_home',
-                language,
-                kwargs={'org_slug': organization.slug},
-            ))
+            return redirect(localized_reverse('home:home', language))
         for error in form.errors.get_json_data().values():
             for message in error:
                 messages.error(request, message['message'])
@@ -271,11 +263,7 @@ def _org_login(request, org_slug, language):
     organization = get_object_or_404(Organization, slug=org_slug, is_active=True)
 
     if request.user.is_authenticated:
-        return redirect(localized_reverse(
-            'account:organization_home',
-            language,
-            kwargs={'org_slug': organization.slug},
-        ))
+        return redirect(localized_reverse('home:home', language))
 
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -292,11 +280,7 @@ def _org_login(request, org_slug, language):
             login(request, user)
             request.session.set_expiry(None if remember_me == 'on' else 0)
             _organization_context(request, organization)
-            return redirect(localized_reverse(
-                'account:organization_home',
-                language,
-                kwargs={'org_slug': organization.slug},
-            ))
+            return redirect(localized_reverse('home:home', language))
 
         if user and not membership:
             messages.error(request, ORG_LABELS[normalize_language(language)]['not_member'])

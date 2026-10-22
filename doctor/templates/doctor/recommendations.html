@@ -1,0 +1,30 @@
+{% extends 'base_raw.html' %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/doctor-dashboard.css' %}">
+<main class="doctor-shell">
+  <div class="container py-4 py-lg-5">
+    <div class="doctor-page-heading"><div><span class="doctor-eyebrow">{{ screening.code }}</span><h1>{{ labels.recommendations }}</h1><p>{{ labels.choose_intro }}</p></div><a class="btn btn-outline-primary" href="{% url 'my_model:dashboard' %}">{{ labels.back }}</a></div>
+    {% if messages %}{% for message in messages %}<div class="alert alert-info">{{ message }}</div>{% endfor %}{% endif %}
+    {% for row in disease_rows %}
+      <section class="doctor-panel mb-4">
+        <div class="doctor-panel-header"><div><h2>{{ row.assessment.display_title }}</h2><span class="doctor-result-chip">{{ row.assessment.display_status }}</span></div></div>
+        <div class="row g-3 p-3">
+          {% for doctor in row.doctors %}
+          <div class="col-lg-4">
+            <article class="doctor-card h-100">
+              {% if doctor.image %}<img class="doctor-card-image" src="{{ doctor.image.url }}" alt="{{ doctor.display_name }}">{% else %}<div class="doctor-card-image doctor-avatar-fallback"><i class="bi bi-person-badge"></i></div>{% endif %}
+              <h3>{{ doctor.display_name }}</h3><p class="doctor-card-meta">{{ doctor.clinic_name|default:'' }}</p><p>{{ doctor.bio|truncatewords:25 }}</p>
+              {% if row.referral and row.referral.doctor_id == doctor.id %}<span class="doctor-status doctor-status-reviewed">{{ labels.sent }}</span>{% else %}
+              <form method="post" action="{% url 'doctor:create_referral' screening_id=screening.id doctor_id=doctor.id assessment_id=row.assessment.id %}">
+                {% csrf_token %}<textarea class="form-control form-control-sm mb-2" name="patient_message" rows="2" placeholder="{{ labels.message }}"></textarea><button class="btn btn-primary w-100" type="submit">{{ labels.choose }}</button>
+              </form>{% endif %}
+            </article>
+          </div>
+          {% empty %}<div class="col-12"><div class="alert alert-light">{{ labels.no_doctors }}</div></div>{% endfor %}
+        </div>
+      </section>
+    {% empty %}<div class="doctor-panel p-5 text-center">{{ labels.no_doctors }}</div>{% endfor %}
+  </div>
+</main>
+{% endblock %}

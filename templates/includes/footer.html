@@ -14,11 +14,7 @@
                 <span class="smart-footer-label">{{ SITE_LABELS.explore }}</span>
                 <a href="{% url 'home:home' %}">{% translate 'Home' %}</a>
                 <a href="{% url 'my_model:screening_list' %}">{% translate 'Smart Screening' %}</a>
-                <a href="{% url 'home:home' %}#smart-how-it-works">{{ SITE_LABELS.how_it_works }}</a>
-            </div>
-            <div class="smart-footer-links">
-                <span class="smart-footer-label">{{ SITE_LABELS.privacy }}</span>
-                <p>{% if CURRENT_LANGUAGE == 'fa' %}اطلاعات شما خصوصی و برای ارائه بینش سلامت استفاده می‌شود.{% elif CURRENT_LANGUAGE == 'ar' %}تبقى معلوماتك خاصة وتُستخدم لتقديم رؤية صحية شخصية.{% else %}Your information stays private and supports personal health insight.{% endif %}</p>
+                {% if not request.user.is_authenticated %}<a href="{% url 'home:home' %}#smart-how-it-works">{{ SITE_LABELS.how_it_works }}</a>{% endif %}
             </div>
         </div>
         <div class="smart-footer-bottom">

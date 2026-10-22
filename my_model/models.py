@@ -286,14 +286,10 @@ class MyModel(models.Model):
         )
 
     def _json_serializer(self, obj):
-        if isinstance(obj, (np.integer, np.int32, np.int64)):
-            return int(obj)
-        elif isinstance(obj, (np.floating, np.float32, np.float64)):
-            return float(obj)
+        if isinstance(obj, np.generic):
+            return obj.item()
         elif isinstance(obj, np.ndarray):
             return obj.tolist()
-        elif isinstance(obj, np.bool_):
-            return bool(obj)
         elif hasattr(obj, 'item'):
             try:
                 return obj.item()

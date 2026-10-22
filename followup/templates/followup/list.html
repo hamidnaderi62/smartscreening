@@ -29,6 +29,16 @@
             </div>
         </div>
     </section>
+    {% if upcoming_reminders %}
+    <section class="container followup-upcoming">
+        <div class="followup-upcoming-heading"><div><span class="followup-card-kicker"><i class="bi bi-bell"></i> {{ followup_labels.upcoming }}</span><h2>{{ followup_labels.next_reminder }}</h2></div><span class="followup-upcoming-count">{{ upcoming_reminders|length }}</span></div>
+        <div class="followup-upcoming-grid">
+            {% for reminder in upcoming_reminders %}
+                <article class="followup-upcoming-card"><span class="followup-upcoming-icon"><i class="bi bi-calendar2-check"></i></span><div><small>{{ reminder.display_program }}</small><strong>{{ reminder.display_title }}</strong><span>{{ followup_labels.due }}: {{ reminder.scheduled_for|localized_datetime:followup_language }}</span><span>{{ followup_labels.screening }}: {{ reminder.plan.screening.code }}</span></div><b class="followup-delivery followup-delivery-pending">{{ followup_labels.pending }}</b></article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
     <section class="container followup-content">
         {% for plan in follow_up_plans %}
             <article class="followup-card">
@@ -50,7 +60,7 @@
                             <span class="followup-reminder-line"></span>
                             <span class="followup-reminder-icon"><i class="bi {% if reminder.kind == 'pdf' or reminder.kind == 'manual' %}bi-file-earmark-pdf{% else %}bi-bell{% endif %}"></i></span>
                             <div><strong>{% if reminder.kind == 'pdf' or reminder.kind == 'manual' %}{{ followup_labels.pdf }}{% else %}{{ reminder.display_title }}{% endif %}</strong><small>{{ reminder.scheduled_for|localized_datetime:followup_language }}</small></div>
-                            <span class="followup-delivery followup-delivery-{{ reminder.status }}">{% if reminder.status == 'pending' %}{{ followup_labels.pending }}{% elif reminder.status == 'sent' %}{{ followup_labels.sent }}{% else %}{{ followup_labels.failed }}{% endif %}</span>
+                            <span class="followup-delivery followup-delivery-{{ reminder.status }}">{% if reminder.status == 'pending' %}{{ followup_labels.pending }}{% elif reminder.status == 'sent' %}{{ followup_labels.sent }}{% elif reminder.status == 'cancelled' %}{{ followup_labels.cancelled }}{% else %}{{ followup_labels.failed }}{% endif %}</span>
                         </div>
                     {% endfor %}
                 </div>

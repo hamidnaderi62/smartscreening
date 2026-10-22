@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.utils import timezone
 
 from my_model.services.localization import language_for_request, normalize_language
 
-from .models import FollowUpPlan
+from .models import FollowUpPlan, FollowUpReminder
 
 
 FOLLOWUP_LABELS = {
@@ -14,6 +15,7 @@ FOLLOWUP_LABELS = {
         'completed': 'تکمیل شده',
         'cancelled': 'لغو شده',
         'next_reminder': 'یادآوری بعدی',
+        'upcoming': 'یادآوری‌های پیش رو', 'due': 'زمان اجرا', 'program': 'برنامه',
         'no_reminder': 'یادآوری زمان‌بندی نشده',
         'screening': 'غربالگری',
         'result': 'نتیجه',
@@ -31,6 +33,7 @@ FOLLOWUP_LABELS = {
         'completed': 'Completed',
         'cancelled': 'Cancelled',
         'next_reminder': 'Next reminder',
+        'upcoming': 'Upcoming reminders', 'due': 'Due', 'program': 'Program',
         'no_reminder': 'No reminder scheduled',
         'screening': 'Screening',
         'result': 'Result',
@@ -48,6 +51,7 @@ FOLLOWUP_LABELS = {
         'completed': 'مكتملة',
         'cancelled': 'ملغاة',
         'next_reminder': 'التذكير التالي',
+        'upcoming': 'التذكيرات القادمة', 'due': 'موعد التنفيذ', 'program': 'البرنامج',
         'no_reminder': 'لا يوجد تذكير مجدول',
         'screening': 'الفحص',
         'result': 'النتيجة',
@@ -67,6 +71,17 @@ def follow_up_list(request):
     plans = FollowUpPlan.objects.filter(
         user=request.user,
     ).select_related('program', 'screening').prefetch_related('reminders__step')
+    upcoming_reminders = FollowUpReminder.objects.filter(
+        plan__user=request.user,
+        status='pending',
+        scheduled_for__gte=timezone.now(),
+    ).select_related('plan__program', 'plan__screening', 'step').order_by('scheduled_for')[:10]
+    for reminder in upcoming_reminders:
+        reminder.display_program = reminder.plan.program.display_title(language)
+        reminder.display_title = (
+            reminder.step.display_title(language)
+            if reminder.step else FOLLOWUP_LABELS[language]['pdf']
+        )
     for plan in plans:
         plan.display_title = plan.program.display_title(language)
         plan.display_description = plan.program.display_description(language)
@@ -80,4 +95,5 @@ def follow_up_list(request):
         'followup_language': language,
         'followup_labels': FOLLOWUP_LABELS[language],
         'follow_up_plans': plans,
+        'upcoming_reminders': upcoming_reminders,
     })

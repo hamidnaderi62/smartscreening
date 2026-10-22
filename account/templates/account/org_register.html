@@ -99,7 +99,6 @@
 						<div class="text-center">
 							<h2 class="fw-bold fs-3">{{ organization.display_title|default:organization.title }}</h2>
 							<p class="mb-0 h6 fw-light">{{ organization.display_sentence|default:org_labels.tagline }}</p>
-							{% if organization.code %}<span class="org-code"><i class="bi bi-building"></i>{{ org_labels.organization_code }}: {{ organization.code }}</span>{% endif %}
 						</div>
 						<!-- SVG Image -->
                         {% if organization.image %}

@@ -1,8 +1,10 @@
+from io import BytesIO
 import json
 from datetime import datetime
 from unittest.mock import Mock, patch
 
 import requests
+import numpy as np
 
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
@@ -30,13 +32,17 @@ from .services.report_pdf import (
     PDF_EXCLUDED_ASSESSMENT_KEYS,
     REPORT_LABELS,
     _localized_snapshot,
+    _rtl_wrapped_lines,
     _shape_rtl,
+    _styles,
     _trend_chart_images,
 )
 from .services.recommendations import get_related_resources
 from .services.localization import dashboard_template, localized_reverse, normalize_language
+from .services.report_access import make_report_access_token
 from .services.questionnaire_translations import localized_answer, localized_question
 from .services.screening_data import collect_screening_data
+from .services.serialization import convert_numpy_to_python
 
 
 class MultilingualScreeningStyleTests(TestCase):
@@ -99,6 +105,20 @@ class MultilingualQuestionnaireStyleTests(TestCase):
                 )
                 self.assertContains(response, 'name="age"')
 
+    def test_questionnaire_language_switch_uses_canonical_route(self):
+        response = self.client.post(
+            '/fa/my_model/question_fa',
+            {'selected_assessments': ['1']},
+        )
+
+        self.assertContains(response, 'value="/en/my_model/screenings/questions/"')
+
+        response = self.client.get('/en/my_model/screenings/questions/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'my_model.html')
+        self.assertContains(response, 'name="lang" value="en"')
+
 
 class LocalizationTests(TestCase):
     def test_dashboard_template_uses_supported_language(self):
@@ -109,6 +129,19 @@ class LocalizationTests(TestCase):
     def test_unknown_language_falls_back_to_default(self):
         self.assertEqual(normalize_language('fr'), 'fa')
         self.assertEqual(dashboard_template(None), 'dashboard.html')
+
+
+class SerializationTests(TestCase):
+    def test_numpy_scalars_and_keys_are_json_safe(self):
+        payload = {
+            np.int64(7): np.int64(12),
+            'values': [np.float64(2.5), np.bool_(True)],
+        }
+
+        converted = convert_numpy_to_python(payload)
+
+        self.assertEqual(converted, {7: 12, 'values': [2.5, True]})
+        json.dumps(converted)
 
 
 class ScreeningDataTests(TestCase):
@@ -335,6 +368,14 @@ class AssessmentCalculationServiceTests(TestCase):
 
 
 class PdfReportServiceTests(TestCase):
+    def test_rtl_paragraphs_wrap_in_logical_word_order(self):
+        text = REPORT_LABELS['fa']['important_text']
+        lines = _rtl_wrapped_lines(text, _styles('fa')['body'])
+
+        self.assertGreater(len(lines), 1)
+        self.assertTrue(lines[0].startswith('نتایج غربالگری'))
+        self.assertEqual(' '.join(lines).split(), text.split())
+
     def test_persian_and_arabic_text_is_shaped_for_reportlab(self):
         source = 'سابقه سرطان تخمدان'
         shaped = _shape_rtl(source)
@@ -547,6 +588,27 @@ class ScreeningAuthorizationTests(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
+    @patch('my_model.views.generate_screening_pdf')
+    def test_signed_report_link_allows_anonymous_pdf_access(self, generate_pdf):
+        generate_pdf.return_value = (BytesIO(b'%PDF-test'), 'screening.pdf')
+        token = make_report_access_token(self.screening, 'en')
+        self.client.logout()
+
+        response = self.client.get(
+            reverse('my_model:pdf_report_access', kwargs={'token': token}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+        generate_pdf.assert_called_once()
+
+    def test_tampered_signed_report_link_is_not_found(self):
+        response = self.client.get(
+            reverse('my_model:pdf_report_access', kwargs={'token': 'tampered-token'}),
+        )
+
+        self.assertEqual(response.status_code, 404)
+
     def test_missing_pdf_record_is_not_found(self):
         self.client.force_login(self.admin_a)
         self.client.raise_request_exception = False
@@ -662,6 +724,35 @@ class ScreeningAuthorizationTests(TestCase):
                 userid=self.admin_a,
                 selected_assessments_id='9',
                 ovarian_cancer_score=7,
+            ).exists()
+        )
+
+    def test_numpy_calculator_results_are_json_safe_during_calculation(self):
+        self.client.force_login(self.admin_a)
+        session = self.client.session
+        session['selected_assessments'] = [ASSESSMENTS[2]]
+        session.save()
+
+        response = self.client.post(
+            reverse('my_model:calculate_my_model'),
+            {
+                'lang': 'fa',
+                'age': '55', 'weight': '80', 'height': '175', 'waist_size': '90',
+                'ethnicity': '1', 'born_place': 'Tehran', 'education': '16',
+                'blood_group': 'O+', 'activity': '1', 'smoking': '0', 'alcohol': '0',
+                'meat': '1', 'cereal': 'Yes', 'vegetables': 'every_day', 'dairy': '1',
+                'multivitamin': 'No', 'blood_pressure': 'No', 'blood_glucose': 'No',
+                'totchol': '180', 'previous_cancer': 'No',
+                'psa': '3', 'famhistory': 'No', 'dre': 'Normal',
+                'priorbiopsy': 'No',
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(
+            MyModel.objects.filter(
+                userid=self.admin_a,
+                selected_assessments_id='3',
             ).exists()
         )
 

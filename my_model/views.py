@@ -17,9 +17,12 @@ from .services.calculation_inputs import validate_calculation_input
 from .services.assessment_calculations import calculate_selected_assessments
 from .services.result_formatting import build_result_context
 from .services.persistence import create_screening_record
-from .services.pdf_reports import generate_screening_pdf
+from .services.serialization import convert_numpy_to_python
+from .services.pdf_reports import generate_screening_pdf, selected_assessments_for_record
 from .services.report_actions import InvalidDoctorComment, update_doctor_comment
+from .services.report_access import screening_from_report_token
 from .services.localization import (
+    format_localized_datetime,
     language_for_request,
     localize_assessments,
     localized_reverse,
@@ -81,6 +84,17 @@ def _question_view(request, *, language, redirect_name):
             'questionnaire_language': language,
             'selected_assessments': [],
         })
+    if request.method == 'GET':
+        # Language switching submits to Django's set-language endpoint and
+        # then returns here with GET. Re-render the questionnaire from the
+        # session instead of sending the user back to assessment selection.
+        selected_assessments = request.session.get('selected_assessments', [])
+        if selected_assessments:
+            return render(request, 'my_model.html', {
+                'base_template': 'base_raw.html',
+                'questionnaire_language': language,
+                'selected_assessments': selected_assessments,
+            })
     return redirect(screening_list_url)
 
 
@@ -224,6 +238,11 @@ def _calculate_my_model(request):
     data.update(medical_fields)
 
     calculate_selected_assessments(post_data, selected_assessments, data)
+    # Calculators such as PBCG return NumPy scalars. Normalize the shared
+    # result dictionary before it is used by the dashboard, snapshot builder,
+    # session-related flow, or any JSONField/JSON encoder.
+    data = convert_numpy_to_python(data)
+    selected_assessments = convert_numpy_to_python(selected_assessments)
     # Set selected assessments IDs
     list_selected_assessments_id = [item['id'] for item in selected_assessments]
     data['selected_assessments_id'] = ', '.join(map(str, list_selected_assessments_id))
@@ -237,6 +256,14 @@ def _calculate_my_model(request):
         screening_data=screening_data,
         user=request.user,
     )
+    request.session['last_screening_id'] = my_model_instance.pk
+    request.session.modified = True
+    try:
+        from followup.services import schedule_report_sms_for_screening
+
+        schedule_report_sms_for_screening(my_model_instance, language=lang)
+    except Exception:
+        logger.exception('Unable to schedule report SMS for screening %s', my_model_instance.pk)
     try:
         from followup.services import schedule_follow_up_for_screening
 
@@ -255,7 +282,38 @@ def _calculate_my_model(request):
     context['code'] = code
     context['gender'] = gender
     context['age'] = int(age)
+    context['screening_date'] = format_localized_datetime(my_model_instance.created, lang)
 
+    return render(request, 'dashboard.html', context)
+
+
+@login_required
+def screening_result(request, model_id):
+    """Render a completed screening from a GET-safe, language-switchable URL."""
+    record = get_object_or_404(
+        MyModel.objects.filter(userid=request.user),
+        pk=model_id,
+    )
+    language = normalize_language(language_for_request(request))
+    selected_assessments = selected_assessments_for_record(
+        record,
+        assessments,
+        language,
+    )
+    data = {
+        field.name: getattr(record, field.name)
+        for field in record._meta.concrete_fields
+    }
+    context = build_result_context(selected_assessments, data)
+    context.update({
+        'base_template': 'base_raw.html',
+        'selected_assessments': selected_assessments,
+        'my_model_instance': record,
+        'code': record.code,
+        'gender': record.gender,
+        'age': int(record.age or 0),
+        'screening_date': format_localized_datetime(record.created, language),
+    })
     return render(request, 'dashboard.html', context)
 
 
@@ -277,6 +335,18 @@ def save_doctor_comment(request):
     except (InvalidDoctorComment, TypeError, ValueError, json.JSONDecodeError):
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON payload'}, status=400)
 
+
+def public_pdf_report(request, token):
+    """Serve a PDF through a signed bearer link sent to the screening user."""
+    my_model_instance, language = screening_from_report_token(token)
+    pdf_buffer, filename = generate_screening_pdf(my_model_instance, assessments, request)
+    response = FileResponse(
+        pdf_buffer,
+        as_attachment=True,
+        filename=filename,
+        content_type='application/pdf',
+    )
+    return response
 
 @login_required
 def download_pdf_report(request, model_id=None):

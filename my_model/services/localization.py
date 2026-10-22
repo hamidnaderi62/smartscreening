@@ -2,8 +2,9 @@
 
 from copy import copy
 from datetime import datetime
+from urllib.parse import urlsplit, urlunsplit
 
-from django.urls import reverse, translate_url
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import get_language, override
 from persiantools.jdatetime import JalaliDate, JalaliDateTime
@@ -144,12 +145,50 @@ def localize_objects(objects, fields, language=None):
 
 def language_switch_urls(request):
     """Build language switch links without losing the current page."""
-    current_path = request.get_full_path()
+    parsed_url = urlsplit(request.get_full_path())
+    path = parsed_url.path or '/'
+    path_parts = path.lstrip('/').split('/', 1)
+    if path_parts[0] in SUPPORTED_LANGUAGES:
+        remaining_path = f"/{path_parts[1]}" if len(path_parts) > 1 else '/'
+    else:
+        remaining_path = path
+
+    # Older screening pages encoded the language in the route name itself
+    # (for example ``question_fa``). A language prefix alone cannot change
+    # those routes, so always switch them to their shared canonical route.
+    legacy_routes = {
+        '/my_model/question_fa': '/my_model/screenings/questions/',
+        '/my_model/question_en': '/my_model/screenings/questions/',
+        '/my_model/question_ar': '/my_model/screenings/questions/',
+        '/my_model/screening_list_fa': '/my_model/screenings/',
+        '/my_model/screening_list_en': '/my_model/screenings/',
+        '/my_model/screening_list_ar': '/my_model/screenings/',
+        '/my_model/calculate_my_model': '/my_model/screenings/',
+        '/my_model/calculate_my_model/': '/my_model/screenings/',
+        '/my_model/screenings/calculate/': '/my_model/screenings/',
+    }
+    calculation_routes = {
+        '/my_model/calculate_my_model',
+        '/my_model/calculate_my_model/',
+        '/my_model/screenings/calculate/',
+    }
+    session = getattr(request, 'session', None)
+    result_id = session.get('last_screening_id') if session and remaining_path in calculation_routes else None
+    remaining_path = (
+        f'/my_model/screenings/result/{result_id}/'
+        if result_id
+        else legacy_routes.get(remaining_path, remaining_path)
+    )
+
+    def localized_url(code):
+        localized_path = f'/{code}/' if remaining_path == '/' else f'/{code}{remaining_path}'
+        return urlunsplit(('', '', localized_path, parsed_url.query, ''))
+
     return [
         {
             'code': code,
             'name': LANGUAGE_NAMES[code],
-            'url': translate_url(current_path, code),
+            'url': localized_url(code),
         }
         for code in SUPPORTED_LANGUAGES
     ]
