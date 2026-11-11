@@ -1,0 +1,41 @@
+/* Patient-facing doctor search and selection cards. */
+.doctor-directory-heading{align-items:flex-end}
+.doctor-directory-heading .doctor-eyebrow{display:inline-block;margin-bottom:6px}
+.doctor-directory-heading h2{font-size:1.35rem}
+.doctor-directory-count{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;padding:9px 13px;border-radius:999px;background:#edf7f4;color:#187447;font-size:.84rem;font-weight:700}
+.doctor-search{padding:20px 24px 0}
+.doctor-search>label{display:block;color:#173f5f;font-size:.9rem;font-weight:750;margin-bottom:9px}
+.doctor-search-controls{display:flex;gap:10px;align-items:center}
+.doctor-search-input-wrap{position:relative;flex:1}
+.doctor-search-input-wrap>i{position:absolute;z-index:1;inset-inline-start:15px;top:50%;transform:translateY(-50%);color:#7890a3}
+.doctor-search-input-wrap .form-control{min-height:46px;padding-inline-start:42px;border-color:#dce6ef;border-radius:12px;background:#fbfdff}
+.doctor-search-input-wrap .form-control:focus{border-color:#5a9ac9;box-shadow:0 0 0 3px rgba(32,99,155,.12)}
+.doctor-directory-card{position:relative;display:flex;flex-direction:column;overflow:hidden;padding:20px;border-color:#e2eaf1;border-radius:20px;box-shadow:0 8px 24px rgba(23,63,95,.045);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.doctor-directory-card:hover{transform:translateY(-3px);border-color:#b8d3e7;box-shadow:0 15px 34px rgba(23,63,95,.1)}
+.doctor-directory-card.is-recommended{border-color:#75b7a0;background:linear-gradient(155deg,#f3fbf7 0,#fff 42%)}
+.doctor-card-topline{display:flex;align-items:center;gap:14px}
+.doctor-directory-card .doctor-card-image{width:70px;height:70px;flex:0 0 70px;margin:0;border-radius:20px;object-fit:cover;background:#eaf2f9}
+.doctor-directory-card .doctor-avatar-fallback{font-size:27px}
+.doctor-card-identity{min-width:0}
+.doctor-directory-card .doctor-card-identity h3{line-height:1.35;font-size:1.04rem;overflow-wrap:anywhere}
+.doctor-card-specialty{display:inline-flex;align-items:center;gap:5px;margin-top:5px;color:#20639b;font-size:.78rem;font-weight:700}
+.doctor-card-badges{display:flex;flex-wrap:wrap;gap:7px;min-height:25px;margin-top:13px}
+.doctor-recommendation-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:999px;background:#e5f5ec;color:#187447;font-size:.72rem;font-weight:750}
+.doctor-card-badges .doctor-status{align-items:center;gap:5px;padding:5px 9px;font-size:.72rem}
+.doctor-card-clinic{display:flex;align-items:flex-start;gap:8px;margin:12px 0 0!important;color:#496477!important;font-weight:700}
+.doctor-card-clinic i{color:#5991b9;margin-top:2px}
+.doctor-directory-card .doctor-card-bio{flex:1;margin:12px 0 16px;color:#6c7b88;line-height:1.65}
+.doctor-directory-card .doctor-card-bio-empty{font-style:italic;opacity:.75}
+.doctor-card-action{border-top:1px solid #edf1f5;padding-top:14px;margin-top:auto}
+.doctor-directory-card .doctor-card-message{min-height:64px;resize:vertical;border-radius:10px;border-color:#e0e8ef;font-size:.82rem}
+.doctor-directory-card .doctor-card-select{display:flex;align-items:center;justify-content:center;gap:6px;min-height:43px;margin-top:9px;border-radius:11px;font-weight:700}
+.doctor-directory-card .doctor-card-select i{font-size:1.25rem}
+.doctor-selected-note{display:flex;align-items:center;justify-content:center;gap:7px;min-height:43px;padding:8px 12px;border-radius:11px;background:#e7f6ee;color:#187447;font-weight:750}
+.doctor-directory-empty{text-align:center;padding:38px 18px 44px;color:#65798a}
+.doctor-directory-empty-icon{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 14px;border-radius:18px;background:#edf5fb;color:#20639b;font-size:1.5rem}
+.doctor-directory-empty h3{max-width:460px;margin:0 auto 16px;color:#526879;font-size:1rem;font-weight:650;line-height:1.6}
+.doctor-directory[dir="rtl"]{text-align:right}
+.doctor-directory[dir="rtl"] .doctor-directory-card{text-align:right}
+.doctor-directory[dir="rtl"] .doctor-search-controls{flex-direction:row-reverse}
+.doctor-directory[dir="rtl"] .doctor-card-select i{transform:scaleX(-1)}
+@media(max-width:575px){.doctor-directory-heading{align-items:flex-start}.doctor-directory-count{margin-top:14px}.doctor-search{padding:17px 16px 0}.doctor-search-controls{align-items:stretch;flex-wrap:wrap}.doctor-search-input-wrap{flex:1 1 100%}.doctor-search-controls>.btn{flex:1}.doctor-directory-grid{padding:16px!important}.doctor-directory-card{padding:17px}}

@@ -1,4 +1,4 @@
-from django.db.models import Count, Q
+from django.db.models import Q
 
 from my_model.assessment_catalog import get_assessment_or_404
 from my_model.services.localization import localized_value, normalize_language
@@ -13,27 +13,34 @@ def screening_assessment_ids(screening):
         if value.strip().isdigit()
     }
 
-def suggest_doctors_for_assessment(assessment_id, limit=3):
-    """Return verified doctors covering one assessment, ranked by workload."""
-    get_assessment_or_404(assessment_id)
-    doctors = DoctorProfile.objects.filter(
+
+def screening_organization(screening):
+    """Return the organization selected for the screening patient's account."""
+    try:
+        return screening.userid.profile.organization
+    except (AttributeError, ValueError):
+        return None
+
+
+def active_gp_doctors_for_organization(organization=None):
+    """Return verified GPs available to one organization.
+
+    A doctor with no explicit organization rows is intentionally treated as a
+    global doctor, preserving the default-all-organizations behavior.
+    """
+    queryset = DoctorProfile.objects.filter(
         is_active=True,
         is_verified=True,
+        is_gp=True,
         user__is_active=True,
-    ).prefetch_related('specializations').annotate(
-        open_referral_count=Count(
-            'referrals',
-            filter=Q(
-                referrals__status__in=('pending', 'reviewed'),
-            ),
-        ),
-    )
-    matching = [
-        doctor for doctor in doctors
-        if assessment_id in doctor.covered_assessment_ids
-    ]
-    return sorted(matching, key=lambda doctor: (doctor.open_referral_count, doctor.display_name.lower(), doctor.pk))[:limit]
+    ).select_related('user').prefetch_related('organizations')
+    if organization is None:
+        return queryset.filter(organizations__isnull=True).distinct()
+    return queryset.filter(Q(organizations__isnull=True) | Q(organizations=organization)).distinct()
 
+
+def active_gp_doctors_for_screening(screening):
+    return active_gp_doctors_for_organization(screening_organization(screening))
 
 def localized_assessment(assessment_id, language):
     assessment = get_assessment_or_404(assessment_id)

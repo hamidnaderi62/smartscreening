@@ -2,17 +2,18 @@
 {% load static %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/doctor-dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/doctor-dashboard-home.css' %}">
 <main class="doctor-shell">
   <div class="container py-4 py-lg-5">
-    <div class="doctor-hero mb-4">
+    <div class="doctor-hero doctor-dashboard-hero mb-4">
       <div>
-        <span class="doctor-eyebrow">SmartScreening · {{ labels.dashboard }}</span>
+        <span class="doctor-eyebrow"><i class="bi bi-shield-plus me-1"></i>SmartScreening · {{ labels.dashboard }}</span>
         <h1>{{ labels.welcome|cut:'{name}' }}{{ doctor.display_name }}</h1>
-        <p class="mb-0">{{ doctor.clinic_name|default:'' }}</p>
+        <p class="mb-0">{{ doctor.clinic_name|default:labels.dashboard_intro }}</p>
       </div>
       <div class="doctor-hero-actions">
         {% if doctor.image %}<img class="doctor-avatar" src="{{ doctor.image.url }}" alt="{{ doctor.display_name }}">{% else %}<span class="doctor-avatar doctor-avatar-fallback"><i class="bi bi-person-badge"></i></span>{% endif %}
-        <a class="btn btn-light" href="{% url 'doctor:logout' %}">{{ labels.logout }}</a>
+        <a class="btn doctor-logout-button" href="{% url 'doctor:logout' %}"><i class="bi bi-box-arrow-right me-1"></i>{{ labels.logout }}</a>
       </div>
     </div>
     {% if messages %}{% for message in messages %}<div class="alert alert-success">{{ message }}</div>{% endfor %}{% endif %}
@@ -21,32 +22,31 @@
       <div class="col-md-4"><div class="doctor-stat doctor-stat-success"><span>{{ labels.reviewed }}</span><strong>{{ counts.reviewed }}</strong><i class="bi bi-check2-circle"></i></div></div>
       <div class="col-md-4"><div class="doctor-stat doctor-stat-primary"><span>{{ labels.total }}</span><strong>{{ counts.total }}</strong><i class="bi bi-folder2-open"></i></div></div>
     </div>
-    <div class="doctor-panel">
-      <div class="doctor-panel-header">
-        <div><h2>{{ labels.dashboard }}</h2><p>{{ doctor.bio|default:'' }}</p></div>
-        <div class="btn-group" role="group">
-          <a class="btn btn-sm {% if status_filter == 'all' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status=all">{{ labels.all }}</a>
-          <a class="btn btn-sm {% if status_filter == 'pending' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status=pending">{{ labels.pending }}</a>
-          <a class="btn btn-sm {% if status_filter == 'reviewed' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?status=reviewed">{{ labels.reviewed }}</a>
-        </div>
+    <section class="doctor-panel doctor-referral-panel">
+      <div class="doctor-panel-header doctor-referral-heading">
+        <div><span class="doctor-eyebrow">{{ labels.screening_report }}</span><h2>{{ labels.dashboard }}</h2><p>{{ labels.dashboard_intro }}</p></div>
+        <nav class="doctor-filter-pills" aria-label="{{ labels.status }}">
+          <a class="{% if status_filter == 'all' %}is-active{% endif %}" href="?status=all">{{ labels.all }}<span>{{ counts.total }}</span></a>
+          <a class="{% if status_filter == 'pending' %}is-active{% endif %}" href="?status=pending">{{ labels.pending }}<span>{{ counts.pending }}</span></a>
+          <a class="{% if status_filter == 'reviewed' %}is-active{% endif %}" href="?status=reviewed">{{ labels.reviewed }}<span>{{ counts.reviewed }}</span></a>
+        </nav>
       </div>
-      <div class="table-responsive">
-        <table class="table doctor-table align-middle mb-0">
-          <thead><tr><th>{{ labels.patient }}</th><th>{{ labels.disease }}</th><th>{{ labels.status }}</th><th>{{ labels.received }}</th><th></th></tr></thead>
-          <tbody>
-          {% for referral in referrals %}
-            <tr>
-              <td><strong>{{ referral.patient.get_full_name|default:referral.patient.username }}</strong><small>{{ referral.screening.code }}</small></td>
-              <td>{{ referral.display_assessment_title }}<small>{{ referral.display_result_status|default:'' }}</small></td>
-              <td><span class="doctor-status doctor-status-{{ referral.status }}">{% if referral.status == 'pending' %}{{ labels.pending_label }}{% elif referral.status == 'reviewed' %}{{ labels.reviewed_label }}{% elif referral.status == 'closed' %}{{ labels.closed_label }}{% else %}{{ labels.cancelled_label }}{% endif %}</span></td>
-              <td>{{ referral.created|date:'Y-m-d H:i' }}</td>
-              <td><a class="btn btn-sm btn-primary-soft" href="{% url 'doctor:referral_detail' referral_id=referral.id %}">{{ labels.open }} <i class="bi bi-arrow-up-right"></i></a></td>
-            </tr>
-          {% empty %}<tr><td colspan="5" class="text-center py-5 text-muted">{{ labels.no_referrals }}</td></tr>{% endfor %}
-          </tbody>
-        </table>
+      <div class="doctor-referral-list">
+      {% for referral in referrals %}
+        <article class="doctor-referral-card">
+          <div class="doctor-referral-card-header">
+            <div class="doctor-patient-identity"><span class="doctor-patient-avatar"><i class="bi bi-person-fill"></i></span><div><span class="doctor-card-label">{{ labels.patient }}</span><h3>{{ referral.patient.get_full_name|default:referral.patient.username }}</h3></div></div>
+            <div class="doctor-referral-meta"><span class="doctor-status doctor-status-{{ referral.status }}">{% if referral.status == 'pending' %}{{ labels.pending_label }}{% elif referral.status == 'reviewed' %}{{ labels.reviewed_label }}{% elif referral.status == 'closed' %}{{ labels.closed_label }}{% else %}{{ labels.cancelled_label }}{% endif %}</span><span class="doctor-referral-date"><i class="bi bi-clock-history" aria-hidden="true"></i>{{ referral.created|date:'Y-m-d H:i' }}</span></div>
+          </div>
+          <div class="doctor-report-summary">
+            <div class="doctor-report-summary-heading"><span class="doctor-report-icon"><i class="bi bi-clipboard2-pulse"></i></span><div><span class="doctor-card-label">{{ labels.screening_report }}</span><strong>{{ referral.screening.code }}</strong></div><span class="doctor-area-count">{{ referral.display_assessment_title }}</span></div>
+            {% if referral.display_assessments %}<div class="doctor-assessment-list">{% for assessment in referral.display_assessments %}<div class="doctor-assessment-item"><span class="doctor-assessment-name"><i class="bi bi-check2-circle" aria-hidden="true"></i>{{ assessment.title }}</span>{% if assessment.status %}<span class="doctor-assessment-result">{{ assessment.status }}</span>{% endif %}</div>{% endfor %}</div>{% else %}<p class="doctor-no-report-details"><i class="bi bi-info-circle me-1" aria-hidden="true"></i>{{ labels.no_report_details }}</p>{% endif %}
+          </div>
+          <div class="doctor-referral-card-footer"><span><i class="bi bi-lock-fill" aria-hidden="true"></i>{{ labels.patient_info }}</span><a class="btn btn-primary doctor-open-referral" href="{% url 'doctor:referral_detail' referral_id=referral.id %}">{{ labels.open }}<i class="bi bi-arrow-up-right ms-2" aria-hidden="true"></i></a></div>
+        </article>
+      {% empty %}<div class="doctor-empty-state"><span><i class="bi bi-inbox"></i></span><h3>{{ labels.no_referrals }}</h3></div>{% endfor %}
       </div>
-    </div>
+    </section>
   </div>
 </main>
 {% endblock %}

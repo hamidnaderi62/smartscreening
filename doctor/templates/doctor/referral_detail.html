@@ -2,20 +2,86 @@
 {% load static %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/doctor-dashboard.css' %}">
-<main class="doctor-shell">
+<link rel="stylesheet" href="{% static 'css/doctor-referral-detail.css' %}">
+<link rel="stylesheet" href="{% static 'css/doctor-referral-navigation.css' %}">
+<main class="doctor-shell doctor-detail-shell">
   <div class="container py-4 py-lg-5">
-    <div class="doctor-page-heading"><div><span class="doctor-eyebrow">{{ labels.patient_info }}</span><h1>{{ assessment.display_title|default:assessment.title_en }}</h1><p>{{ referral.patient.get_full_name|default:referral.patient.username }} · {{ referral.screening.code }}</p></div><a class="btn btn-outline-primary" href="{% url 'doctor:dashboard' %}">{{ labels.back }}</a></div>
-    <div class="row g-4">
-      <div class="col-lg-7"><div class="doctor-panel h-100 p-4"><h2>{{ labels.patient_info }}</h2><dl class="row doctor-details"><dt class="col-sm-5">{{ labels.patient }}</dt><dd class="col-sm-7">{{ referral.patient.get_full_name|default:referral.patient.username }}</dd><dt class="col-sm-5">{{ labels.screening_code }}</dt><dd class="col-sm-7">{{ referral.screening.code }}</dd><dt class="col-sm-5">{{ labels.result }}</dt><dd class="col-sm-7">{{ assessment.display_status|default:referral.result_status }}</dd><dt class="col-sm-5">{{ labels.received }}</dt><dd class="col-sm-7">{{ referral.created|date:'Y-m-d H:i' }}</dd></dl><div class="doctor-patient-message"><strong>{{ labels.message }}</strong><p>{{ referral.patient_message|default:'—' }}</p></div></div></div>
-      <div class="col-lg-5"><div class="doctor-panel p-4 mb-4"><h2>{{ labels.comment }}</h2><form method="post" action="{% url 'doctor:save_comment' referral_id=referral.id %}">{% csrf_token %}{{ comment_form.doctor_comment }}<button class="btn btn-primary w-100 mt-3" type="submit">{{ labels.save_comment }}</button></form></div><div class="doctor-panel p-4"><h2>{{ labels.update_status }}</h2><form method="post" action="{% url 'doctor:update_status' referral_id=referral.id %}">{% csrf_token %}<select class="form-select" name="status">{% for value, text in status_choices %}<option value="{{ value }}" {% if referral.status == value %}selected{% endif %}>{% if value == 'pending' %}{{ labels.pending_label }}{% elif value == 'reviewed' %}{{ labels.reviewed_label }}{% elif value == 'closed' %}{{ labels.closed_label }}{% else %}{{ labels.cancelled_label }}{% endif %}</option>{% endfor %}</select><button class="btn btn-outline-primary w-100 mt-3" type="submit">{{ labels.update_status }}</button></form></div></div>
+    <div class="doctor-detail-hero">
+      <div class="doctor-detail-hero-copy">
+        <a class="doctor-detail-back" href="{% url 'doctor:dashboard' %}"><i class="bi bi-arrow-left" aria-hidden="true"></i>{{ labels.back }}</a>
+        <span class="doctor-eyebrow">{{ labels.patient_info }}</span>
+        <h1>{{ labels.screening_report }}</h1>
+        <p>{{ referral.patient.get_full_name|default:referral.patient.username }} <span aria-hidden="true">·</span> {{ referral.screening.code }}</p>
+      </div>
+      <div class="doctor-detail-hero-side">
+        <span class="doctor-detail-report-icon"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i></span>
+        <span class="doctor-status doctor-status-{{ referral.status }}">{% if referral.status == 'pending' %}{{ labels.pending_label }}{% elif referral.status == 'reviewed' %}{{ labels.reviewed_label }}{% elif referral.status == 'closed' %}{{ labels.closed_label }}{% else %}{{ labels.cancelled_label }}{% endif %}</span>
+      </div>
     </div>
-    <section class="doctor-panel p-4 mt-4">
-      <h2>{{ labels.questions }}</h2>
-      {% for section in answer_sections %}
-        <h3 class="doctor-answer-heading">{{ section.name }}</h3>
-        <div class="table-responsive"><table class="table doctor-table"><thead><tr><th>{{ labels.question }}</th><th>{{ labels.answer }}</th></tr></thead><tbody>{% for row in section.rows %}<tr><td>{{ row.question }}</td><td>{{ row.answer }}</td></tr>{% endfor %}</tbody></table></div>
-      {% empty %}<p class="text-muted">—</p>{% endfor %}
+
+    {% if messages %}<div class="doctor-detail-messages">{% for message in messages %}<div class="alert alert-success mb-0"><i class="bi bi-check-circle-fill me-2" aria-hidden="true"></i>{{ message }}</div>{% endfor %}</div>{% endif %}
+
+    <section class="doctor-detail-overview" aria-label="{{ labels.screening_overview }}">
+      <div class="doctor-overview-item"><span class="doctor-overview-icon"><i class="bi bi-person" aria-hidden="true"></i></span><div><small>{{ labels.patient }}</small><strong>{{ referral.patient.get_full_name|default:referral.patient.username }}</strong></div></div>
+      <div class="doctor-overview-item"><span class="doctor-overview-icon"><i class="bi bi-upc-scan" aria-hidden="true"></i></span><div><small>{{ labels.screening_code }}</small><strong>{{ referral.screening.code }}</strong></div></div>
+      <div class="doctor-overview-item"><span class="doctor-overview-icon"><i class="bi bi-calendar2-check" aria-hidden="true"></i></span><div><small>{{ labels.received }}</small><strong>{{ referral.created|date:'Y-m-d H:i' }}</strong></div></div>
+      <div class="doctor-overview-item"><span class="doctor-overview-icon"><i class="bi bi-activity" aria-hidden="true"></i></span><div><small>{{ labels.report_sections }}</small><strong>{{ selected_assessments|length }}</strong></div></div>
     </section>
+
+    <nav class="doctor-detail-nav" aria-label="{{ labels.report_sections }}">
+      <a href="#doctor-assessment-results"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i>{{ labels.screening_overview }}</a>
+      <a href="#doctor-screening-answers"><i class="bi bi-list-check" aria-hidden="true"></i>{{ labels.questions }}</a>
+      <a href="#doctor-follow-up-plans"><i class="bi bi-calendar2-heart" aria-hidden="true"></i>{{ labels.follow_up }}</a>
+    </nav>
+
+    <div class="row g-4 align-items-start">
+      <div class="col-lg-8">
+        <section class="doctor-detail-section doctor-detail-assessments" id="doctor-assessment-results" tabindex="-1">
+          <div class="doctor-detail-section-heading"><span class="doctor-section-icon doctor-section-icon-blue"><i class="bi bi-clipboard2-pulse"></i></span><div><h2>{{ labels.screening_overview }}</h2><p>{{ labels.report_sections }}</p></div></div>
+          <div class="doctor-assessment-detail-list">
+            {% for assessment in selected_assessments %}
+              <article class="doctor-assessment-detail-card">
+                <div class="doctor-assessment-detail-top"><div><span class="doctor-detail-index">{{ forloop.counter|stringformat:'02d' }}</span><h3>{{ assessment.display_title|default:assessment.title_en }}</h3></div><span class="doctor-detail-risk">{{ assessment.display_status|default:assessment.status_en|default:'—' }}</span></div>
+                {% if assessment.has_score %}<div class="doctor-assessment-score"><i class="bi bi-speedometer2" aria-hidden="true"></i><span>{{ labels.score }}</span><strong>{{ assessment.score|floatformat:1 }}{% if assessment.total_score %}<small> / {{ assessment.total_score|floatformat:1 }}</small>{% endif %}</strong></div>{% endif %}
+                {% if assessment.display_recommendation or assessment.recommendation_en %}<div class="doctor-assessment-recommendation"><i class="bi bi-lightbulb" aria-hidden="true"></i><div><small>{{ labels.recommendation }}</small><p>{{ assessment.display_recommendation|default:assessment.recommendation_en }}</p></div></div>{% endif %}
+              </article>
+            {% empty %}<div class="doctor-detail-empty"><i class="bi bi-clipboard-x" aria-hidden="true"></i><p>{{ labels.no_report_details }}</p></div>{% endfor %}
+          </div>
+        </section>
+
+        <section class="doctor-detail-section doctor-detail-answers" id="doctor-screening-answers" tabindex="-1">
+          <div class="doctor-detail-section-heading"><span class="doctor-section-icon doctor-section-icon-purple"><i class="bi bi-list-check"></i></span><div><h2>{{ labels.questions }}</h2><p>{{ labels.patient_info }}</p></div></div>
+          {% for section in answer_sections %}
+            <details class="doctor-answer-section" {% if forloop.first %}open{% endif %}>
+              <summary><span>{{ section.name }}</span><span class="doctor-answer-row-count">{{ section.rows|length }}</span></summary>
+              <div class="doctor-answer-list">{% for row in section.rows %}<article class="doctor-answer-item"><h3>{{ row.question }}</h3><p>{{ row.answer }}</p></article>{% endfor %}</div>
+            </details>
+          {% empty %}<p class="doctor-detail-muted">{{ labels.no_answers }}</p>{% endfor %}
+        </section>
+
+        <section class="doctor-detail-section doctor-detail-followups" id="doctor-follow-up-plans" tabindex="-1">
+          <div class="doctor-detail-section-heading"><span class="doctor-section-icon doctor-section-icon-green"><i class="bi bi-calendar2-heart"></i></span><div><h2>{{ labels.follow_up }}</h2><p>{{ labels.follow_up_summary }}</p></div></div>
+          <div class="doctor-followup-list">{% for plan in follow_up_plans %}<article class="doctor-followup-card"><span class="doctor-followup-marker"><i class="bi bi-check2"></i></span><div class="doctor-followup-copy"><h3>{{ plan.display_title }}</h3><p>{{ plan.display_description }}</p><div class="doctor-followup-meta"><span><i class="bi bi-calendar-event" aria-hidden="true"></i>{{ labels.follow_up_started }}: {{ plan.started_at|date:'Y-m-d' }}</span>{% if plan.next_reminder_at %}<span><i class="bi bi-bell" aria-hidden="true"></i>{{ labels.next_reminder }}: {{ plan.next_reminder_at|date:'Y-m-d' }}</span>{% endif %}</div></div><span class="doctor-followup-status doctor-followup-status-{{ plan.status }}">{{ plan.get_status_display }}</span></article>{% empty %}<p class="doctor-detail-muted">{{ labels.no_follow_up }}</p>{% endfor %}</div>
+        </section>
+      </div>
+
+      <aside class="col-lg-4 doctor-detail-sidebar">
+        <section class="doctor-detail-section doctor-note-panel">
+          <div class="doctor-detail-section-heading"><span class="doctor-section-icon doctor-section-icon-teal"><i class="bi bi-chat-square-text"></i></span><div><h2>{{ labels.comment }}</h2><p>{{ labels.note_pdf_hint }}</p></div></div>
+          <form method="post" action="{% url 'doctor:save_comment' referral_id=referral.id %}" class="doctor-note-form">{% csrf_token %}<label for="id_doctor_comment">{{ labels.comment }}</label>{{ comment_form.doctor_comment }}<div class="doctor-note-hint"><i class="bi bi-info-circle" aria-hidden="true"></i>{{ labels.note_pdf_hint }}</div><button class="btn btn-primary w-100" type="submit"><i class="bi bi-check2-circle me-2" aria-hidden="true"></i>{{ labels.save_comment }}</button></form>
+        </section>
+
+        <section class="doctor-detail-section doctor-patient-note-panel">
+          <div class="doctor-detail-section-heading"><span class="doctor-section-icon doctor-section-icon-sand"><i class="bi bi-chat-left-quote"></i></span><div><h2>{{ labels.patient_note }}</h2><p>{{ labels.message }}</p></div></div>
+          <blockquote class="doctor-patient-note">{{ referral.patient_message|default:'—' }}</blockquote>
+        </section>
+
+        <section class="doctor-detail-section doctor-status-panel">
+          <div class="doctor-detail-section-heading"><span class="doctor-section-icon doctor-section-icon-blue"><i class="bi bi-arrow-repeat"></i></span><div><h2>{{ labels.update_status }}</h2><p>{{ labels.status }}</p></div></div>
+          <form method="post" action="{% url 'doctor:update_status' referral_id=referral.id %}" class="doctor-status-form">{% csrf_token %}<label for="referral-status">{{ labels.status }}</label><select id="referral-status" class="form-select" name="status">{% for value, text in status_choices %}<option value="{{ value }}" {% if referral.status == value %}selected{% endif %}>{% if value == 'pending' %}{{ labels.pending_label }}{% elif value == 'reviewed' %}{{ labels.reviewed_label }}{% elif value == 'closed' %}{{ labels.closed_label }}{% else %}{{ labels.cancelled_label }}{% endif %}</option>{% endfor %}</select><button class="btn btn-outline-primary w-100" type="submit">{{ labels.update_status }}</button></form>
+        </section>
+      </aside>
+    </div>
   </div>
 </main>
 {% endblock %}

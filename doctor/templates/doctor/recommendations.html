@@ -2,29 +2,52 @@
 {% load static %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/doctor-dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'css/doctor-directory.css' %}">
 <main class="doctor-shell">
   <div class="container py-4 py-lg-5">
     <div class="doctor-page-heading"><div><span class="doctor-eyebrow">{{ screening.code }}</span><h1>{{ labels.recommendations }}</h1><p>{{ labels.choose_intro }}</p></div><a class="btn btn-outline-primary" href="{% url 'my_model:dashboard' %}">{{ labels.back }}</a></div>
     {% if messages %}{% for message in messages %}<div class="alert alert-info">{{ message }}</div>{% endfor %}{% endif %}
-    {% for row in disease_rows %}
-      <section class="doctor-panel mb-4">
-        <div class="doctor-panel-header"><div><h2>{{ row.assessment.display_title }}</h2><span class="doctor-result-chip">{{ row.assessment.display_status }}</span></div></div>
-        <div class="row g-3 p-3">
-          {% for doctor in row.doctors %}
-          <div class="col-lg-4">
-            <article class="doctor-card h-100">
-              {% if doctor.image %}<img class="doctor-card-image" src="{{ doctor.image.url }}" alt="{{ doctor.display_name }}">{% else %}<div class="doctor-card-image doctor-avatar-fallback"><i class="bi bi-person-badge"></i></div>{% endif %}
-              <h3>{{ doctor.display_name }}</h3><p class="doctor-card-meta">{{ doctor.clinic_name|default:'' }}</p><p>{{ doctor.bio|truncatewords:25 }}</p>
-              {% if row.referral and row.referral.doctor_id == doctor.id %}<span class="doctor-status doctor-status-reviewed">{{ labels.sent }}</span>{% else %}
-              <form method="post" action="{% url 'doctor:create_referral' screening_id=screening.id doctor_id=doctor.id assessment_id=row.assessment.id %}">
-                {% csrf_token %}<textarea class="form-control form-control-sm mb-2" name="patient_message" rows="2" placeholder="{{ labels.message }}"></textarea><button class="btn btn-primary w-100" type="submit">{{ labels.choose }}</button>
-              </form>{% endif %}
+    <section class="doctor-panel doctor-directory mb-4" {% if current_language == 'fa' or current_language == 'ar' %}dir="rtl"{% endif %}>
+      <div class="doctor-panel-header doctor-directory-heading">
+        <div><span class="doctor-eyebrow">{{ screening.code }}</span><h2>{{ labels.recommendations }}</h2><p class="mb-0">{{ labels.choose_intro }}</p></div>
+        <span class="doctor-directory-count"><i class="bi bi-patch-check-fill" aria-hidden="true"></i> {{ doctor_count }} {{ labels.doctor_count }}</span>
+      </div>
+
+      <form class="doctor-search" method="get" action="{{ request.path }}" role="search">
+        <label for="doctor-search-query">{{ labels.search_doctors }}</label>
+        <div class="doctor-search-controls">
+          <div class="doctor-search-input-wrap"><i class="bi bi-search" aria-hidden="true"></i><input id="doctor-search-query" type="search" name="q" value="{{ search_query }}" placeholder="{{ labels.search_placeholder }}" class="form-control"></div>
+          <button class="btn btn-primary" type="submit">{{ labels.search }}</button>
+          {% if search_query %}<a class="btn btn-outline-secondary" href="{{ request.path }}">{{ labels.clear_search }}</a>{% endif %}
+        </div>
+      </form>
+
+      <div class="row g-3 g-xl-4 p-3 p-lg-4 doctor-directory-grid">
+        {% for doctor in doctors %}
+          <div class="col-md-6 col-xl-4">
+            <article class="doctor-card doctor-directory-card h-100{% if recommended_doctor_id == doctor.id %} is-recommended{% endif %}">
+              <div class="doctor-card-topline">
+                {% if doctor.image %}<img class="doctor-card-image" src="{{ doctor.image.url }}" alt="{{ doctor.display_name }}" loading="lazy">{% else %}<div class="doctor-card-image doctor-avatar-fallback" aria-hidden="true"><i class="bi bi-person-badge"></i></div>{% endif %}
+                <div class="doctor-card-identity"><h3>{{ doctor.display_name }}</h3><span class="doctor-card-specialty"><i class="bi bi-heart-pulse" aria-hidden="true"></i> {{ labels.general_practitioner }}</span></div>
+              </div>
+              <div class="doctor-card-badges">
+                {% if recommended_doctor_id == doctor.id %}<span class="doctor-recommendation-badge"><i class="bi bi-stars" aria-hidden="true"></i> {{ labels.last_selected }}</span>{% endif %}
+                {% if selected_doctor and selected_doctor.id == doctor.id %}<span class="doctor-status doctor-status-reviewed"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> {{ labels.sent }}</span>{% endif %}
+              </div>
+              {% if doctor.clinic_name %}<p class="doctor-card-clinic"><i class="bi bi-hospital" aria-hidden="true"></i> {{ doctor.clinic_name }}</p>{% endif %}
+              {% if doctor.bio %}<p class="doctor-card-bio">{{ doctor.bio|truncatewords:30 }}</p>{% else %}<p class="doctor-card-bio doctor-card-bio-empty">{{ labels.general_practitioner }}</p>{% endif %}
+              <div class="doctor-card-action">
+                {% if selected_doctor and selected_doctor.id == doctor.id %}<div class="doctor-selected-note"><i class="bi bi-send-check" aria-hidden="true"></i> {{ labels.sent }}</div>{% else %}
+                <form method="post" action="{% url 'doctor:create_screening_referral' screening_id=screening.id doctor_id=doctor.id %}">
+                  {% csrf_token %}<label class="visually-hidden" for="doctor-message-{{ doctor.id }}">{{ labels.message }}</label><textarea id="doctor-message-{{ doctor.id }}" class="form-control doctor-card-message" name="patient_message" rows="2" placeholder="{{ labels.message }}"></textarea><button class="btn btn-primary w-100 doctor-card-select" type="submit">{{ labels.choose }} <i class="bi bi-arrow-left-short" aria-hidden="true"></i></button>
+                </form>{% endif %}
+              </div>
             </article>
           </div>
-          {% empty %}<div class="col-12"><div class="alert alert-light">{{ labels.no_doctors }}</div></div>{% endfor %}
-        </div>
-      </section>
-    {% empty %}<div class="doctor-panel p-5 text-center">{{ labels.no_doctors }}</div>{% endfor %}
+        {% empty %}<div class="col-12"><div class="doctor-directory-empty"><span class="doctor-directory-empty-icon"><i class="bi bi-search" aria-hidden="true"></i></span><h3>{% if search_query %}{{ labels.no_search_results }}{% else %}{{ labels.no_doctors }}{% endif %}</h3>{% if search_query %}<a href="{{ request.path }}" class="btn btn-outline-primary">{{ labels.clear_search }}</a>{% endif %}</div></div>{% endfor %}
+      </div>
+      {% if selected_doctor %}<div class="px-3 pb-3"><div class="alert alert-success mb-0"><i class="bi bi-check-circle-fill me-1" aria-hidden="true"></i> {{ selected_doctor.display_name }} — {{ labels.sent }}</div></div>{% endif %}
+    </section>
   </div>
 </main>
 {% endblock %}

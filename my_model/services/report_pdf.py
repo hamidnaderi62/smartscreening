@@ -86,6 +86,7 @@ REPORT_LABELS = {
         'assessment': 'Assessment', 'risk_status': 'Risk status', 'recommendation': 'Recommendation',
         'question': 'Question', 'answer': 'Answer',
         'doctor_note': 'Doctor’s note', 'clinical_comment': 'Clinical comment',
+        'doctor_signature': 'Doctor signature', 'doctor_seal': 'Doctor seal',
         'no_doctor_comment': 'No doctor comment has been added.', 'important': 'Important information',
         'recommendation_fallback': 'Discuss this result with a healthcare professional.',
         'important_text': 'Screening results estimate risk based on the information provided at the time of assessment. They are not a diagnosis, do not predict individual outcomes with certainty, and should be reviewed by a licensed healthcare professional. Seek urgent care for urgent or severe symptoms.',
@@ -110,6 +111,7 @@ REPORT_LABELS = {
         'assessment': 'ارزیابی', 'risk_status': 'وضعیت خطر', 'recommendation': 'توصیه',
         'question': 'پرسش', 'answer': 'پاسخ',
         'doctor_note': 'یادداشت پزشک', 'clinical_comment': 'توضیحات بالینی',
+        'doctor_signature': 'امضای پزشک', 'doctor_seal': 'مهر پزشک',
         'no_doctor_comment': 'یادداشت پزشکی ثبت نشده است.', 'important': 'اطلاعات مهم',
         'recommendation_fallback': 'این نتیجه را با یک متخصص مراقبت‌های سلامت بررسی کنید.',
         'important_text': 'نتایج غربالگری بر اساس اطلاعات زمان ارزیابی، خطر را تخمین می‌زنند. این نتایج تشخیص نیستند و باید توسط پزشک بررسی شوند. در صورت علائم شدید یا اورژانسی فوراً به مراکز درمانی مراجعه کنید.',
@@ -134,6 +136,7 @@ REPORT_LABELS = {
         'assessment': 'التقييم', 'risk_status': 'حالة الخطورة', 'recommendation': 'التوصية',
         'question': 'السؤال', 'answer': 'الإجابة',
         'doctor_note': 'ملاحظة الطبيب', 'clinical_comment': 'التعليق السريري',
+        'doctor_signature': 'توقيع الطبيب', 'doctor_seal': 'ختم الطبيب',
         'no_doctor_comment': 'لم تتم إضافة ملاحظة للطبيب.', 'important': 'معلومات مهمة',
         'recommendation_fallback': 'ناقش هذه النتيجة مع طبيب أو أخصائي رعاية صحية.',
         'important_text': 'تقدّر نتائج الفحص الخطورة بناءً على المعلومات المقدمة وقت التقييم. ليست تشخيصاً ويجب مراجعتها من طبيب مرخص. اطلب رعاية عاجلة عند وجود أعراض شديدة أو طارئة.',
@@ -369,6 +372,16 @@ def _logo_path(organization):
         return None
     try:
         path = organization.logo.path
+    except (AttributeError, ValueError):
+        return None
+    return path if os.path.exists(path) else None
+
+
+def _image_path(image_field):
+    if not image_field:
+        return None
+    try:
+        path = image_field.path
     except (AttributeError, ValueError):
         return None
     return path if os.path.exists(path) else None
@@ -1030,6 +1043,55 @@ def _doctor_comment_text(record, labels):
     return "\n".join(comments) or labels["no_doctor_comment"]
 
 
+def _verified_doctor_referrals(record):
+    """Return reviewed referrals from verified doctors for report signing."""
+    try:
+        return list(
+            record.doctor_referrals.select_related('doctor')
+            .filter(status='reviewed', doctor__is_verified=True)
+            .exclude(doctor_comment='')
+            .order_by('doctor__display_name', 'created')
+        )
+    except AttributeError:
+        logger.exception("Unable to load verified doctor referrals for screening %s", record.pk)
+        return []
+
+
+def _doctor_signature_block(record, labels, styles, rtl=False):
+    """Build signature/seal cards for verified doctor recommendations."""
+    blocks = []
+    for referral in _verified_doctor_referrals(record):
+        doctor = referral.doctor
+        signature_path = _image_path(getattr(doctor, 'signature_image', None))
+        seal_path = _image_path(getattr(doctor, 'seal_image', None))
+        if not signature_path and not seal_path:
+            continue
+        cells = [Paragraph(_escaped(doctor.display_name, styles['body']), styles['body'])]
+        widths = [70 * mm]
+        if signature_path:
+            cells.append(Image(signature_path, width=32 * mm, height=16 * mm, kind='proportional'))
+            widths.append(35 * mm)
+        if seal_path:
+            cells.append(Image(seal_path, width=22 * mm, height=22 * mm, kind='proportional'))
+            widths.append(25 * mm)
+        table = Table(
+            [cells],
+            colWidths=widths,
+            hAlign='RIGHT' if rtl else 'LEFT',
+        )
+        table.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BOX', (0, 0), (-1, -1), 0.35, HexColor('#D9E2EC')),
+            ('BACKGROUND', (0, 0), (-1, -1), LIGHT_GREY),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+        ]))
+        blocks.extend([table, Spacer(1, 2 * mm)])
+    return blocks
+
+
 def generate_pdf_report(record, selected_assessments, request=None):
     """Create a complete, branded report for one screening record."""
     language = language_for_request(request) if request else get_language()
@@ -1181,6 +1243,14 @@ def generate_pdf_report(record, selected_assessments, request=None):
         [CONTENT_WIDTH], styles, header=True,
         rtl=rtl,
     ))
+    signature_blocks = _doctor_signature_block(record, labels, styles, rtl=rtl)
+    if signature_blocks:
+        story.append(Spacer(1, 3 * mm))
+        story.append(Paragraph(
+            _escaped(f"{labels['doctor_signature']} / {labels['doctor_seal']}"),
+            styles['h2'],
+        ))
+        story.extend(signature_blocks)
     story.append(Spacer(1, 7 * mm))
     story.append(Paragraph(_escaped(labels['important']), styles['h2']))
     story.append(Paragraph(

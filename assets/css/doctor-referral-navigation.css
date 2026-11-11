@@ -1,0 +1,14 @@
+.doctor-detail-nav{position:sticky;z-index:5;top:10px;display:flex;gap:8px;overflow-x:auto;margin:-3px 0 20px;padding:9px;border:1px solid rgba(222,233,239,.9);border-radius:15px;background:rgba(255,255,255,.92);box-shadow:0 7px 20px rgba(26,66,88,.06);backdrop-filter:blur(12px);scrollbar-width:thin}
+.doctor-detail-nav a{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;padding:9px 12px;border-radius:10px;color:#496b7c;font-size:.77rem;font-weight:750;text-decoration:none;transition:background .15s ease,color .15s ease}
+.doctor-detail-nav a:hover,.doctor-detail-nav a:focus-visible{outline:0;background:#eaf5f6;color:#176b83}
+.doctor-detail-nav a i{color:#338694}
+.doctor-detail-section[id]{scroll-margin-top:84px}
+.doctor-assessment-detail-card{transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.doctor-assessment-detail-card:hover{transform:translateY(-1px);border-color:#d3e3ea;box-shadow:0 8px 20px rgba(31,75,98,.055)}
+.doctor-answer-section[open] summary{background:#f7fafc;color:#1c6577}
+.doctor-answer-item{border-inline-start:2px solid #dce8ed}
+.doctor-patient-note{border-radius:0 12px 12px 0}
+html[dir="rtl"] .doctor-detail-back i{transform:scaleX(-1)}
+html[dir="rtl"] .doctor-detail-hero-copy,html[dir="rtl"] .doctor-detail-section,html[dir="rtl"] .doctor-detail-overview{text-align:right}
+@media(max-width:991.98px){.doctor-detail-nav{top:6px}}
+@media(max-width:575.98px){.doctor-detail-nav{margin-bottom:15px}.doctor-detail-nav a{padding:8px 10px;font-size:.72rem}}

@@ -5,8 +5,8 @@ from django.urls import reverse
 from my_model.models import MyModel
 from my_model.services.report_pdf import _doctor_comment_text, _report_labels
 
-from .models import DoctorProfile, DoctorReferral, DoctorSpecialization
-from .services import suggest_doctors_for_assessment
+from .models import DoctorProfile, DoctorReferral
+from .services import active_gp_doctors_for_organization
 
 
 User = get_user_model()
@@ -16,22 +16,17 @@ class DoctorReferralTests(TestCase):
     def setUp(self):
         self.patient = User.objects.create_user(username='patient', password='pass12345')
         self.doctor_user = User.objects.create_user(username='doctor', password='pass12345')
-        self.specialization = DoctorSpecialization.objects.create(
-            code='diabetes', title='Diabetes', assessment_ids=[5],
-        )
         self.doctor = DoctorProfile.objects.create(
             user=self.doctor_user, display_name='Dr. Test', license_number='LIC-1',
             is_verified=True,
         )
-        self.doctor.specializations.add(self.specialization)
         self.screening = MyModel.objects.create(
             userid=self.patient, code='SCR-1', selected_assessments_id='5',
             idf_score=12, idf_status='Moderate risk', screening_data={},
         )
 
-    def test_suggestion_matches_specialty(self):
-        self.assertEqual(suggest_doctors_for_assessment(5), [self.doctor])
-        self.assertEqual(suggest_doctors_for_assessment(6), [])
+    def test_active_gp_directory_includes_global_doctors(self):
+        self.assertEqual(list(active_gp_doctors_for_organization()), [self.doctor])
 
     def test_user_can_create_referral_and_doctor_can_comment(self):
         self.client.force_login(self.patient)

@@ -1,56 +1,21 @@
-from django import forms
 from django.contrib import admin
 
-from my_model.assessment_catalog import ASSESSMENTS
-
-from .models import DoctorProfile, DoctorReferral, DoctorSpecialization
-
-
-class DoctorSpecializationAdminForm(forms.ModelForm):
-    assessment_ids = forms.MultipleChoiceField(
-        choices=[(item['id'], item['title_en']) for item in ASSESSMENTS],
-        required=False,
-        widget=forms.CheckboxSelectMultiple,
-        label='Covered screening diseases',
-    )
-
-    class Meta:
-        model = DoctorSpecialization
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.initial['assessment_ids'] = [str(value) for value in (self.instance.assessment_ids or [])]
-
-    def clean_assessment_ids(self):
-        return [int(value) for value in self.cleaned_data['assessment_ids']]
-
-
-@admin.register(DoctorSpecialization)
-class DoctorSpecializationAdmin(admin.ModelAdmin):
-    form = DoctorSpecializationAdminForm
-    list_display = ('title', 'code', 'is_active', 'assessment_summary')
-    list_filter = ('is_active',)
-    search_fields = ('title', 'title_fa', 'title_ar', 'code')
-
-    @admin.display(description='Screening diseases')
-    def assessment_summary(self, obj):
-        names = {item['id']: item['title_en'] for item in ASSESSMENTS}
-        return ', '.join(names.get(value, str(value)) for value in obj.assessment_id_set)
+from .models import DoctorProfile, DoctorReferral
 
 
 @admin.register(DoctorProfile)
 class DoctorProfileAdmin(admin.ModelAdmin):
-    list_display = ('display_name', 'license_number', 'is_verified', 'is_active', 'specialization_summary')
-    list_filter = ('is_verified', 'is_active', 'specializations')
+    list_display = ('display_name', 'license_number', 'is_gp', 'is_verified', 'is_active', 'organization_summary')
+    list_filter = ('is_gp', 'is_verified', 'is_active', 'organizations')
     search_fields = ('display_name', 'license_number', 'user__username', 'user__email')
-    filter_horizontal = ('specializations',)
+    filter_horizontal = ('organizations',)
     list_select_related = ('user',)
     actions = ('verify_doctors', 'unverify_doctors', 'activate_doctors', 'deactivate_doctors')
 
-    @admin.display(description='Specializations')
-    def specialization_summary(self, obj):
-        return ', '.join(obj.specializations.values_list('title', flat=True))
+    @admin.display(description='Organizations')
+    def organization_summary(self, obj):
+        organizations = list(obj.organizations.values_list('title', flat=True))
+        return ', '.join(organizations) if organizations else 'All organizations'
 
     @admin.action(description='Verify selected doctors')
     def verify_doctors(self, request, queryset):
