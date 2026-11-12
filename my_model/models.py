@@ -301,3 +301,19 @@ class MyModel(models.Model):
         return f"{self.code}"
 
 
+class ScreeningReportShortLink(models.Model):
+    """Opaque, expiring short URL for direct access to a screening PDF."""
+
+    screening = models.ForeignKey(
+        MyModel,
+        on_delete=models.CASCADE,
+        related_name='report_short_links',
+    )
+    token_hash = models.CharField(max_length=64, unique=True)
+    language = models.CharField(max_length=5, default='fa')
+    created = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Short report link for screening {self.screening_id}'
+
+

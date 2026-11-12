@@ -166,6 +166,13 @@ FIELD_ANSWER_LABELS = {
         '1': _labels('Asia, North Africa, Europe', 'آسیا، شمال آفریقا، اروپا', 'آسيا، شمال أفريقيا، أوروبا'),
         '2': _labels('Other', 'سایر', 'أخرى'),
     },
+    'blood_group': {
+        'A+': _labels('A+', 'A+', 'A+'), 'A-': _labels('A-', 'A-', 'A-'),
+        'B+': _labels('B+', 'B+', 'B+'), 'B-': _labels('B-', 'B-', 'B-'),
+        'AB+': _labels('AB+', 'AB+', 'AB+'), 'AB-': _labels('AB-', 'AB-', 'AB-'),
+        'O+': _labels('O+', 'O+', 'O+'), 'O-': _labels('O-', 'O-', 'O-'),
+        'Dont Know': _labels("Don't know", 'نمی‌دانم', 'لا أعرف'),
+    },
     'ethnicity': {
         '1': _labels('White', 'سفید', 'أبيض'), '2': _labels('Black', 'سیاه', 'أسود'),
         '3': _labels('Hispanic', 'هیسپانیک', 'إسباني'), '7': _labels('Chinese', 'چینی', 'صيني'),
@@ -208,6 +215,30 @@ FIELD_ANSWER_LABELS = {
         'Normal BMD': _labels('Normal BMD', 'تراکم استخوان طبیعی', 'كثافة عظام طبيعية'),
         'Low BMD': _labels('Low BMD', 'تراکم استخوان پایین', 'كثافة عظام منخفضة'),
         'Osteoporosis': _labels('Osteoporosis', 'پوکی استخوان', 'هشاشة العظام'),
+    },
+    'priorbiopsy': {
+        'Never had a prior biopsy': _labels('Never had a prior biopsy', 'هرگز نمونه‌برداری نداشته‌ام', 'لم أجرِ خزعة من قبل'),
+        'Prior negative biopsy': _labels('Prior negative biopsy', 'نمونه‌برداری قبلی با نتیجه منفی', 'خزعة سابقة بنتيجة سلبية'),
+        'Not sure': _labels('Not sure', 'مطمئن نیستم', 'غير متأكد'),
+    },
+    'moles_count': {
+        '1': _labels('I have no moles', 'خال ندارم', 'ليس لدي شامات'),
+        '2': _labels('Between 1 and 5 moles', 'بین ۱ تا ۵ خال', 'من شامة إلى 5 شامات'),
+        '3': _labels('Between 6 and 10 moles', 'بین ۶ تا ۱۰ خال', 'من 6 إلى 10 شامات'),
+        '4': _labels('More than 10 moles', 'بیش از ۱۰ خال', 'أكثر من 10 شامات'),
+    },
+    'fastfood': {
+        '1': _labels('One meal or less', 'یک وعده یا کمتر', 'وجبة واحدة أو أقل'),
+        '2': _labels('Between 2 and 3 meals', 'بین ۲ تا ۳ وعده', 'من وجبتين إلى 3 وجبات'),
+        '3': _labels('Between 4 and 5 meals', 'بین ۴ تا ۵ وعده', 'من 4 إلى 5 وجبات'),
+        '4': _labels('More than 5 meals', 'بیش از ۵ وعده', 'أكثر من 5 وجبات'),
+    },
+    'cannedfood': {
+        '1': _labels('I do not use', 'مصرف نمی‌کنم', 'لا أتناولها'),
+        '2': _labels('One serving', 'یک وعده', 'حصة واحدة'),
+        '3': _labels('Between 2 and 3 servings', 'بین ۲ تا ۳ وعده', 'من حصتين إلى 3 حصص'),
+        '4': _labels('Between 4 and 5 servings', 'بین ۴ تا ۵ وعده', 'من 4 إلى 5 حصص'),
+        '5': _labels('More than 5 servings', 'بیش از ۵ وعده', 'أكثر من 5 حصص'),
     },
     'gender': {
         'Male': _labels('Male', 'مرد', 'ذكر'), 'Female': _labels('Female', 'زن', 'أنثى'),

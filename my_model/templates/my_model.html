@@ -75,30 +75,22 @@ Page content START -->
                                                       <!-- Slider -->
                                                       <div class="position-relative mb-3">
                                                         <input
-                                                          class="form-range custom-range"
-                                                          type="range"
+                                                          class="form-control form-control-lg bg-light"
+                                                          type="number"
                                                           required
+                                                          readonly
+                                                          aria-readonly="true"
                                                           name="age"
                                                           id="age"
-                                                          min="25"
-                                                          value="55"
+                                                          min="0"
                                                           max="115"
-                                                          step="1"
+                                                          value="{{ profile_age|default:'' }}"
                                                         >
-                                                        <div class="d-flex justify-content-between mt-1 px-2">
-                                                          <small class="text-muted">25</small>
-                                                          <small class="text-muted">40</small>
-                                                          <small class="text-muted">55</small>
-                                                          <small class="text-muted">70</small>
-                                                          <small class="text-muted">85</small>
-                                                          <small class="text-muted">100</small>
-                                                          <small class="text-muted">115</small>
-                                                        </div>
                                                       </div>
                                                       <!-- Value Display Box (now below slider) -->
                                                       <div class="d-flex justify-content-center">
                                                         <div class="value-display bg-primary text-white rounded-3 px-4 py-2 text-center" style="width: 120px;">
-                                                          <span id="age_value_display" class="d-block fw-bold">55</span>
+                                                          <span id="age_value_display" class="d-block fw-bold">{{ profile_age|default:'—' }}</span>
                                                           <small class="d-block">years</small>
                                                         </div>
                                                       </div>

@@ -1,0 +1,20 @@
+.smart-panel-history-link{display:inline-flex;align-items:center;gap:7px;color:#3659c9;font-size:.83rem;font-weight:750;text-decoration:none;white-space:nowrap}
+.smart-panel-history-link:hover{color:#203f9e}
+.smart-latest-screenings,.smart-history-screenings{display:grid;gap:12px}
+.smart-screening-item,.smart-history-screening-card{display:flex;align-items:center;gap:16px;padding:17px;border:1px solid #edf0f5;border-radius:16px;background:#fff;transition:border-color .18s ease,box-shadow .18s ease}
+.smart-screening-item:hover,.smart-history-screening-card:hover{border-color:#dce5f6;box-shadow:0 8px 22px rgba(35,58,110,.06)}
+.smart-screening-item .smart-pulse-visual,.smart-history-screening-card .smart-pulse-visual{width:54px;height:54px;flex:0 0 54px;border-radius:15px;font-size:1.45rem}
+.smart-screening-item .smart-latest-copy,.smart-history-screening-card .smart-latest-copy{flex:1}
+.smart-screening-item .smart-latest-copy h3,.smart-history-screening-card .smart-latest-copy h2{margin:4px 0 2px;font-size:1rem;font-weight:800;color:var(--smart-ink)}
+.smart-screening-item .smart-latest-copy p,.smart-history-screening-card .smart-latest-copy p{margin:0 0 7px;color:var(--smart-muted);font-size:.82rem}
+.smart-review-status{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;font-size:.72rem;font-weight:750;line-height:1.35}
+.smart-review-status-no_doctor{background:#edf2f7;color:#536b80}
+.smart-review-status-waiting_doctor{background:#fff4dc;color:#996600}
+.smart-review-status-checked_doctor{background:#e2f5eb;color:#187447}
+.smart-screening-item .smart-latest-actions,.smart-history-screening-card .smart-latest-actions{flex:0 0 auto}
+.smart-history-hero{padding-block:54px 58px}
+.smart-history-page .smart-dashboard-content{padding-top:32px;padding-bottom:56px}
+.smart-history-page .smart-history-screening-card{padding:20px 22px}
+.smart-history-pagination{display:flex;justify-content:center;align-items:center;gap:16px;margin-top:24px;color:var(--smart-muted);font-size:.85rem}
+.smart-history-page[dir="rtl"] .smart-history-screening-card,.smart-history-page[dir="rtl"] .smart-screening-item{text-align:right}
+@media(max-width:767.98px){.smart-screening-item,.smart-history-screening-card{align-items:flex-start;flex-wrap:wrap;gap:12px}.smart-screening-item .smart-latest-copy,.smart-history-screening-card .smart-latest-copy{min-width:calc(100% - 70px)}.smart-screening-item .smart-latest-actions,.smart-history-screening-card .smart-latest-actions{width:100%;justify-content:flex-start;padding-inline-start:66px}.smart-panel-heading{align-items:flex-start}.smart-panel-history-link{margin-top:6px}}

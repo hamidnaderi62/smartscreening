@@ -1,6 +1,6 @@
 from io import BytesIO
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from unittest.mock import Mock, patch
 
 import requests
@@ -12,12 +12,13 @@ from django.core.management.base import CommandError
 from django.test import TestCase
 from django.test import override_settings
 from django.urls import resolve, reverse
+from django.utils import timezone
 
 from account.models import Organization, OrganizationMembership, Profile
 
 from .assessment_catalog import ASSESSMENTS
 from .forms import AssessmentSelectionForm
-from .models import MyModel
+from .models import MyModel, ScreeningReportShortLink
 from .services.calculation_inputs import (
     InvalidCalculationInput,
     validate_calculation_input,
@@ -39,7 +40,7 @@ from .services.report_pdf import (
 )
 from .services.recommendations import get_related_resources
 from .services.localization import dashboard_template, localized_reverse, normalize_language
-from .services.report_access import make_report_access_token
+from .services.report_access import make_report_access_token, report_short_url
 from .services.questionnaire_translations import localized_answer, localized_question
 from .services.screening_data import collect_screening_data
 from .services.serialization import convert_numpy_to_python
@@ -194,6 +195,47 @@ class ScreeningDataTests(TestCase):
                 self.assertEqual(localized_answer('family_ovarian_cancer', 'No', language), no)
 
         self.assertEqual(localized_question('age', 'fa'), 'سن (سال)')
+
+    def test_numeric_option_values_render_as_option_text_in_pdf_languages(self):
+        cases = (
+            (ASSESSMENTS[2], 'priorbiopsy', 'Prior negative biopsy', {
+                'en': 'Prior negative biopsy',
+                'fa': 'نمونه‌برداری قبلی با نتیجه منفی',
+                'ar': 'خزعة سابقة بنتيجة سلبية',
+            }),
+            (ASSESSMENTS[6], 'moles_count', '3', {
+                'en': 'Between 6 and 10 moles',
+                'fa': 'بین ۶ تا ۱۰ خال',
+                'ar': 'من 6 إلى 10 شامات',
+            }),
+            (ASSESSMENTS[9], 'fastfood', '4', {
+                'en': 'More than 5 meals',
+                'fa': 'بیش از ۵ وعده',
+                'ar': 'أكثر من 5 وجبات',
+            }),
+            (ASSESSMENTS[9], 'cannedfood', '2', {
+                'en': 'One serving',
+                'fa': 'یک وعده',
+                'ar': 'حصة واحدة',
+            }),
+        )
+        for assessment, field, raw_value, expected_by_language in cases:
+            snapshot = collect_screening_data(
+                [assessment],
+                {field: raw_value},
+            )
+            for language, expected in expected_by_language.items():
+                with self.subTest(field=field, language=language):
+                    localized = _localized_snapshot(
+                        snapshot,
+                        language,
+                        [],
+                        REPORT_LABELS[language],
+                    )
+                    self.assertEqual(
+                        localized['assessments'][assessment['title']][field]['answer'],
+                        expected,
+                    )
 
     def test_pdf_localization_keeps_legacy_snapshots_readable(self):
         legacy_snapshot = {
@@ -606,6 +648,33 @@ class ScreeningAuthorizationTests(TestCase):
         response = self.client.get(
             reverse('my_model:pdf_report_access', kwargs={'token': 'tampered-token'}),
         )
+
+        self.assertEqual(response.status_code, 404)
+
+    @patch('my_model.views.generate_screening_pdf')
+    def test_short_report_link_is_compact_and_allows_anonymous_pdf_access(self, generate_pdf):
+        generate_pdf.return_value = (BytesIO(b'%PDF-test'), 'screening.pdf')
+        path = report_short_url(self.screening, 'en')
+        self.client.logout()
+
+        response = self.client.get(path)
+
+        self.assertTrue(path.startswith('/r/'))
+        self.assertLess(len(path), 25)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+        self.assertEqual(generate_pdf.call_args.args[2].LANGUAGE_CODE, 'en')
+        link = ScreeningReportShortLink.objects.get(screening=self.screening)
+        self.assertEqual(len(link.token_hash), 64)
+
+    @override_settings(REPORT_ACCESS_TOKEN_MAX_AGE=10)
+    def test_expired_short_report_link_is_not_found(self):
+        path = report_short_url(self.screening, 'fa')
+        ScreeningReportShortLink.objects.filter(screening=self.screening).update(
+            created=timezone.now() - timedelta(seconds=11),
+        )
+
+        response = self.client.get(path)
 
         self.assertEqual(response.status_code, 404)
 

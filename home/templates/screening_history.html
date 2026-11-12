@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static my_filters %}
+
+{% block title %}{{ home_labels.screening_history_title }} | {{ home_labels.title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/smart-home.css' %}">
+<link rel="stylesheet" href="{% static 'css/screening-history.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="smart-home smart-history-page"{% if home_language == 'fa' or home_language == 'ar' %} dir="rtl"{% endif %}>
+  <section class="smart-dashboard-hero smart-history-hero">
+    <div class="container position-relative">
+      <span class="smart-eyebrow smart-eyebrow-light">{{ home_labels.private_workspace }}</span>
+      <h1 class="smart-dashboard-title">{{ home_labels.screening_history_title }}</h1>
+      <p class="smart-dashboard-lead">{{ home_labels.dashboard_text }}</p>
+      <div class="d-flex flex-wrap gap-3">
+        <a class="btn smart-btn-accent" href="{% url 'my_model:screening_list' %}"><i class="bi bi-plus-lg me-2"></i>{{ home_labels.new_screening }}</a>
+        <a class="btn smart-btn-ghost-light" href="{% url 'home:home' %}"><i class="bi bi-arrow-left me-2"></i>{{ home_labels.back_home }}</a>
+      </div>
+    </div>
+  </section>
+  <section class="container smart-dashboard-content">
+    {% if screening_page.object_list %}
+      <div class="smart-history-screenings">{% for screening in screening_page %}<article class="smart-history-screening-card"><div class="smart-pulse-visual"><i class="bi bi-heart-pulse"></i></div><div class="smart-latest-copy"><span class="smart-latest-date">{{ screening.created|localized_datetime:home_language }}</span><h2>{{ screening.code }}</h2><p>{{ screening.assessment_count }} {{ home_labels.assessment_count }}</p><span class="smart-review-status smart-review-status-{{ screening.review_status_key }}"><i class="bi {% if screening.review_status_key == 'waiting_doctor' %}bi-hourglass-split{% elif screening.review_status_key == 'checked_doctor' %}bi-patch-check-fill{% else %}bi-check-circle{% endif %}" aria-hidden="true"></i>{{ screening.review_status_label }}</span></div><div class="smart-latest-actions"><a class="btn btn-sm smart-btn-dark" href="{% url 'my_model:screening_result' model_id=screening.id %}">{{ home_labels.view_result }}</a><a class="btn btn-sm smart-btn-soft" href="{% url 'my_model:pdf_report' model_id=screening.id %}">{{ home_labels.download_pdf }}</a></div></article>{% endfor %}</div>
+      {% if screening_page.has_other_pages %}<nav class="smart-history-pagination" aria-label="Pagination">{% if screening_page.has_previous %}<a class="btn btn-sm smart-btn-soft" href="?page={{ screening_page.previous_page_number }}">{{ home_labels.previous_page }}</a>{% endif %}<span>{{ screening_page.number }} / {{ screening_page.paginator.num_pages }}</span>{% if screening_page.has_next %}<a class="btn btn-sm smart-btn-soft" href="?page={{ screening_page.next_page_number }}">{{ home_labels.next_page }}</a>{% endif %}</nav>{% endif %}
+    {% else %}
+      <div class="smart-panel smart-empty-state"><div class="smart-empty-icon"><i class="bi bi-clock-history"></i></div><div><h2>{{ home_labels.screening_history_empty }}</h2><a class="btn smart-btn-dark" href="{% url 'my_model:screening_list' %}">{{ home_labels.new_screening }}</a></div></div>
+    {% endif %}
+  </section>
+</main>
+{% endblock %}

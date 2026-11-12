@@ -46,6 +46,7 @@
 .smart-account-button:hover { transform: translateY(-2px); }
 .smart-account-button-dark { color: #fff; background: var(--smart-ink); box-shadow: 0 8px 18px rgba(11,23,54,.13); }.smart-account-button-dark:hover { color: #fff; background: #29447e; }
 .smart-account-button-light { border-color: #e2e6ef; color: #59657e; background: #fff; }.smart-account-button-light:hover { color: var(--smart-blue); border-color: #b8c5eb; }
+.smart-account-button-doctor { border-color: #c8d9f0; color: #315d91; background: #eef5ff; }.smart-account-button-doctor:hover { border-color: #9db9e4; color: #234c7c; background: #e2edff; }
 .smart-navbar-toggler { border: 1px solid #e2e6ef; border-radius: 10px; color: var(--smart-ink); font-size: 1.35rem; }
 .smart-navbar-toggler:focus { box-shadow: 0 0 0 3px rgba(63,109,246,.12); }
 .smart-site-footer { position: relative; overflow: hidden; padding: 70px 0 24px; color: rgba(255,255,255,.7); background: #0b1736; }

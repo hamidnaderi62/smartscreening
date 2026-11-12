@@ -5,6 +5,7 @@ app_name = "home"
 
 urlpatterns = [
     path('', views.home, name="home"),
+    path('screening-history/', views.screening_history, name='screening_history'),
     path('home_fa', views.home_fa, name="home_fa"),
     path('home_en', views.home_en, name="home_en"),
     path('home_ar', views.home_ar, name="home_ar"),

@@ -136,7 +136,8 @@ class FollowUpSchedulingTests(TestCase):
 
         delivery.refresh_from_db()
         self.assertEqual(delivery.status, 'sent')
-        self.assertIn('/en/my_model/reports/pdf/access/', delivery.message)
+        self.assertIn('https://example.com/r/', delivery.message)
+        self.assertLess(len(delivery.message), 120)
         send.assert_called_once()
 
     @patch('followup.services.KavenegarClient.send')

@@ -52,17 +52,20 @@ def ensure_profile(user, organization=None, user_type='Person', is_org_admin=Fal
     return profile
 
 
-def _registration_view(request, template_name, redirect_name):
+def _registration_view(request, template_name, redirect_name, language='fa'):
     if request.user.is_authenticated:
         return redirect(redirect_name)
 
-    form = RegistrationForm(request.POST or None)
+    form = RegistrationForm(request.POST or None, calendar_language=language)
     if request.method == 'POST' and form.is_valid():
         with transaction.atomic():
             user = form.save()
             profile = ensure_profile(user)
             profile.phone_number = form.cleaned_data.get('phone_number', '')
-            profile.save(update_fields=('phone_number',))
+            profile.code = profile.phone_number or profile.code
+            profile.birth_date = form.cleaned_data.get('birth_date')
+            profile.gender = form.cleaned_data.get('gender') or 'Male'
+            profile.save(update_fields=('phone_number', 'code', 'birth_date', 'gender'))
         login(request, user)
         return redirect(redirect_name)
 
@@ -78,6 +81,7 @@ def _localized_registration_view(request, language):
         request,
         'account/register.html',
         localized_reverse('home:home', language),
+        language=language,
     )
 
 

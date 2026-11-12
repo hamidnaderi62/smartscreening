@@ -1,12 +1,18 @@
 """Signed, language-aware links for direct screening PDF access."""
 
+import hashlib
+import secrets
+from datetime import timedelta
+
 from django.conf import settings
 from django.core import signing
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils import timezone
 
 from .localization import localized_reverse, normalize_language
-from ..models import MyModel
+from ..models import MyModel, ScreeningReportShortLink
 
 
 REPORT_ACCESS_SALT = 'my_model.screening-report-access'
@@ -47,3 +53,35 @@ def report_access_url(screening, language='fa'):
         language,
         kwargs={'token': token},
     )
+
+
+def _short_link_max_age():
+    return getattr(settings, 'REPORT_ACCESS_TOKEN_MAX_AGE', 60 * 60 * 24 * 365)
+
+
+def _new_short_code():
+    return secrets.token_urlsafe(9)
+
+
+def report_short_url(screening, language='fa'):
+    """Issue a compact bearer URL, storing only a hash of its random code."""
+    language = normalize_language(language)
+    code = _new_short_code()
+    ScreeningReportShortLink.objects.create(
+        screening=screening,
+        token_hash=hashlib.sha256(code.encode('ascii')).hexdigest(),
+        language=language,
+    )
+    return reverse('short_pdf_report', kwargs={'code': code})
+
+
+def screening_from_short_report_code(code):
+    """Resolve a short bearer code and reject unknown or expired links."""
+    digest = hashlib.sha256(code.encode('ascii', errors='ignore')).hexdigest()
+    link = get_object_or_404(
+        ScreeningReportShortLink.objects.select_related('screening'),
+        token_hash=digest,
+    )
+    if timezone.now() - link.created > timedelta(seconds=_short_link_max_age()):
+        raise Http404('Invalid or expired report link.')
+    return link.screening, normalize_language(link.language)

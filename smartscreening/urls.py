@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 from django.conf.urls.i18n import i18n_patterns
 from . import views
+from my_model.views import public_short_pdf_report
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -10,6 +11,7 @@ app_name = "smartscreening"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('r/<str:code>/', public_short_pdf_report, name='short_pdf_report'),
     path('i18n/set-language/', views.set_language, name='set_language'),
     path('', RedirectView.as_view(url='/fa/', permanent=False), name='language_root'),
     path('legacy/', include(('home.urls', 'legacy_home'), namespace='legacy_home')),

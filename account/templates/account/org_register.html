@@ -162,10 +162,28 @@
 									</div>
 								</div>
 								<div class="mb-4">
-									<label for="phone_number" class="form-label">{% if organization_language == 'fa' %}شماره موبایل (اختیاری){% elif organization_language == 'ar' %}رقم الهاتف (اختياري){% else %}Mobile number (optional){% endif %}</label>
+									<label for="phone_number" class="form-label">{% if organization_language == 'fa' %}شماره موبایل / کد کاربر{% elif organization_language == 'ar' %}رقم الهاتف / رمز المستخدم{% else %}Mobile number / user code{% endif %}</label>
 									<div class="input-group input-group-lg">
 										<span class="input-group-text bg-light rounded-start border-0 text-secondary px-3"><i class="bi bi-phone-fill"></i></span>
-										<input type="tel" maxlength="20" class="form-control border-0 bg-light rounded-end ps-1" name="phone_number" id="phone_number" value="{{ form.phone_number.value|default:'' }}" autocomplete="tel">
+										<input type="tel" required maxlength="20" class="form-control border-0 bg-light rounded-end ps-1" name="phone_number" id="phone_number" value="{{ form.phone_number.value|default:'' }}" autocomplete="tel">
+									</div>
+								</div>
+								<div class="row g-3 mb-4">
+									<div class="col-md-6">
+										<label for="birth_date" class="form-label">{% if organization_language == 'fa' %}تاریخ تولد{% elif organization_language == 'ar' %}تاريخ الميلاد{% else %}Date of birth{% endif %}</label>
+										{% if organization_language == 'fa' %}
+										<input type="text" required class="form-control form-control-lg border-0 bg-light" name="birth_date" id="birth_date" value="{{ form.birth_date.value|default:'' }}" inputmode="numeric" autocomplete="bday" placeholder="۱۴۰۰/۰۱/۰۱" dir="ltr">
+										<small class="text-muted">تاریخ را به صورت سال/ماه/روز شمسی وارد کنید</small>
+										{% else %}
+										<input type="date" required class="form-control form-control-lg border-0 bg-light" name="birth_date" id="birth_date" value="{{ form.birth_date.value|default:'' }}" autocomplete="bday">
+										{% endif %}
+									</div>
+									<div class="col-md-6">
+										<label for="gender" class="form-label">{% if organization_language == 'fa' %}جنسیت{% elif organization_language == 'ar' %}الجنس{% else %}Gender{% endif %}</label>
+										<select required class="form-select form-select-lg border-0 bg-light" name="gender" id="gender">
+											<option value="Male"{% if not form.gender.value or form.gender.value == 'Male' %} selected{% endif %}>{% if organization_language == 'fa' %}مرد{% elif organization_language == 'ar' %}ذكر{% else %}Male{% endif %}</option>
+											<option value="Female"{% if form.gender.value == 'Female' %} selected{% endif %}>{% if organization_language == 'fa' %}زن{% elif organization_language == 'ar' %}أنثى{% else %}Female{% endif %}</option>
+										</select>
 									</div>
 								</div>
 								<!-- Password -->

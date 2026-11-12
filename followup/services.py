@@ -11,7 +11,7 @@ from django.utils import timezone
 from my_model.assessment_catalog import ASSESSMENTS
 from my_model.services.pdf_reports import selected_assessments_for_record
 from my_model.services.localization import localized_reverse, normalize_language
-from my_model.services.report_access import report_access_url
+from my_model.services.report_access import report_short_url
 
 from .models import FollowUpPlan, FollowUpProgram, FollowUpReminder, ScreeningReportDelivery
 
@@ -103,7 +103,7 @@ def _absolute_url(path):
 
 
 def _pdf_url(screening, language):
-    return _absolute_url(report_access_url(screening, language))
+    return _absolute_url(report_short_url(screening, language))
 
 
 def _follow_up_url(language):

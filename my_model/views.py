@@ -20,7 +20,10 @@ from .services.persistence import create_screening_record
 from .services.serialization import convert_numpy_to_python
 from .services.pdf_reports import generate_screening_pdf, selected_assessments_for_record
 from .services.report_actions import InvalidDoctorComment, update_doctor_comment
-from .services.report_access import screening_from_report_token
+from .services.report_access import (
+    screening_from_report_token,
+    screening_from_short_report_code,
+)
 from .services.localization import (
     format_localized_datetime,
     language_for_request,
@@ -33,6 +36,24 @@ import logging
 
 logger = logging.getLogger(__name__)
 assessments = ASSESSMENTS
+
+
+def _profile_for_screening(user):
+    profile, _ = Profile.objects.get_or_create(
+        user=user,
+        defaults={'code': str(user.pk)},
+    )
+    return profile
+
+
+def _screening_gender(user):
+    gender = getattr(_profile_for_screening(user), 'gender', None)
+    return gender if gender in {'Male', 'Female'} else 'Male'
+
+
+def _assessments_for_gender(user):
+    gender = _screening_gender(user)
+    return [item for item in assessments if gender in item.get('groups', ())]
 
 
 @login_required
@@ -57,8 +78,13 @@ def screening_list_ar(request):
 
 
 def _localized_screening_list(request, language):
+    gender = _screening_gender(request.user)
+    gender_assessments = [
+        item for item in assessments if gender in item.get('groups', ())
+    ]
     return render(request, 'screening_list.html', {
-        'assessments': localize_assessments(assessments, language),
+        'assessments': localize_assessments(gender_assessments, language),
+        'screening_gender': gender,
         'base_template': 'base_raw.html',
     })
 
@@ -66,9 +92,11 @@ def _localized_screening_list(request, language):
 def _question_view(request, *, language, redirect_name):
     language = normalize_language(language)
     screening_list_url = localized_reverse('my_model:screening_list', language)
+    profile_age = _profile_for_screening(request.user).calculated_age
+    allowed_assessments = _assessments_for_gender(request.user)
     form = AssessmentSelectionForm(
         request.POST or None,
-        allowed_assessments=assessments,
+        allowed_assessments=allowed_assessments,
     )
     if request.method == 'POST' and form.is_valid():
         selected_assessments = form.cleaned_data['selected_assessments']
@@ -77,23 +105,30 @@ def _question_view(request, *, language, redirect_name):
             'base_template': 'base_raw.html',
             'questionnaire_language': language,
             'selected_assessments': selected_assessments,
+            'profile_age': profile_age,
         })
     if request.method == 'POST':
         return render(request, 'my_model.html', {
             'base_template': 'base_raw.html',
             'questionnaire_language': language,
             'selected_assessments': [],
+            'profile_age': profile_age,
         })
     if request.method == 'GET':
         # Language switching submits to Django's set-language endpoint and
         # then returns here with GET. Re-render the questionnaire from the
         # session instead of sending the user back to assessment selection.
-        selected_assessments = request.session.get('selected_assessments', [])
+        allowed_ids = {item['id'] for item in allowed_assessments}
+        selected_assessments = [
+            item for item in request.session.get('selected_assessments', [])
+            if item.get('id') in allowed_ids
+        ]
         if selected_assessments:
             return render(request, 'my_model.html', {
                 'base_template': 'base_raw.html',
                 'questionnaire_language': language,
                 'selected_assessments': selected_assessments,
+                'profile_age': profile_age,
             })
     return redirect(screening_list_url)
 
@@ -163,20 +198,28 @@ def calculate_my_model(request):
 
 def _calculate_my_model(request):
     data = {}
-    selected_assessments = request.session.get('selected_assessments', [])
-    post_data = validate_calculation_input(request.POST, selected_assessments)
+    allowed_ids = {item['id'] for item in _assessments_for_gender(request.user)}
+    selected_assessments = [
+        item for item in request.session.get('selected_assessments', [])
+        if item.get('id') in allowed_ids
+    ]
+
+    # New registrations always calculate age from the saved birth date. The
+    # posted value is retained only for legacy profiles created before the
+    # profile birth-date field existed.
+    profile = _profile_for_screening(request.user)
+    post_data = request.POST.copy()
+    if profile.calculated_age is not None:
+        post_data['age'] = str(profile.calculated_age)
+    post_data = validate_calculation_input(post_data, selected_assessments)
     lang = normalize_language(getattr(request, 'LANGUAGE_CODE', None) or post_data.get('lang'))
 
     # Demographic Info
-    profile, _ = Profile.objects.get_or_create(
-        user=request.user,
-        defaults={'code': str(request.user.pk)},
-    )
     if not profile.code:
         profile.code = str(request.user.pk)
         profile.save(update_fields=('code',))
     code = profile.code
-    gender = 'Male'
+    gender = _screening_gender(request.user)
     age = float(post_data.get('age'))
     weight = float(post_data.get('weight'))
     height = float(post_data.get('height'))
@@ -347,6 +390,19 @@ def public_pdf_report(request, token):
         content_type='application/pdf',
     )
     return response
+
+
+def public_short_pdf_report(request, code):
+    """Serve a PDF through a compact, expiring short link sent by SMS."""
+    my_model_instance, language = screening_from_short_report_code(code)
+    request.LANGUAGE_CODE = language
+    pdf_buffer, filename = generate_screening_pdf(my_model_instance, assessments, request)
+    return FileResponse(
+        pdf_buffer,
+        as_attachment=True,
+        filename=filename,
+        content_type='application/pdf',
+    )
 
 @login_required
 def download_pdf_report(request, model_id=None):

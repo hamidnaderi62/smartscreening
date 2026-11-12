@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.utils import timezone
 from .validators import validate_image_upload
 
 
@@ -118,11 +119,26 @@ class Profile(models.Model):
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to="profiles/images", blank=True, null=True, validators=[validate_image_upload])
-    code = models.CharField(max_length=10)
+    code = models.CharField(max_length=20)
     phone_number = models.CharField(
         max_length=20,
         blank=True,
         help_text='Mobile number used for follow-up SMS notifications.',
+    )
+    GENDER_CHOICES = (
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+    )
+    birth_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text='Used to calculate the screening age automatically.',
+    )
+    gender = models.CharField(
+        max_length=10,
+        choices=GENDER_CHOICES,
+        default='Male',
+        help_text='Used to show the relevant screening assessments.',
     )
     organization = models.ForeignKey(Organization, on_delete=models.SET_NULL, null=True, blank=True)
     user_type = models.CharField(max_length=50, choices=USER_TYPE, default='Person', blank=True, null=True)
@@ -135,3 +151,13 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    @property
+    def calculated_age(self):
+        """Return the user's completed years from the saved birth date."""
+        if not self.birth_date:
+            return None
+        today = timezone.localdate()
+        return today.year - self.birth_date.year - (
+            (today.month, today.day) < (self.birth_date.month, self.birth_date.day)
+        )

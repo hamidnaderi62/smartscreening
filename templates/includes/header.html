@@ -15,8 +15,8 @@
             <div class="collapse navbar-collapse" id="smartNavbarCollapse">
                 <ul class="navbar-nav smart-nav-links mx-auto">
                     <li class="nav-item"><a class="nav-link" href="{% url 'home:home' %}"><i class="bi bi-house-heart me-1"></i>{% translate 'Home' %}</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'my_model:screening_list' %}"><i class="bi bi-stars me-1"></i>{% translate 'Smart Screening' %}</a></li>
-                    {% if request.user.is_authenticated %}<li class="nav-item"><a class="nav-link" href="{% url 'followup:list' %}"><i class="bi bi-calendar2-heart me-1"></i>{{ SITE_LABELS.follow_up }}</a></li>{% endif %}
+                    {% if request.resolver_match.namespace != 'doctor' %}<li class="nav-item"><a class="nav-link" href="{% url 'my_model:screening_list' %}"><i class="bi bi-stars me-1"></i>{% translate 'Smart Screening' %}</a></li>{% endif %}
+                    {% if request.user.is_authenticated and request.resolver_match.namespace != 'doctor' %}<li class="nav-item"><a class="nav-link" href="{% url 'followup:list' %}"><i class="bi bi-calendar2-heart me-1"></i>{{ SITE_LABELS.follow_up }}</a></li>{% endif %}
                     {% if not request.user.is_authenticated %}<li class="nav-item"><a class="nav-link" href="{% url 'home:home' %}#smart-how-it-works"><i class="bi bi-signpost-2 me-1"></i>{{ SITE_LABELS.how_it_works }}</a></li>{% endif %}
                 </ul>
 
@@ -48,6 +48,7 @@
                         <a class="smart-account-button smart-account-button-dark" href="{% url 'home:home' %}"><i class="bi bi-grid-1x2-fill me-1"></i>{{ SITE_LABELS.dashboard }}</a>
                         <a class="smart-account-button smart-account-button-light" href="{% url 'account:logout' %}">{% translate 'Log out' %}</a>
                     {% else %}
+                        {% if request.resolver_match.namespace == 'home' and request.resolver_match.url_name == 'home' %}<a class="smart-account-button smart-account-button-doctor" href="{% url 'doctor:login' %}"><i class="bi bi-person-badge me-1" aria-hidden="true"></i>{{ SITE_LABELS.doctor_login }}</a>{% endif %}
                         <a class="smart-account-button smart-account-button-dark" href="{% url 'account:org_login' org_slug='pouyamed' %}">{% translate 'Log in' %}<i class="bi bi-arrow-up-right ms-1"></i></a>
                         <a class="smart-account-button smart-account-button-light" href="{% url 'account:org_register' org_slug='pouyamed' %}">{% translate 'Register' %}</a>
                     {% endif %}

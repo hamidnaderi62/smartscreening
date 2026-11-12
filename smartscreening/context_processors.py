@@ -15,6 +15,7 @@ SITE_LABELS = {
         'follow_up': 'پیگیری سلامت',
         'explore': 'دسترسی سریع',
         'privacy': 'حریم خصوصی شما',
+        'doctor_login': 'ورود پزشکان',
     },
     'en': {
         'main_navigation': 'Main navigation',
@@ -25,6 +26,7 @@ SITE_LABELS = {
         'follow_up': 'Follow-up',
         'explore': 'Explore',
         'privacy': 'Your privacy',
+        'doctor_login': 'Doctor login',
     },
     'ar': {
         'main_navigation': 'التنقل الرئيسي',
@@ -35,6 +37,7 @@ SITE_LABELS = {
         'follow_up': 'المتابعة',
         'explore': 'استكشف',
         'privacy': 'خصوصيتك',
+        'doctor_login': 'دخول الطبيب',
     },
 }
 

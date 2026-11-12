@@ -220,13 +220,16 @@ def _org_register(request, org_slug, language):
         return redirect(localized_reverse('home:home', language))
 
     if request.method == 'POST':
-        form = RegistrationForm(request.POST)
+        form = RegistrationForm(request.POST, calendar_language=language)
         if form.is_valid():
             with transaction.atomic():
                 user = form.save()
                 profile = ensure_profile(user, organization=organization)
                 profile.phone_number = form.cleaned_data.get('phone_number', '')
-                profile.save(update_fields=('phone_number',))
+                profile.code = profile.phone_number or profile.code
+                profile.birth_date = form.cleaned_data.get('birth_date')
+                profile.gender = form.cleaned_data.get('gender') or 'Male'
+                profile.save(update_fields=('phone_number', 'code', 'birth_date', 'gender'))
                 OrganizationMembership.objects.update_or_create(
                     user=user,
                     organization=organization,
@@ -239,7 +242,7 @@ def _org_register(request, org_slug, language):
             for message in error:
                 messages.error(request, message['message'])
     else:
-        form = RegistrationForm()
+        form = RegistrationForm(calendar_language=language)
 
     return render(
         request,
