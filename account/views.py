@@ -63,9 +63,14 @@ def _registration_view(request, template_name, redirect_name, language='fa'):
             profile = ensure_profile(user)
             profile.phone_number = form.cleaned_data.get('phone_number', '')
             profile.code = profile.phone_number or profile.code
-            profile.birth_date = form.cleaned_data.get('birth_date')
+            profile.birth_year = form.cleaned_data['birth_year']
+            profile.birth_year_calendar = (
+                'jalali' if form.calendar_language == 'fa' else 'gregorian'
+            )
             profile.gender = form.cleaned_data.get('gender') or 'Male'
-            profile.save(update_fields=('phone_number', 'code', 'birth_date', 'gender'))
+            profile.save(update_fields=(
+                'phone_number', 'code', 'birth_year', 'birth_year_calendar', 'gender',
+            ))
         login(request, user)
         return redirect(redirect_name)
 

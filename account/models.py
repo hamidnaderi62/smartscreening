@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.utils import timezone
+from persiantools.jdatetime import JalaliDate
 from .validators import validate_image_upload
 
 
@@ -112,6 +113,10 @@ class OrganizationMembership(models.Model):
 
 class Profile(models.Model):
     LANGUAGE_CHOICES = Organization.LANGUAGE_CHOICES
+    BIRTH_YEAR_CALENDAR_CHOICES = (
+        ('gregorian', 'Gregorian'),
+        ('jalali', 'Jalali'),
+    )
 
     USER_TYPE = (
         ('Person', 'Person'),
@@ -129,10 +134,16 @@ class Profile(models.Model):
         ('Male', 'Male'),
         ('Female', 'Female'),
     )
-    birth_date = models.DateField(
+    birth_year = models.PositiveSmallIntegerField(
         null=True,
         blank=True,
-        help_text='Used to calculate the screening age automatically.',
+        help_text='Year of birth in the calendar selected during registration.',
+    )
+    birth_year_calendar = models.CharField(
+        max_length=10,
+        choices=BIRTH_YEAR_CALENDAR_CHOICES,
+        default='gregorian',
+        help_text='Calendar used for the stored birth year.',
     )
     gender = models.CharField(
         max_length=10,
@@ -154,10 +165,12 @@ class Profile(models.Model):
 
     @property
     def calculated_age(self):
-        """Return the user's completed years from the saved birth date."""
-        if not self.birth_date:
+        """Estimate age by calendar year (the registration form collects no day/month)."""
+        if not self.birth_year:
             return None
-        today = timezone.localdate()
-        return today.year - self.birth_date.year - (
-            (today.month, today.day) < (self.birth_date.month, self.birth_date.day)
+        current_year = (
+            JalaliDate.today().year
+            if self.birth_year_calendar == 'jalali'
+            else timezone.localdate().year
         )
+        return current_year - self.birth_year

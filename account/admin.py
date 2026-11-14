@@ -79,7 +79,7 @@ class OrganizationAdmin(admin.ModelAdmin):
 @admin.register(models.Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = (
-        'user', 'organization', 'birth_date', 'gender', 'phone_number',
+        'user', 'organization', 'birth_year', 'birth_year_calendar', 'gender', 'phone_number',
         'language', 'user_type', 'is_org_admin', 'code',
     )
     list_filter = ('organization', 'user_type', 'is_org_admin')

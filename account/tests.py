@@ -5,9 +5,11 @@ from django.test import TestCase
 from django.test import override_settings
 from django.urls import reverse
 
-from .models import Organization, OrganizationMembership
+from .forms import RegistrationForm
+from .models import Organization, OrganizationMembership, Profile
 from .validators import validate_image_upload
 from my_model.services.localization import localized_reverse
+from persiantools.jdatetime import JalaliDate
 
 
 User = get_user_model()
@@ -45,6 +47,8 @@ class MultilingualLoginStyleTests(TestCase):
                 self.assertEqual(response.status_code, 200)
                 self.assertTemplateUsed(response, 'account/register.html')
                 self.assertContains(response, marker)
+                self.assertContains(response, 'name="birth_year"')
+                self.assertNotContains(response, 'name="birth_date"')
                 self.assertContains(response, 'vendor/font-awesome/css/all.min.css')
 
 
@@ -65,6 +69,8 @@ class OrganizationRegistrationTests(TestCase):
             {
                 'username': 'screening-user',
                 'email': 'screening@example.com',
+                'phone_number': '09121234567',
+                'birth_year': '۱۴۰۰',
                 'password1': 'Safe-password-123!',
                 'password2': 'Safe-password-123!',
             },
@@ -76,6 +82,8 @@ class OrganizationRegistrationTests(TestCase):
         )
         user = User.objects.get(username='screening-user')
         self.assertEqual(user.profile.organization, self.organization)
+        self.assertEqual(user.profile.birth_year, 1400)
+        self.assertEqual(user.profile.birth_year_calendar, 'jalali')
         self.assertTrue(
             OrganizationMembership.objects.filter(
                 user=user,
@@ -84,6 +92,7 @@ class OrganizationRegistrationTests(TestCase):
                 is_active=True,
             ).exists()
         )
+
 
     def test_inactive_organization_cannot_accept_registration(self):
         self.organization.is_active = False
@@ -114,6 +123,8 @@ class OrganizationRegistrationTests(TestCase):
                 self.assertEqual(login.status_code, 200)
                 self.assertTemplateUsed(home, 'account/organization_home.html')
                 self.assertTemplateUsed(register, 'account/org_register.html')
+                self.assertContains(register, 'name="birth_year"')
+                self.assertNotContains(register, 'name="birth_date"')
                 self.assertTemplateUsed(login, 'account/org_login.html')
                 self.assertContains(register, f'<html lang=\"{language}\"', html=False)
                 self.assertContains(login, 'css/style-rtl.css')
@@ -144,6 +155,8 @@ class OrganizationRegistrationTests(TestCase):
             {
                 'username': 'public-user',
                 'email': 'public@example.com',
+                'phone_number': '09121234567',
+                'birth_year': '2000',
                 'password1': 'Safe-password-123!',
                 'password2': 'Safe-password-123!',
             },
@@ -152,6 +165,8 @@ class OrganizationRegistrationTests(TestCase):
         self.assertRedirects(response, localized_reverse('home:home', 'en'))
         user = User.objects.get(username='public-user')
         self.assertTrue(user.check_password('Safe-password-123!'))
+        self.assertEqual(user.profile.birth_year, 2000)
+        self.assertEqual(user.profile.birth_year_calendar, 'gregorian')
 
     @override_settings(MAX_LOGIN_ATTEMPTS=2, LOGIN_ATTEMPTS_TIMEOUT=300)
     def test_login_attempts_are_rate_limited(self):
@@ -177,3 +192,32 @@ class OrganizationRegistrationTests(TestCase):
         )
         with self.assertRaises(ValidationError):
             validate_image_upload(upload)
+
+
+class RegistrationBirthYearTests(TestCase):
+    def test_farsi_birth_year_accepts_persian_digits(self):
+        form = RegistrationForm(
+            data={
+                'username': 'birth-year-user',
+                'email': 'birth-year@example.com',
+                'phone_number': '09121234567',
+                'birth_year': '۱۳۷۰',
+                'password1': 'Safe-password-123!',
+                'password2': 'Safe-password-123!',
+            },
+            calendar_language='fa',
+        )
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['birth_year'], 1370)
+
+    def test_age_uses_the_birth_year_calendar(self):
+        user = User.objects.create_user(username='jalali-age-user')
+        profile = Profile.objects.create(
+            user=user,
+            code='jalali-age-user',
+            birth_year=1400,
+            birth_year_calendar='jalali',
+        )
+
+        self.assertEqual(profile.calculated_age, JalaliDate.today().year - 1400)

@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from persiantools.jdatetime import JalaliDate
@@ -10,27 +9,26 @@ from persiantools.jdatetime import JalaliDate
 User = get_user_model()
 
 _PERSIAN_DIGITS = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
+_ARABIC_DIGITS = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
 
 
-class LocalizedBirthDateField(forms.DateField):
-    """Parse Jalali dates for Persian forms and Gregorian dates otherwise."""
+class LocalizedBirthYearField(forms.IntegerField):
+    """Validate a birth year in the calendar used by the registration page."""
 
     def __init__(self, *args, calendar_language='fa', **kwargs):
         self.calendar_language = calendar_language
+        current_year = (
+            JalaliDate.today().year
+            if calendar_language == 'fa'
+            else timezone.localdate().year
+        )
+        kwargs.setdefault('min_value', current_year - 115)
+        kwargs.setdefault('max_value', current_year)
         super().__init__(*args, **kwargs)
 
     def to_python(self, value):
-        if self.calendar_language == 'fa' and value:
-            normalized = str(value).translate(_PERSIAN_DIGITS).replace('-', '/')
-            parts = normalized.split('/')
-            if len(parts) != 3:
-                raise ValidationError(_('Enter a valid Persian date as YYYY/MM/DD.'))
-            try:
-                value = JalaliDate(
-                    int(parts[0]), int(parts[1]), int(parts[2]),
-                ).to_gregorian()
-            except (TypeError, ValueError, OverflowError):
-                raise ValidationError(_('Enter a valid Persian date as YYYY/MM/DD.'))
+        if value:
+            value = str(value).translate(_PERSIAN_DIGITS).translate(_ARABIC_DIGITS).strip()
         return super().to_python(value)
 
 
@@ -58,21 +56,17 @@ class RegistrationForm(forms.Form):
     def __init__(self, *args, calendar_language='fa', **kwargs):
         super().__init__(*args, **kwargs)
         self.calendar_language = calendar_language
-        date_widget = (
-            forms.TextInput(attrs={
-                'inputmode': 'numeric',
-                'autocomplete': 'bday',
-                'placeholder': 'YYYY/MM/DD',
-                'dir': 'ltr',
-            })
-            if calendar_language == 'fa'
-            else forms.DateInput(attrs={'type': 'date', 'autocomplete': 'bday'})
-        )
-        self.fields['birth_date'] = LocalizedBirthDateField(
-            required=False,
+        self.fields['birth_year'] = LocalizedBirthYearField(
+            required=True,
             calendar_language=calendar_language,
-            widget=date_widget,
-            label=_('Date of birth'),
+            widget=forms.TextInput(attrs={
+                'inputmode': 'numeric',
+                'autocomplete': 'bday-year',
+                'placeholder': 'YYYY',
+                'dir': 'ltr',
+                'maxlength': '4',
+            }),
+            label=_('Birth year'),
         )
 
     def clean_username(self):
@@ -107,9 +101,6 @@ class RegistrationForm(forms.Form):
             self.add_error('password2', _('The passwords do not match.'))
         if password1:
             validate_password(password1)
-        birth_date = cleaned_data.get('birth_date')
-        if birth_date and birth_date > timezone.localdate():
-            self.add_error('birth_date', _('Date of birth cannot be in the future.'))
         return cleaned_data
 
     def save(self):

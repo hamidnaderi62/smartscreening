@@ -170,13 +170,9 @@
 								</div>
 								<div class="row g-3 mb-4">
 									<div class="col-md-6">
-										<label for="birth_date" class="form-label">{% if organization_language == 'fa' %}تاریخ تولد{% elif organization_language == 'ar' %}تاريخ الميلاد{% else %}Date of birth{% endif %}</label>
-										{% if organization_language == 'fa' %}
-										<input type="text" required class="form-control form-control-lg border-0 bg-light" name="birth_date" id="birth_date" value="{{ form.birth_date.value|default:'' }}" inputmode="numeric" autocomplete="bday" placeholder="۱۴۰۰/۰۱/۰۱" dir="ltr">
-										<small class="text-muted">تاریخ را به صورت سال/ماه/روز شمسی وارد کنید</small>
-										{% else %}
-										<input type="date" required class="form-control form-control-lg border-0 bg-light" name="birth_date" id="birth_date" value="{{ form.birth_date.value|default:'' }}" autocomplete="bday">
-										{% endif %}
+										<label for="birth_year" class="form-label">{% if organization_language == 'fa' %}سال تولد{% elif organization_language == 'ar' %}سنة الميلاد{% else %}Birth year{% endif %}</label>
+										<input type="text" required maxlength="4" class="form-control form-control-lg border-0 bg-light" name="birth_year" id="birth_year" value="{{ form.birth_year.value|default:'' }}" inputmode="numeric" autocomplete="bday-year" placeholder="{% if organization_language == 'fa' %}۱۳۷۰{% else %}1990{% endif %}" dir="ltr">
+										<small class="text-muted">{% if organization_language == 'fa' %}سال تولد را به تقویم شمسی وارد کنید{% elif organization_language == 'ar' %}أدخل سنة الميلاد بالتقويم الميلادي{% else %}Enter your birth year using the Gregorian calendar.{% endif %}</small>
 									</div>
 									<div class="col-md-6">
 										<label for="gender" class="form-label">{% if organization_language == 'fa' %}جنسیت{% elif organization_language == 'ar' %}الجنس{% else %}Gender{% endif %}</label>
