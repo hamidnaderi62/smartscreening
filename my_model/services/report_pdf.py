@@ -10,6 +10,7 @@ import matplotlib
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from PIL import Image as PillowImage
 from django.conf import settings
 from reportlab.lib import colors
 from reportlab.lib.colors import HexColor
@@ -1113,6 +1114,47 @@ def _verified_doctor_referrals(record):
         return []
 
 
+def _safe_pdf_image(image_path, max_width, max_height):
+    """Return a bounded image flowable, ignoring malformed uploaded images."""
+    if not image_path:
+        return None
+    try:
+        with PillowImage.open(image_path) as source:
+            width, height = source.size
+        if (
+            width <= 0
+            or height <= 0
+            or width > 20000
+            or height > 20000
+            or width * height > 40_000_000
+            or max(width / height, height / width) > 12
+        ):
+            logger.warning(
+                "Skipping doctor PDF image with unsafe dimensions: %s (%s x %s)",
+                image_path,
+                width,
+                height,
+            )
+            return None
+
+        scale = min(float(max_width) / width, float(max_height) / height)
+        # Explicit dimensions keep ReportLab from deriving a huge flowable from
+        # corrupt JPEG metadata (the cause of the production LayoutError).
+        flowable = Image(
+            image_path,
+            width=width * scale,
+            height=height * scale,
+            kind='direct',
+        )
+        # Force ReportLab to read/validate the asset now so failures are caught
+        # here instead of halfway through constructing a user's PDF.
+        flowable.wrap(max_width, max_height)
+        return flowable
+    except Exception:
+        logger.warning("Skipping unreadable doctor PDF image: %s", image_path, exc_info=True)
+        return None
+
+
 def _doctor_signature_block(record, labels, styles, rtl=False):
     """Build white signature/seal panels directly below verified doctor notes."""
     blocks = []
@@ -1131,10 +1173,8 @@ def _doctor_signature_block(record, labels, styles, rtl=False):
         if not signature_path and not seal_path:
             continue
 
-        signature_image = (
-            Image(signature_path, width=42 * mm, height=18 * mm, kind='proportional')
-            if signature_path else Spacer(1, 18 * mm)
-        )
+        signature_image = _safe_pdf_image(signature_path, 42 * mm, 18 * mm)
+        signature_image = signature_image or Spacer(1, 18 * mm)
         signature_image.hAlign = 'CENTER'
         signature_content = KeepTogether([
             signature_image,
@@ -1142,10 +1182,8 @@ def _doctor_signature_block(record, labels, styles, rtl=False):
                        hAlign='CENTER', spaceBefore=1 * mm, spaceAfter=1 * mm),
             Paragraph(_escaped(doctor.display_name, name_style), name_style),
         ])
-        seal_image = (
-            Image(seal_path, width=25 * mm, height=25 * mm, kind='proportional')
-            if seal_path else Spacer(1, 25 * mm)
-        )
+        seal_image = _safe_pdf_image(seal_path, 25 * mm, 25 * mm)
+        seal_image = seal_image or Spacer(1, 25 * mm)
         seal_image.hAlign = 'CENTER'
         signature_width = CONTENT_WIDTH - 42 * mm
         seal_width = 42 * mm

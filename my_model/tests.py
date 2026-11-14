@@ -1,11 +1,15 @@
 from io import BytesIO
 import json
+from pathlib import Path
+import tempfile
 from datetime import datetime, timedelta
 from unittest.mock import Mock, patch
 
 import requests
 import numpy as np
+from PIL import Image as PillowImage
 from reportlab.lib import colors
+from reportlab.lib.units import mm
 
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -37,6 +41,7 @@ from .services.report_pdf import (
     _doctor_signature_block,
     _assessment_answer_rows,
     _localized_snapshot,
+    _safe_pdf_image,
     _rtl_wrapped_lines,
     _shape_rtl,
     _styles,
@@ -434,6 +439,21 @@ class AssessmentCalculationServiceTests(TestCase):
 
 
 class PdfReportServiceTests(TestCase):
+    def test_doctor_pdf_images_are_bounded_or_skipped(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            extreme_path = Path(temp_dir) / 'extreme.png'
+            PillowImage.new('RGB', (1, 20001), 'white').save(extreme_path)
+            self.assertIsNone(_safe_pdf_image(str(extreme_path), 25 * mm, 25 * mm))
+
+            normal_path = Path(temp_dir) / 'seal.png'
+            PillowImage.new('RGB', (600, 600), 'white').save(normal_path)
+            image = _safe_pdf_image(str(normal_path), 25 * mm, 25 * mm)
+            width, height = image.wrap(1000, 1000)
+
+        self.assertIsNotNone(image)
+        self.assertLessEqual(width, 25 * mm)
+        self.assertLessEqual(height, 25 * mm)
+
     @patch('my_model.services.report_pdf._verified_doctor_referrals')
     def test_doctor_signature_name_is_below_signature_on_white_background(
         self, referrals,
