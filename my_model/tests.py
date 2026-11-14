@@ -5,8 +5,10 @@ from unittest.mock import Mock, patch
 
 import requests
 import numpy as np
+from reportlab.lib import colors
 
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
@@ -32,6 +34,8 @@ from .services.report_pdf import (
     DASHBOARD_CHART_CONFIG,
     PDF_EXCLUDED_ASSESSMENT_KEYS,
     REPORT_LABELS,
+    _doctor_signature_block,
+    _assessment_answer_rows,
     _localized_snapshot,
     _rtl_wrapped_lines,
     _shape_rtl,
@@ -266,6 +270,8 @@ class ScreeningDataTests(TestCase):
                     'max_score': {'question': 'Maximum Score', 'answer': 30},
                     'risk_level': {'question': 'Risk Level', 'answer': 'bg-warning'},
                     'risk_status': {'question': 'Risk Status', 'answer': 'Moderate'},
+                    'recommendation': {'question': 'Doctor Recommendation', 'answer': 'Follow up'},
+                    'idf_score': {'question': 'Diabetes Risk Score', 'answer': 9},
                 },
             },
         }
@@ -273,11 +279,29 @@ class ScreeningDataTests(TestCase):
         localized = _localized_snapshot(snapshot, 'en', [], REPORT_LABELS['en'])
         assessment_answers = localized['assessments']['Diabetes']
 
-        self.assertEqual(PDF_EXCLUDED_ASSESSMENT_KEYS, {'risk_score', 'max_score', 'risk_level'})
+        self.assertTrue({'risk_score', 'max_score', 'risk_level', 'risk_status', 'recommendation', 'idf_score'} <= PDF_EXCLUDED_ASSESSMENT_KEYS)
         self.assertNotIn('risk_score', assessment_answers)
         self.assertNotIn('max_score', assessment_answers)
         self.assertNotIn('risk_level', assessment_answers)
-        self.assertIn('risk_status', assessment_answers)
+        self.assertNotIn('risk_status', assessment_answers)
+        self.assertNotIn('recommendation', assessment_answers)
+        self.assertNotIn('idf_score', assessment_answers)
+
+    def test_disease_question_table_ends_with_status_and_recommendation(self):
+        labels = REPORT_LABELS['en']
+        rows, highlights = _assessment_answer_rows(
+            {'age': {'question': 'Age', 'answer': 45}},
+            {
+                'display_status': 'Moderate risk',
+                'display_recommendation': 'Discuss with a clinician.',
+            },
+            labels,
+        )
+
+        self.assertEqual(rows[-2], [labels['risk_status'], 'Moderate risk'])
+        self.assertEqual(rows[-1], [labels['recommendation'], 'Discuss with a clinician.'])
+        self.assertEqual(set(highlights), {len(rows) - 2, len(rows) - 1})
+        self.assertNotEqual(highlights[len(rows) - 2][0], highlights[len(rows) - 1][0])
 
 
 class UrlOwnershipTests(TestCase):
@@ -410,6 +434,33 @@ class AssessmentCalculationServiceTests(TestCase):
 
 
 class PdfReportServiceTests(TestCase):
+    @patch('my_model.services.report_pdf._verified_doctor_referrals')
+    def test_doctor_signature_name_is_below_signature_on_white_background(
+        self, referrals,
+    ):
+        referral = Mock()
+        referral.doctor.display_name = 'Dr. Example'
+        referral.doctor.signature_image = 'signature.png'
+        referral.doctor.seal_image = 'seal.png'
+        referrals.return_value = [referral]
+
+        image_path = str(settings.BASE_DIR / 'assets/images/pattern/04.png')
+        with patch('my_model.services.report_pdf._image_path', return_value=image_path):
+            for rtl in (False, True):
+                with self.subTest(rtl=rtl):
+                    blocks = _doctor_signature_block(None, {}, _styles('ar' if rtl else 'en'), rtl=rtl)
+                    self.assertEqual(len(blocks), 2)
+                    table = blocks[0]
+                    signature_column = 1 if rtl else 0
+                    signature_stack = table._cellvalues[0][signature_column]
+                    self.assertEqual(signature_stack._content[-1].getPlainText(), 'Dr. Example')
+                    table.wrap(600, 600)
+                    white_background = any(
+                        command[0] == 'BACKGROUND' and command[3] == colors.white
+                        for command in table._bkgrndcmds
+                    )
+                    self.assertTrue(white_background)
+
     def test_rtl_paragraphs_wrap_in_logical_word_order(self):
         text = REPORT_LABELS['fa']['important_text']
         lines = _rtl_wrapped_lines(text, _styles('fa')['body'])

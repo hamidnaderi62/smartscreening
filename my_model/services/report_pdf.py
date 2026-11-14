@@ -20,6 +20,7 @@ from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (
+    HRFlowable,
     Image,
     KeepTogether,
     PageBreak,
@@ -39,6 +40,7 @@ from .localization import (
     normalize_language,
 )
 from .questionnaire_translations import localized_answer, localized_question
+from .screening_data import ASSESSMENT_FIELDS
 
 try:
     import arabic_reshaper
@@ -59,9 +61,19 @@ RED = HexColor('#D64545')
 AMBER = HexColor('#E9A227')
 GREEN = HexColor('#2E9D68')
 
-# These calculation internals are useful for rendering charts and recommendations,
-# but should not be repeated as questionnaire answers in the user-facing PDF.
-PDF_EXCLUDED_ASSESSMENT_KEYS = frozenset({'risk_score', 'max_score', 'risk_level'})
+# Calculation outputs belong in the result summary, not among the patient's
+# questionnaire answers. Keep status/recommendation out too: they are printed
+# as the final, visually distinct rows of each disease section.
+PDF_EXCLUDED_ASSESSMENT_KEYS = frozenset(
+    {'risk_score', 'max_score', 'risk_level', 'risk_status', 'recommendation'}
+    | {
+        key
+        for fields in ASSESSMENT_FIELDS.values()
+        for field in fields
+        for key, question, *_source in (field,)
+        if key.endswith('_score') or 'risk (%)' in question.casefold()
+    }
+)
 
 
 REPORT_LABELS = {
@@ -86,7 +98,6 @@ REPORT_LABELS = {
         'assessment': 'Assessment', 'risk_status': 'Risk status', 'recommendation': 'Recommendation',
         'question': 'Question', 'answer': 'Answer',
         'doctor_note': 'Doctor’s note', 'clinical_comment': 'Clinical comment',
-        'doctor_signature': 'Doctor signature', 'doctor_seal': 'Doctor seal',
         'no_doctor_comment': 'No doctor comment has been added.', 'important': 'Important information',
         'recommendation_fallback': 'Discuss this result with a healthcare professional.',
         'important_text': 'Screening results estimate risk based on the information provided at the time of assessment. They are not a diagnosis, do not predict individual outcomes with certainty, and should be reviewed by a licensed healthcare professional. Seek urgent care for urgent or severe symptoms.',
@@ -111,7 +122,6 @@ REPORT_LABELS = {
         'assessment': 'ارزیابی', 'risk_status': 'وضعیت خطر', 'recommendation': 'توصیه',
         'question': 'پرسش', 'answer': 'پاسخ',
         'doctor_note': 'یادداشت پزشک', 'clinical_comment': 'توضیحات بالینی',
-        'doctor_signature': 'امضای پزشک', 'doctor_seal': 'مهر پزشک',
         'no_doctor_comment': 'یادداشت پزشکی ثبت نشده است.', 'important': 'اطلاعات مهم',
         'recommendation_fallback': 'این نتیجه را با یک متخصص مراقبت‌های سلامت بررسی کنید.',
         'important_text': 'نتایج غربالگری بر اساس اطلاعات زمان ارزیابی، خطر را تخمین می‌زنند. این نتایج تشخیص نیستند و باید توسط پزشک بررسی شوند. در صورت علائم شدید یا اورژانسی فوراً به مراکز درمانی مراجعه کنید.',
@@ -136,7 +146,6 @@ REPORT_LABELS = {
         'assessment': 'التقييم', 'risk_status': 'حالة الخطورة', 'recommendation': 'التوصية',
         'question': 'السؤال', 'answer': 'الإجابة',
         'doctor_note': 'ملاحظة الطبيب', 'clinical_comment': 'التعليق السريري',
-        'doctor_signature': 'توقيع الطبيب', 'doctor_seal': 'ختم الطبيب',
         'no_doctor_comment': 'لم تتم إضافة ملاحظة للطبيب.', 'important': 'معلومات مهمة',
         'recommendation_fallback': 'ناقش هذه النتيجة مع طبيب أو أخصائي رعاية صحية.',
         'important_text': 'تقدّر نتائج الفحص الخطورة بناءً على المعلومات المقدمة وقت التقييم. ليست تشخيصاً ويجب مراجعتها من طبيب مرخص. اطلب رعاية عاجلة عند وجود أعراض شديدة أو طارئة.',
@@ -321,16 +330,36 @@ def _section_header(title, styles, rtl=False):
     return table
 
 
-def _table(rows, widths, styles, *, header=True, row_background=LIGHT_GREY, rtl=False):
+def _table(
+    rows,
+    widths,
+    styles,
+    *,
+    header=True,
+    row_background=LIGHT_GREY,
+    rtl=False,
+    highlighted_rows=None,
+):
+    highlighted_rows = highlighted_rows or {}
     if rtl:
         rows = [list(reversed(row)) if len(row) > 1 else row for row in rows]
         widths = list(reversed(widths))
     prepared = []
     for row_index, row in enumerate(rows):
+        highlight = highlighted_rows.get(row_index)
+        cell_style = styles['table_header'] if row_index == 0 and header else styles['table']
+        if highlight:
+            _background, text_color = highlight
+            cell_style = ParagraphStyle(
+                f'ReportTableHighlight{row_index}',
+                parent=cell_style,
+                textColor=text_color,
+                fontName=styles['table_bold'].fontName,
+            )
         prepared.append([
             _p(
                 value,
-                styles['table_header'] if row_index == 0 and header else styles['table'],
+                cell_style,
                 max_width=max(width - 10, 25),
             )
             for value, width in zip(row, widths)
@@ -356,6 +385,8 @@ def _table(rows, widths, styles, *, header=True, row_background=LIGHT_GREY, rtl=
         ])
     if len(rows) > 1:
         commands.append(('ROWBACKGROUNDS', (0, 1 if header else 0), (-1, -1), [colors.white, row_background]))
+    for row_index, (background, _text_color) in highlighted_rows.items():
+        commands.append(('BACKGROUND', (0, row_index), (-1, row_index), background))
     table.setStyle(TableStyle(commands))
     return table
 
@@ -1029,6 +1060,31 @@ def _answer_rows(section, labels):
     return rows
 
 
+def _assessment_answer_rows(section, item, labels):
+    """Append localized result status and recommendation to a disease's answers."""
+    rows = _answer_rows(section, labels)
+    if len(rows) == 1:
+        rows.append([labels['no_answers'], ''])
+
+    rows.extend([
+        [
+            labels['risk_status'],
+            item.get('display_status') or item.get('status_en') or labels['not_provided'],
+        ],
+        [
+            labels['recommendation'],
+            item.get('display_recommendation') or item.get('recommendation_en') or labels['recommendation_fallback'],
+        ],
+    ])
+    status_row = len(rows) - 2
+    recommendation_row = len(rows) - 1
+    highlights = {
+        status_row: (_risk_tint(item), _risk_color(item)),
+        recommendation_row: (HexColor('#EAF3FA'), NAVY),
+    }
+    return rows, highlights
+
+
 def _doctor_comment_text(record, labels):
     """Combine legacy and referral comments for the printable report."""
     comments = []
@@ -1058,22 +1114,46 @@ def _verified_doctor_referrals(record):
 
 
 def _doctor_signature_block(record, labels, styles, rtl=False):
-    """Build signature/seal cards for verified doctor recommendations."""
+    """Build white signature/seal panels directly below verified doctor notes."""
     blocks = []
+    name_style = ParagraphStyle(
+        'DoctorSignatureName',
+        parent=styles['body'],
+        alignment=TA_CENTER,
+        fontSize=9,
+        leading=11,
+        spaceBefore=1 * mm,
+    )
     for referral in _verified_doctor_referrals(record):
         doctor = referral.doctor
         signature_path = _image_path(getattr(doctor, 'signature_image', None))
         seal_path = _image_path(getattr(doctor, 'seal_image', None))
         if not signature_path and not seal_path:
             continue
-        cells = [Paragraph(_escaped(doctor.display_name, styles['body']), styles['body'])]
-        widths = [70 * mm]
-        if signature_path:
-            cells.append(Image(signature_path, width=32 * mm, height=16 * mm, kind='proportional'))
-            widths.append(35 * mm)
-        if seal_path:
-            cells.append(Image(seal_path, width=22 * mm, height=22 * mm, kind='proportional'))
-            widths.append(25 * mm)
+
+        signature_image = (
+            Image(signature_path, width=42 * mm, height=18 * mm, kind='proportional')
+            if signature_path else Spacer(1, 18 * mm)
+        )
+        signature_image.hAlign = 'CENTER'
+        signature_content = KeepTogether([
+            signature_image,
+            HRFlowable(width=48 * mm, thickness=0.55, color=HexColor('#8293A3'),
+                       hAlign='CENTER', spaceBefore=1 * mm, spaceAfter=1 * mm),
+            Paragraph(_escaped(doctor.display_name, name_style), name_style),
+        ])
+        seal_image = (
+            Image(seal_path, width=25 * mm, height=25 * mm, kind='proportional')
+            if seal_path else Spacer(1, 25 * mm)
+        )
+        seal_image.hAlign = 'CENTER'
+        signature_width = CONTENT_WIDTH - 42 * mm
+        seal_width = 42 * mm
+        cells = [signature_content, seal_image]
+        widths = [signature_width, seal_width]
+        if rtl:
+            cells.reverse()
+            widths.reverse()
         table = Table(
             [cells],
             colWidths=widths,
@@ -1081,14 +1161,15 @@ def _doctor_signature_block(record, labels, styles, rtl=False):
         )
         table.setStyle(TableStyle([
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('BOX', (0, 0), (-1, -1), 0.35, HexColor('#D9E2EC')),
-            ('BACKGROUND', (0, 0), (-1, -1), LIGHT_GREY),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 5),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+            ('BOX', (0, 0), (-1, -1), 0.45, HexColor('#D9E2EC')),
+            ('LINEABOVE', (0, 0), (-1, 0), 0.8, HexColor('#D9E2EC')),
+            ('LEFTPADDING', (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 7),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 7),
         ]))
-        blocks.extend([table, Spacer(1, 2 * mm)])
+        blocks.extend([table, Spacer(1, 1.5 * mm)])
     return blocks
 
 
@@ -1212,45 +1293,34 @@ def generate_pdf_report(record, selected_assessments, request=None):
     for item in selected_assessments:
         title = item.get('display_title') or item.get('title_en') or item.get('title', '').replace('_', ' ')
         story.append(Paragraph(_escaped(title), styles['h2']))
-        assessment_rows = _answer_rows(
+        assessment_rows, result_row_highlights = _assessment_answer_rows(
             snapshot.get('assessments', {}).get(item.get('title'), {}),
+            item,
             labels,
         )
-        if len(assessment_rows) > 1:
-            story.append(_table(assessment_rows, [85 * mm, 95 * mm], styles, rtl=rtl))
-        else:
-            story.append(Paragraph(_escaped(labels['no_answers']), styles['body']))
+        story.append(_table(
+            assessment_rows,
+            [85 * mm, 95 * mm],
+            styles,
+            rtl=rtl,
+            highlighted_rows=result_row_highlights,
+        ))
         story.append(Spacer(1, 2 * mm))
 
     story.append(PageBreak())
-    story.append(_section_header(labels['recommendations'], styles, rtl=rtl))
-    story.append(Spacer(1, 3 * mm))
-    story.append(Paragraph(
-        _escaped(labels['recommendations_intro']),
-        styles['body'],
-    ))
-    recommendation_rows = [[labels['assessment'], labels['risk_status'], labels['recommendation']]]
-    for item in selected_assessments:
-        recommendation_rows.append([
-            item.get('title', '').replace('_', ' '),
-            item.get('display_status') or item.get('status_en') or labels['not_provided'],
-            item.get('display_recommendation') or item.get('recommendation_en') or labels['recommendation_fallback'],
-        ])
-    story.append(_table(recommendation_rows, [45 * mm, 42 * mm, 93 * mm], styles, rtl=rtl))
-    story.append(Paragraph(_escaped(labels['doctor_note']), styles['h2']))
-    story.append(_table(
-        [[labels["clinical_comment"]], [_doctor_comment_text(record, labels)]],
-        [CONTENT_WIDTH], styles, header=True,
-        rtl=rtl,
-    ))
+    doctor_note_block = [
+        Paragraph(_escaped(labels['doctor_note']), styles['h2']),
+        _table(
+            [[labels["clinical_comment"]], [_doctor_comment_text(record, labels)]],
+            [CONTENT_WIDTH], styles, header=True,
+            rtl=rtl,
+        ),
+    ]
     signature_blocks = _doctor_signature_block(record, labels, styles, rtl=rtl)
     if signature_blocks:
-        story.append(Spacer(1, 3 * mm))
-        story.append(Paragraph(
-            _escaped(f"{labels['doctor_signature']} / {labels['doctor_seal']}"),
-            styles['h2'],
-        ))
-        story.extend(signature_blocks)
+        doctor_note_block.append(Spacer(1, 1.5 * mm))
+        doctor_note_block.extend(signature_blocks)
+    story.append(KeepTogether(doctor_note_block))
     story.append(Spacer(1, 7 * mm))
     story.append(Paragraph(_escaped(labels['important']), styles['h2']))
     story.append(Paragraph(
