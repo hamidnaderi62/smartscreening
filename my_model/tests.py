@@ -445,12 +445,13 @@ class PdfReportServiceTests(TestCase):
             PillowImage.new('RGB', (1, 20001), 'white').save(extreme_path)
             self.assertIsNone(_safe_pdf_image(str(extreme_path), 25 * mm, 25 * mm))
 
-            normal_path = Path(temp_dir) / 'seal.png'
-            PillowImage.new('RGB', (600, 600), 'white').save(normal_path)
+            normal_path = Path(temp_dir) / 'seal.jpg'
+            PillowImage.new('RGB', (600, 600), 'white').save(normal_path, format='JPEG')
             image = _safe_pdf_image(str(normal_path), 25 * mm, 25 * mm)
             width, height = image.wrap(1000, 1000)
 
         self.assertIsNotNone(image)
+        self.assertEqual(image._img._image.format, 'PNG')
         self.assertLessEqual(width, 25 * mm)
         self.assertLessEqual(height, 25 * mm)
 

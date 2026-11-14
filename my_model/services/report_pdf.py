@@ -10,7 +10,7 @@ import matplotlib
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from PIL import Image as PillowImage
+from PIL import Image as PillowImage, ImageOps
 from django.conf import settings
 from reportlab.lib import colors
 from reportlab.lib.colors import HexColor
@@ -1115,12 +1115,14 @@ def _verified_doctor_referrals(record):
 
 
 def _safe_pdf_image(image_path, max_width, max_height):
-    """Return a bounded image flowable, ignoring malformed uploaded images."""
+    """Return a bounded, normalized image flowable for uploaded doctor assets."""
     if not image_path:
         return None
     try:
         with PillowImage.open(image_path) as source:
-            width, height = source.size
+            normalized = ImageOps.exif_transpose(source)
+            normalized.load()
+            width, height = normalized.size
         if (
             width <= 0
             or height <= 0
@@ -1138,10 +1140,15 @@ def _safe_pdf_image(image_path, max_width, max_height):
             return None
 
         scale = min(float(max_width) / width, float(max_height) / height)
-        # Explicit dimensions keep ReportLab from deriving a huge flowable from
-        # corrupt JPEG metadata (the cause of the production LayoutError).
+        # Re-encode through Pillow so ReportLab never parses malformed JPEG
+        # metadata directly (some JPEGs report normal dimensions to Pillow but
+        # an enormous height through ReportLab's JPEG parser).
+        mode = 'RGBA' if 'A' in normalized.getbands() else 'RGB'
+        normalized_buffer = io.BytesIO()
+        normalized.convert(mode).save(normalized_buffer, format='PNG')
+        normalized_buffer.seek(0)
         flowable = Image(
-            image_path,
+            normalized_buffer,
             width=width * scale,
             height=height * scale,
             kind='direct',
