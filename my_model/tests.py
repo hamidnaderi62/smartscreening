@@ -9,7 +9,9 @@ import requests
 import numpy as np
 from PIL import Image as PillowImage
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
+from reportlab.platypus import SimpleDocTemplate
 
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -474,13 +476,20 @@ class PdfReportServiceTests(TestCase):
                     table = blocks[0]
                     signature_column = 1 if rtl else 0
                     signature_stack = table._cellvalues[0][signature_column]
-                    self.assertEqual(signature_stack._content[-1].getPlainText(), 'Dr. Example')
-                    table.wrap(600, 600)
+                    self.assertEqual(signature_stack[-1].getPlainText(), 'Dr. Example')
+                    _, height = table.wrap(600, 600)
+                    self.assertLess(height, 60 * mm)
                     white_background = any(
                         command[0] == 'BACKGROUND' and command[3] == colors.white
                         for command in table._bkgrndcmds
                     )
                     self.assertTrue(white_background)
+                    output = BytesIO()
+                    SimpleDocTemplate(
+                        output, pagesize=A4,
+                        leftMargin=10 * mm, rightMargin=10 * mm,
+                    ).build([table])
+                    self.assertTrue(output.getvalue().startswith(b'%PDF'))
 
     def test_rtl_paragraphs_wrap_in_logical_word_order(self):
         text = REPORT_LABELS['fa']['important_text']

@@ -1183,12 +1183,15 @@ def _doctor_signature_block(record, labels, styles, rtl=False):
         signature_image = _safe_pdf_image(signature_path, 42 * mm, 18 * mm)
         signature_image = signature_image or Spacer(1, 18 * mm)
         signature_image.hAlign = 'CENTER'
-        signature_content = KeepTogether([
+        # A Table cell already keeps its contents in the same row. Wrapping
+        # them in KeepTogether makes ReportLab assign a sentinel height of
+        # 0xFFFFFF points to the cell and breaks PDF layout.
+        signature_content = [
             signature_image,
             HRFlowable(width=48 * mm, thickness=0.55, color=HexColor('#8293A3'),
                        hAlign='CENTER', spaceBefore=1 * mm, spaceAfter=1 * mm),
             Paragraph(_escaped(doctor.display_name, name_style), name_style),
-        ])
+        ]
         seal_image = _safe_pdf_image(seal_path, 25 * mm, 25 * mm)
         seal_image = seal_image or Spacer(1, 25 * mm)
         seal_image.hAlign = 'CENTER'
