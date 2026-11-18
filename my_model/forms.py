@@ -9,6 +9,7 @@ class AssessmentSelectionForm(forms.Form):
         self.allowed_assessments = {
             str(assessment['id']): assessment
             for assessment in (allowed_assessments or ())
+            if assessment.get('active', 1)
         }
         self.fields['selected_assessments'].choices = [
             (assessment_id, assessment['title_en'])

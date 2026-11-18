@@ -14,7 +14,7 @@ class Stomach_RiskCalculator:
             stomach_cancer_score += 3
 
         if family_stomach_cancer == 'Yes':
-            stomach_cancer_score += 7
+            stomach_cancer_score += 10
 
         if fastfood == 4:
             stomach_cancer_score += 5
@@ -24,9 +24,9 @@ class Stomach_RiskCalculator:
             stomach_cancer_score += 3
 
         if cannedfood == 5:
-            stomach_cancer_score += 3
+            stomach_cancer_score += 5
         elif cannedfood == 4:
-            stomach_cancer_score += 2
+            stomach_cancer_score += 3
         elif cannedfood <= 3:
             stomach_cancer_score += 1
 
@@ -37,7 +37,7 @@ class Stomach_RiskCalculator:
             stomach_cancer_score += 2
 
         if h_pylori == 'Yes':
-            stomach_cancer_score += 4
+            stomach_cancer_score += 6
 
         if blood_group in ['A+' , 'A-']:
             stomach_cancer_score += 2

@@ -36,7 +36,7 @@ def selected_assessments_for_record(record, assessments, language=None):
     }
     selected = []
     for assessment in assessments:
-        if assessment['id'] not in ids:
+        if assessment['id'] not in ids or not assessment.get('active', 1):
             continue
 
         item = assessment.copy()

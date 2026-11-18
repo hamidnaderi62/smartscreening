@@ -167,7 +167,7 @@ ASSESSMENTS = [
         "tags": "سکته مغزی",
         "speciality": 1,
         "groups": ["Male", "Female"],
-        "active": 1,
+        "active": 0,
     },
     {
         "id": 12,
@@ -185,6 +185,11 @@ ASSESSMENTS = [
         "active": 1,
     },
 ]
+
+
+def get_active_assessments():
+    """Return assessments currently available for new screening workflows."""
+    return [item for item in ASSESSMENTS if item.get('active', 1)]
 
 
 def get_assessment_or_404(assessment_id):

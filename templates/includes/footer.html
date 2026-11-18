@@ -1,13 +1,13 @@
-{% load i18n %}
+{% load static i18n %}
 
 <footer class="smart-site-footer">
     <div class="container">
         <div class="smart-footer-main">
             <div class="smart-footer-brand">
-                <a class="smart-brand-lockup smart-brand-lockup-footer" href="{% url 'home:home' %}">
-                    <span class="smart-brand-symbol"><i class="bi bi-heart-pulse-fill"></i></span>
-                    <span class="smart-brand-name"><strong>Smart</strong><small>Screening</small></span>
+                <a class="pouyamed-footer-logo-link" href="https://pouyamed.com/" target="_blank" rel="noopener noreferrer" aria-label="PouyaMed">
+                    <img src="{% static 'images/brand/pouyamed.png' %}" alt="PouyaMed — AI-Powered Healthcare Solutions" loading="lazy">
                 </a>
+                <span class="pouyamed-product-label">{% if CURRENT_LANGUAGE == 'fa' %}اسمارت‌اسکرینینگ، یکی از محصولات پویا‌مد{% elif CURRENT_LANGUAGE == 'ar' %}SmartScreening، أحد منتجات PouyaMed{% else %}SmartScreening is a PouyaMed product{% endif %}</span>
                 <p>{% if CURRENT_LANGUAGE == 'fa' %}تصمیم‌های بهتر برای زندگی سالم‌تر.{% elif CURRENT_LANGUAGE == 'ar' %}قرارات صحية أفضل لحياة أكثر صحة.{% else %}Clearer insight for better health decisions.{% endif %}</p>
             </div>
             <div class="smart-footer-links">

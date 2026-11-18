@@ -117,6 +117,19 @@ class MultilingualQuestionnaireStyleTests(TestCase):
                 )
                 self.assertContains(response, 'name="age"')
 
+    def test_inactive_stroke_is_not_rendered_in_questionnaire(self):
+        selection_response = self.client.get('/en/my_model/screening_list')
+        self.assertEqual(selection_response.status_code, 200)
+        self.assertNotContains(selection_response, 'Stroke Risk Assessment')
+
+        response = self.client.post(
+            '/en/my_model/question_en',
+            {'selected_assessments': ['11']},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'id="accordion-stroke"')
+
     def test_questionnaire_language_switch_uses_canonical_route(self):
         response = self.client.post(
             '/fa/my_model/question_fa',
@@ -344,6 +357,14 @@ class AssessmentSelectionFormTests(TestCase):
 
         self.assertFalse(form.is_valid())
 
+    def test_inactive_stroke_assessment_cannot_be_selected(self):
+        form = AssessmentSelectionForm(
+            data={'selected_assessments': ['11']},
+            allowed_assessments=ASSESSMENTS,
+        )
+
+        self.assertFalse(form.is_valid())
+
 
 class RecommendationServiceTests(TestCase):
     @patch('my_model.services.recommendations.requests.get')
@@ -554,6 +575,36 @@ class PdfReportServiceTests(TestCase):
         self.assertEqual(selected[0]['score'], 2.5)
         self.assertEqual(selected[1]['score'], 8)
         self.assertIn('recommendation_en', selected[1])
+
+    def test_inactive_stroke_is_hidden_from_existing_screening_results(self):
+        user = User.objects.create_user(username='stroke-hidden-user')
+        record = MyModel.objects.create(
+            userid=user,
+            selected_assessments_id='11',
+            stroke_score=18,
+            screening_data={
+                'assessments': {
+                    'Stroke': {
+                        'previous_stroke': {
+                            'question_key': 'previous_stroke',
+                            'question': 'History of stroke',
+                            'answer': 'No',
+                        },
+                    },
+                },
+            },
+        )
+
+        selected = selected_assessments_for_record(record, ASSESSMENTS)
+        localized = _localized_snapshot(
+            record.screening_data,
+            'en',
+            selected,
+            REPORT_LABELS['en'],
+        )
+
+        self.assertEqual(selected, [])
+        self.assertNotIn('Stroke', localized['assessments'])
 
     def test_pdf_contains_report_structure_and_history(self):
         user = User.objects.create_user(username='report-user')

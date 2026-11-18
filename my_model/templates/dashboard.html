@@ -213,34 +213,10 @@ Page content START -->
 					<!-- Card body START -->
 				</div>
 
-                {% if my_model_instance %}
+                {% if my_model_instance and selected_assessments %}
                 <div class="text-center my-4">
                     <a href="{% url "doctor:recommendations" screening_id=my_model_instance.id %}" class="btn btn-outline-primary me-2"><i class="bi bi-person-heart"></i> {% if CURRENT_LANGUAGE == "fa" %}انتخاب پزشک برای پیگیری{% elif CURRENT_LANGUAGE == "ar" %}اختيار طبيب للمتابعة{% else %}Choose a doctor for follow-up{% endif %}</a>
                 </div>
-                <form method="post" >
-                    {% csrf_token %}
-                    <div class="row g-4 g-lg-0 align-items-center">
-
-                        <div class="col-md-6 align-items-center text-center">
-                            <!-- Image -->
-                            <img src="{% static 'images/element/07.svg' %}" class="h-400px" alt="">
-                        </div>
-
-                        <!-- Contact form START -->
-                        <div class="col-md-6">
-                            <!-- Title -->
-                            <h2 class="mt-4 mt-md-0 fs-4">{% if CURRENT_LANGUAGE == 'fa' %}ثبت نظر پزشک{% elif CURRENT_LANGUAGE == 'ar' %}إرسال تعليق الطبيب{% else %}Submit Physician Comment{% endif %}</h2>
-                                <div class="alert alert-primary d-none opacity-0" role="alert" id="doctor_message"></div>                                <div class="mb-4 bg-light-input">
-                                    <label for="emailInput" class="form-label">{% if CURRENT_LANGUAGE == 'fa' %}نظر پزشک *{% elif CURRENT_LANGUAGE == 'ar' %}تعليق الطبيب *{% else %}Physician Comment *{% endif %}</label>
-                                    <textarea class="form-control form-control-lg" name="doctor_comment" rows="6" id="doctor_comment"></textarea>
-                                </div>
-                                <div class="d-grid">
-                                    <button class="btn btn-lg btn-primary mb-0" onclick="saveDoctorComment({{ my_model_instance.id }})" type="button">{% if CURRENT_LANGUAGE == 'fa' %}ثبت نظر پزشک{% elif CURRENT_LANGUAGE == 'ar' %}إرسال تعليق الطبيب{% else %}Submit Physician Comment{% endif %}</button></div>
-                        </div>
-                        <!-- Contact form END -->
-                    </div>
-
-                </form>
                 {% endif %}
 			<!-- Main content END -->
 			</div><!-- Row END -->
@@ -277,105 +253,5 @@ if (assessmentsForm) assessmentsForm.addEventListener('submit', function(e) {
 
 <!-- Template Functions -->
 <script src="{% static 'js/functions.js' %}"></script>
-
-<script>
-  function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          // Does this cookie string begin with the name we want?
-          if (cookie.substring(0, name.length + 1) === (name + "=")) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
-    }
-
-
-async function saveDoctorComment(my_model_id) {
-    const doctor_comment = document.getElementById('doctor_comment').value.trim();
-    const url = "{% url 'my_model:save_doctor_comment' %}";
-    const messageDiv = document.getElementById('doctor_message');
-
-    // Validate input
-    if (!doctor_comment) {
-        showMessage('{% if CURRENT_LANGUAGE == 'fa' %}لطفاً نظر خود را وارد کنید{% elif CURRENT_LANGUAGE == 'ar' %}الرجاء إدخال تعليق{% else %}Please enter a comment{% endif %}', 'danger');
-        return;
-    }
-
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-                "X-CSRFToken": getCookie("csrftoken"),
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                my_model_id: my_model_id,
-                doctor_comment: doctor_comment,
-            })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.message || '{% if CURRENT_LANGUAGE == 'fa' %}خطا در ذخیره نظر پزشک{% elif CURRENT_LANGUAGE == 'ar' %}خطأ في حفظ تعليق الطبيب{% else %}Error saving physician comment{% endif %}');
-        }
-
-        // Clear the input field
-        document.getElementById('doctor_comment').value = '';
-
-        // Show success message
-        showMessage('{% if CURRENT_LANGUAGE == 'fa' %}نظر پزشک با موفقیت ذخیره شد{% elif CURRENT_LANGUAGE == 'ar' %}تم حفظ تعليق الطبيب بنجاح{% else %}Physician comment saved successfully{% endif %}', 'success');
-
-        return data;
-
-    } catch (error) {
-        console.error('Error saving comment:', error);
-        showMessage(error.message || '{% if CURRENT_LANGUAGE == 'fa' %}خطا در ذخیره نظر پزشک{% elif CURRENT_LANGUAGE == 'ar' %}خطأ في حفظ تعليق الطبيب{% else %}Error saving physician comment{% endif %}', 'danger');
-        throw error;
-    }
-}
-
-// Helper function to show/hide messages
-function showMessage(message, type = 'primary') {
-    const messageDiv = document.getElementById('doctor_message');
-
-    // Set message content and styling
-    messageDiv.textContent = message;
-    messageDiv.className = `alert alert-${type} fade show`;
-
-    // Make visible
-    messageDiv.classList.remove('d-none');
-
-    // Auto-hide after 3 seconds
-    setTimeout(() => {
-        messageDiv.classList.add('fade');
-        setTimeout(() => {
-            messageDiv.classList.add('d-none');
-        }, 150); // Match this with your CSS transition time
-    }, 3000);
-}
-</script>
-<style>
-    .alert.fade {
-    transition: opacity 0.15s linear;
-    }
-
-    .alert.fade.show {
-        opacity: 1;
-    }
-
-    .alert.fade:not(.show) {
-        opacity: 0;
-    }
-</style>
-
 
 {% endblock %}

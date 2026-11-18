@@ -42,6 +42,11 @@ from .localization import (
 )
 from .questionnaire_translations import localized_answer, localized_question
 from .screening_data import ASSESSMENT_FIELDS
+from ..assessment_catalog import ASSESSMENTS
+
+INACTIVE_ASSESSMENT_TITLES = {
+    item['title'] for item in ASSESSMENTS if not item.get('active', 1)
+}
 
 try:
     import arabic_reshaper
@@ -1043,6 +1048,7 @@ def _localized_snapshot(snapshot, language, selected_assessments, labels):
                 }
                 for assessment_title, assessment_section in section.items()
                 if isinstance(assessment_section, dict)
+                and assessment_title not in INACTIVE_ASSESSMENT_TITLES
             }
             continue
         localized[section_name] = {

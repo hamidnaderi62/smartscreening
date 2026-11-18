@@ -3,9 +3,10 @@
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.shortcuts import render
 
-from .assessment_catalog import ASSESSMENTS, get_assessment_or_404
+from .assessment_catalog import ASSESSMENTS, get_assessment_or_404, get_active_assessments
 from .models import MyModel
 from .permissions import can_view_screening, screening_queryset_for_user
 from .services.recommendations import get_related_resources
@@ -226,6 +227,8 @@ def _detail_report_context(request, assessment_id, language=None):
     ).order_by('-created')[:5]
 
     assessment = get_assessment_or_404(assessment_id)
+    if not assessment.get('active', 1):
+        raise Http404('This assessment is not currently available.')
     context = {
         'base_template': 'base_raw.html',
         'report_labels': _report_labels(language),
@@ -329,9 +332,10 @@ def _comprehensive_report_context(request, code=None, language=None):
         for value in (my_model_last.selected_assessments_id or '').split(',')
         if value.strip()
     }
+    active_ids = {str(item['id']) for item in get_active_assessments()}
 
     for assessment_id, field_names in COMPREHENSIVE_HISTORY_FIELDS.items():
-        if assessment_id not in selected_ids:
+        if assessment_id not in selected_ids or assessment_id not in active_ids:
             continue
         for field_name in field_names:
             context[f'{field_name}_history'] = _history_values(my_models, field_name)

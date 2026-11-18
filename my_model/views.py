@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 from account.models import Profile
-from .assessment_catalog import ASSESSMENTS, get_assessment_or_404
+from .assessment_catalog import ASSESSMENTS, get_active_assessments
 from .permissions import can_view_screening
 from .services.calculation_inputs import validate_calculation_input
 from .services.assessment_calculations import calculate_selected_assessments
@@ -53,7 +53,10 @@ def _screening_gender(user):
 
 def _assessments_for_gender(user):
     gender = _screening_gender(user)
-    return [item for item in assessments if gender in item.get('groups', ())]
+    return [
+        item for item in get_active_assessments()
+        if gender in item.get('groups', ())
+    ]
 
 
 @login_required
@@ -79,9 +82,7 @@ def screening_list_ar(request):
 
 def _localized_screening_list(request, language):
     gender = _screening_gender(request.user)
-    gender_assessments = [
-        item for item in assessments if gender in item.get('groups', ())
-    ]
+    gender_assessments = _assessments_for_gender(request.user)
     return render(request, 'screening_list.html', {
         'assessments': localize_assessments(gender_assessments, language),
         'screening_gender': gender,

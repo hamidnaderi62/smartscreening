@@ -80,6 +80,7 @@
 
 	<!-- Theme CSS -->
 	<link rel="stylesheet" type="text/css" href="{% static 'css/style-rtl.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'css/brand-footer.css' %}">
 	{% include 'account/_org_auth_styles.html' %}
 
 </head>
@@ -209,7 +210,12 @@
 
 
 							<!-- Sign up link -->
-							<div class="org-auth-footer mt-4 text-center">{{ org_labels.powered_by }}</div>
+							<div class="org-auth-footer pouyamed-auth-footer mt-4 text-center">
+								<a class="pouyamed-footer-logo-link" href="https://pouyamed.com/" target="_blank" rel="noopener noreferrer" aria-label="PouyaMed">
+									<img src="{% static 'images/brand/pouyamed.png' %}" alt="PouyaMed — AI-Powered Healthcare Solutions" loading="lazy">
+								</a>
+								<div class="mt-2">{% if organization_language == 'fa' %}اسمارت‌اسکرینینگ، یکی از محصولات پویا‌مد{% elif organization_language == 'ar' %}SmartScreening، أحد منتجات PouyaMed{% else %}SmartScreening is a PouyaMed product{% endif %}</div>
+							</div>
 							<div class="mt-3 text-center">
 								<span>{{ org_labels.no_account }} <a href="{% url 'account:org_register' org_slug=organization.slug %}">{{ org_labels.register }}</a></span>
 							</div>

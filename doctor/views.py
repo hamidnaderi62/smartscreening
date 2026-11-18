@@ -255,8 +255,10 @@ def doctor_dashboard(request):
             selected = [
                 {**item, 'display_title': item.get(f'title_{language}') or item.get('title_en') or item['title']}
                 for item in ASSESSMENTS
-                if item.get('id') in referral_assessment_ids
+                if item.get('id') in referral_assessment_ids and item.get('active', 1)
             ]
+        if not selected:
+            continue
         referral.display_assessments = [
             {
                 'title': item.get('display_title') or item.get('title_en') or item.get('title', ''),

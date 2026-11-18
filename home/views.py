@@ -16,15 +16,28 @@ from my_model.services.localization import (
     normalize_language,
 )
 
+ACTIVE_ASSESSMENT_IDS = {
+    str(item['id']) for item in ASSESSMENTS if item.get('active', 1)
+}
+
+
+def _visible_assessment_ids(screening):
+    return {
+        value.strip()
+        for value in (screening.selected_assessments_id or '').split(',')
+        if value.strip() in ACTIVE_ASSESSMENT_IDS
+    }
+
 
 HOME_LABELS = {
     'fa': {
         'title': 'غربالگری هوشمند سلامت | تصمیم‌های بهتر برای زندگی بهتر',
         'brand_mark': 'غربالگری هوشمند', 'scroll': 'برای کشف بیشتر حرکت کنید',
         'clarity': 'شفافیت', 'health_insight': 'بینش سلامت', 'process_eyebrow': 'شروعی ساده', 'cta_eyebrow': 'قدم بعدی سلامت شما',
-        'eyebrow': 'مراقبت پیشگیرانه، با دیدی روشن‌تر',
-        'hero_title': 'سلامت خود را با داده‌های قابل فهم دنبال کنید.',
-        'hero_text': 'حوزه‌های متناسب با حساب خود را انتخاب کنید، به پرسش‌های سلامت پاسخ دهید و نتیجه و گزارش قابل‌فهمی برای گفت‌وگو با پزشک دریافت کنید.',
+        'eyebrow': 'سلامت شخصی‌سازی‌شده؛ تصمیم‌های هوشمندانه‌تر.',
+        'hero_title': 'از شناخت خطر تا تصمیم آگاهانه برای سلامت',
+        'hero_subtitle': 'پیشگیری هوشمند، با شناخت بهتر از وضعیت سلامت شما آغاز می‌شود.',
+        'hero_text': 'سلامت خود را آگاهانه‌تر مدیریت کنید. با استفاده از ارزیابی‌های متناسب با سن، جنسیت، سبک زندگی و سوابق سلامت، عوامل خطر بیماری‌های مهم را بشناسید و تصویر روشن‌تری از وضعیت سلامت خود به دست آورید.',
         'start': 'شروع غربالگری',
         'register': 'ثبت نام',
         'doctor_portal': 'ورود پزشکان',
@@ -93,9 +106,10 @@ HOME_LABELS = {
         'title': 'Smart Screening | Make better health decisions',
         'brand_mark': 'SMART SCREENING', 'scroll': 'SCROLL TO EXPLORE',
         'clarity': 'clarity', 'health_insight': 'Health insight', 'process_eyebrow': 'A SIMPLE START', 'cta_eyebrow': 'YOUR NEXT HEALTH DECISION',
-        'eyebrow': 'Prevention, with a clearer point of view',
-        'hero_title': 'Understand your health before it becomes urgent.',
-        'hero_text': 'Choose assessments available for your profile, answer health questions, and receive a clear result and report to discuss with your doctor.',
+        'eyebrow': 'Personalized Health. Smarter Decisions.',
+        'hero_title': 'From risk awareness to informed health decisions',
+        'hero_subtitle': 'Smart prevention starts with a better understanding of your health.',
+        'hero_text': 'Manage your health with greater confidence. Use assessments tailored to your age, gender, lifestyle, and health history to understand important disease risk factors and build a clearer picture of your health.',
         'start': 'Start a screening',
         'register': 'Register',
         'doctor_portal': 'Doctor login',
@@ -164,9 +178,10 @@ HOME_LABELS = {
         'title': 'الفحص الذكي | قرارات صحية أفضل',
         'brand_mark': 'الفحص الذكي', 'scroll': 'مرر لاكتشاف المزيد',
         'clarity': 'وضوح', 'health_insight': 'رؤية صحية', 'process_eyebrow': 'بداية بسيطة', 'cta_eyebrow': 'خطوتك الصحية التالية',
-        'eyebrow': 'الوقاية برؤية أوضح',
-        'hero_title': 'افهم صحتك قبل أن تصبح الحالة طارئة.',
-        'hero_text': 'اختر التقييمات المتاحة لملفك، وأجب عن أسئلة صحية، واحصل على نتيجة وتقرير واضحين لمناقشتهما مع طبيبك.',
+        'eyebrow': 'صحة مخصصة. قرارات أذكى.',
+        'hero_title': 'من فهم عوامل الخطر إلى قرارات صحية واعية',
+        'hero_subtitle': 'تبدأ الوقاية الذكية بفهم أفضل لحالتك الصحية.',
+        'hero_text': 'أدر صحتك بوعي أكبر. استخدم تقييمات تراعي عمرك وجنسك ونمط حياتك وتاريخك الصحي للتعرّف على عوامل خطر الأمراض المهمة وتكوين صورة أوضح عن صحتك.',
         'start': 'ابدأ الفحص',
         'register': 'إنشاء حساب',
         'doctor_portal': 'دخول الطبيب',
@@ -270,19 +285,12 @@ def home(request):
             .order_by('-created', '-pk')[:3]
         )
         for screening in screenings:
-            screening.assessment_count = len([
-                value for value in (screening.selected_assessments_id or '').split(',')
-                if value.strip()
-            ])
+            screening.assessment_count = len(_visible_assessment_ids(screening))
             _set_screening_review_status(screening, labels)
         total_screenings = MyModel.objects.filter(userid=request.user).count()
         all_screening_ids = set()
         for screening in MyModel.objects.filter(userid=request.user).only('selected_assessments_id'):
-            all_screening_ids.update(
-                value.strip()
-                for value in (screening.selected_assessments_id or '').split(',')
-                if value.strip()
-            )
+            all_screening_ids.update(_visible_assessment_ids(screening))
         organization = getattr(profile, 'organization', None)
         if organization:
             organization = localize_objects([organization], ('title',), language)[0]
@@ -327,10 +335,7 @@ def screening_history(request):
     )
     page = Paginator(screenings, 12).get_page(request.GET.get('page'))
     for screening in page.object_list:
-        screening.assessment_count = len([
-            value for value in (screening.selected_assessments_id or '').split(',')
-            if value.strip()
-        ])
+        screening.assessment_count = len(_visible_assessment_ids(screening))
         _set_screening_review_status(screening, labels)
     return render(request, 'screening_history.html', {
         'home_labels': labels,

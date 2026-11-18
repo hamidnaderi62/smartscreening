@@ -320,7 +320,7 @@ def build_result_context(selected_assessments, data):
         if item['title'] == 'Pancreatic_Cancer':
             pancreatic_cancer_score = data.get('pancreatic_cancer_score', 0)
             item['score'] = pancreatic_cancer_score
-            item['total_score'] = 36
+            item['total_score'] = 40
             item['desc_file_fa'] = 'pancreatic_cancer_fa.pdf'
             item['desc_file_en'] = 'pancreatic_cancer_en.pdf'
             item['desc_file_ar'] = 'pancreatic_cancer_ar.pdf'
@@ -356,7 +356,7 @@ def build_result_context(selected_assessments, data):
             item['desc_file_fa'] = 'stomach_cancer_fa.pdf'
             item['desc_file_en'] = 'stomach_cancer_en.pdf'
             item['desc_file_ar'] = 'stomach_cancer_ar.pdf'
-            if stomach_cancer_score >= 20:
+            if stomach_cancer_score >= 18:
                 item['status_en'] = 'High Risk'
                 item['status_fa'] = 'ریسک زیاد'
                 item['status_ar'] = 'مخاطر عالية'
@@ -364,7 +364,7 @@ def build_result_context(selected_assessments, data):
                 item['recommendation_en'] = ''
                 item['recommendation_fa'] = 'بررسی و پیگیری توسط متخصص'
                 item['recommendation_ar'] = 'استشارة و متابعة من قبل أخصائي'
-            elif stomach_cancer_score >= 10:
+            elif stomach_cancer_score >= 8:
                 item['status_en'] = 'Moderate Risk'
                 item['status_fa'] = 'ریسک متوسط'
                 item['status_ar'] = 'مخاطر متوسطة'

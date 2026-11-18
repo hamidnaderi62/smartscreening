@@ -1,16 +1,20 @@
 from django.db.models import Q
 
-from my_model.assessment_catalog import get_assessment_or_404
+from my_model.assessment_catalog import ASSESSMENTS, get_assessment_or_404
 from my_model.services.localization import localized_value, normalize_language
 
 from .models import DoctorProfile
 
 
 def screening_assessment_ids(screening):
+    active_ids = {
+        assessment['id'] for assessment in ASSESSMENTS
+        if assessment.get('active', 1)
+    }
     return {
         int(value.strip())
         for value in (screening.selected_assessments_id or '').split(',')
-        if value.strip().isdigit()
+        if value.strip().isdigit() and int(value.strip()) in active_ids
     }
 
 

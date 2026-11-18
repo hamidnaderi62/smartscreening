@@ -2971,8 +2971,8 @@ Page content START -->
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                                          <div class="container">
                                                              <label for="h_pylori" class="form-label fw-bold text-dark mb-3">
-                                                              Have you ever been told by a doctor that you had an H. Pylori infection?
-																H. Pylori is a common bacteria that can cause stomach ulcers or stomach inflammation.
+                                                              <span>Have you ever been told by a doctor that you had an H. Pylori infection?</span>
+                                                              <small class="d-block text-muted mt-1">H. Pylori is a common bacteria that can cause stomach ulcers or stomach inflammation.</small>
 
                                                              </label>
                                                              <div class="vstack gap-2">
@@ -3006,6 +3006,7 @@ Page content START -->
 
                             <!-- Accordion START -->
                             {% with stroke_assessments=selected_assessments|filter_assessment_title:'Stroke' %}
+                            {% if stroke_assessments %}
                             <div class="accordion accordion-icon accordion-bg-light {% if not stroke_assessments %}d-none{% endif %}" id="accordion-stroke">
                                 <!-- Item -->
                                 <div class="accordion-item mb-3">
@@ -3093,6 +3094,7 @@ Since you have a history of stroke, the system is unable to provide an accurate 
 
 
                             </div>
+                            {% endif %}
                             {% endwith %}
                             <!-- Accordion END -->
 

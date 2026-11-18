@@ -101,6 +101,15 @@
     "fa": "گروه خونی",
     "ar": "فصيلة الدم"
   },
+  // Standard blood-group notation is intentionally identical in every language.
+  "A+": {"fa": "A+", "ar": "A+"},
+  "A-": {"fa": "A-", "ar": "A-"},
+  "B+": {"fa": "B+", "ar": "B+"},
+  "B-": {"fa": "B-", "ar": "B-"},
+  "AB+": {"fa": "AB+", "ar": "AB+"},
+  "AB-": {"fa": "AB-", "ar": "AB-"},
+  "O+": {"fa": "O+", "ar": "O+"},
+  "O-": {"fa": "O-", "ar": "O-"},
   "Don't Know": {
     "fa": "نمیدانم",
     "ar": "لا أعرف"
@@ -429,6 +438,11 @@
     "fa": "سرطان دهانه رحم",
     "ar": "سرطان عنق الرحم"
   },
+  // These are internationally standardized clinical abbreviations.
+  "CIN1": {"fa": "CIN1", "ar": "CIN1"},
+  "CIN2": {"fa": "CIN2", "ar": "CIN2"},
+  "CIN3": {"fa": "CIN3", "ar": "CIN3"},
+  "AIS": {"fa": "AIS", "ar": "AIS"},
   "Number of sexual partners": {
     "fa": "تعداد شرکای جنسی",
     "ar": "عدد الشركاء الجنسيين"
@@ -833,9 +847,13 @@
     "fa": "بیشتر از 5 وعده",
     "ar": "أكثر من 5 حصص"
   },
-  "Have you ever been told by a doctor that you had an H. Pylori infection? H. Pylori is a common bacteria that can cause stomach ulcers or stomach inflammation.": {
-    "fa": "آیا تا به حال پزشک به شما گفته است که عفونت اچ پیلوری (H. Pylori) داشته‌اید؟ اچ پیلوری یک باکتری شایع است که می‌تواند باعث زخم معده یا التهاب معده شود",
-    "ar": "هل سبق وأخبرك الطبيب أنك مصاب بعدوى الملوية البوابية (H. Pylori)؟ الملوية البوابية هي بكتيريا شائعة يمكن أن تسبب قرحة المعدة أو التهاب المعدة."
+  "Have you ever been told by a doctor that you had an H. Pylori infection?": {
+    "fa": "آیا تاکنون پزشک به شما گفته است که به عفونت هلیکوباکتر پیلوری (H. pylori) مبتلا بوده‌اید؟",
+    "ar": "هل سبق أن أخبرك طبيب بأن لديك عدوى الملوية البوابية (H. pylori)؟"
+  },
+  "H. Pylori is a common bacteria that can cause stomach ulcers or stomach inflammation.": {
+    "fa": "هلیکوباکتر پیلوری باکتری شایعی است که می‌تواند باعث زخم معده یا التهاب معده شود.",
+    "ar": "الملوية البوابية بكتيريا شائعة يمكن أن تسبب قرحة المعدة أو التهابها."
   },
   "Stroke": {
     "fa": "سکته مغزی",
@@ -874,15 +892,25 @@
     "ar": "تحليل"
   }
 };
-  const language = document.documentElement.lang || 'en';
+  const normalizeText = function (text) {
+    return text.replace(/\s+/g, ' ').trim();
+  };
+  const normalizedTranslations = new Map(
+    Object.entries(translations).map(function (entry) {
+      return [normalizeText(entry[0]), entry[1]];
+    })
+  );
+  const language = (document.documentElement.lang || 'en').toLowerCase().split('-')[0];
   if (!translations || language === 'en') return;
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
   nodes.forEach(function (node) {
     const source = node.nodeValue.trim();
-    const localized = translations[source] && translations[source][language];
-    if (localized) node.nodeValue = node.nodeValue.replace(source, localized);
+    const localized = normalizedTranslations.get(normalizeText(source));
+    if (localized && localized[language]) {
+      node.nodeValue = node.nodeValue.replace(source, localized[language]);
+    }
   });
 })();
 

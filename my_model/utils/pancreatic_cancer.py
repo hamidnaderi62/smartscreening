@@ -14,7 +14,7 @@ class Pancreatic_RiskCalculator:
             pancreatic_cancer_score += 3
 
         if family_pancreatic_cancer == 'Yes':
-            pancreatic_cancer_score += 10
+            pancreatic_cancer_score += 12
 
         if alcohol >= 4:
             pancreatic_cancer_score += 6
@@ -33,7 +33,7 @@ class Pancreatic_RiskCalculator:
             pancreatic_cancer_score += 3
 
         if chronic_pancreatitis == 'Yes':
-            pancreatic_cancer_score += 10
+            pancreatic_cancer_score += 12
 
         return pancreatic_cancer_score
 

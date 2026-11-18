@@ -1,0 +1,87 @@
+.pouyamed-footer-logo-link {
+    display: inline-flex;
+    width: min(100%, 184px);
+    align-items: center;
+    justify-content: center;
+    padding: 7px;
+    overflow: hidden;
+    border: 1px solid rgba(20, 46, 87, .08);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(4, 12, 34, .12);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.pouyamed-footer-logo-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 32px rgba(4, 12, 34, .18);
+}
+
+.pouyamed-footer-logo-link img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.pouyamed-product-label {
+    display: block;
+    margin-top: 12px;
+    color: rgba(255, 255, 255, .78);
+    font-size: .75rem;
+    font-weight: 750;
+    letter-spacing: .01em;
+}
+
+.pouyamed-legacy-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0 18px;
+    text-align: center;
+}
+
+.pouyamed-legacy-brand .pouyamed-footer-logo-link {
+    width: min(100%, 142px);
+    border-radius: 13px;
+    box-shadow: 0 5px 18px rgba(18, 46, 84, .1);
+}
+
+.pouyamed-legacy-brand .pouyamed-product-label {
+    margin-top: 0;
+    color: #66758a;
+    font-size: .78rem;
+}
+
+.pouyamed-company-brand {
+    display: inline-flex;
+    width: min(100%, 154px);
+    margin-bottom: 10px;
+    padding: 6px;
+    border: 1px solid rgba(20, 46, 87, .08);
+    border-radius: 13px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(18, 46, 84, .1);
+}
+
+.pouyamed-company-brand img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.pouyamed-auth-footer .pouyamed-footer-logo-link {
+    width: 112px;
+    border-radius: 11px;
+    box-shadow: none;
+}
+
+html[dir="rtl"] .pouyamed-product-label {
+    letter-spacing: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pouyamed-footer-logo-link {
+        transition: none;
+    }
+}
