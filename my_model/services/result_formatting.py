@@ -72,7 +72,7 @@ def build_result_context(selected_assessments, data):
                 item['recommendation_en'] = 'Age outside 40-79 range'
                 item['recommendation_fa'] = 'محدوده سنی نامعتبر (۴۰-۷۹ سال)'
                 item['recommendation_ar'] = 'العمر خارج النطاق 40-79 سنة'
-            elif ascvd_score < 5:
+            elif ascvd_score < 3:
                 item['status_en'] = 'Low risk'
                 item['status_fa'] = 'ریسک کم'
                 item['status_ar'] = 'مخاطر منخفضة'
@@ -80,7 +80,7 @@ def build_result_context(selected_assessments, data):
                 item['recommendation_en'] = 'Lifestyle prevention'
                 item['recommendation_fa'] = 'اصلاح سبک زندگی'
                 item['recommendation_ar'] = 'الوقاية بنمط الحياة'
-            elif ascvd_score <= 7.4:
+            elif ascvd_score <= 5:
                 item['status_en'] = 'Borderline risk'
                 item['status_fa'] = 'ریسک کم-متوسط'
                 item['status_ar'] = 'مخاطر حدية'
@@ -88,7 +88,7 @@ def build_result_context(selected_assessments, data):
                 item['recommendation_en'] = 'LDL management + lifestyle'
                 item['recommendation_fa'] = 'اصلاح سبک زندگی'
                 item['recommendation_ar'] = 'إدارة LDL + نمط الحياة'
-            elif ascvd_score < 19.9:
+            elif ascvd_score <= 10:
                 item['status_en'] = 'Intermediate risk'
                 item['status_fa'] = 'ریسک متوسط'
                 item['status_ar'] = 'مخاطر متوسطة'
@@ -204,7 +204,7 @@ def build_result_context(selected_assessments, data):
                 item['recommendation_fa'] = "بررسی و پیگیری توسط متخصص"
                 item['recommendation_ar'] = "تحويل فوري لجراحة المسالك البولية وخزعة موصى بها بشدة"
                 item['color_class'] = 'bg-danger'
-            elif pbcg_score_high_cancer >= 20:
+            elif pbcg_score_high_cancer >= 14:
                 item['status_en'] = 'Intermediate risk (PBCG)'
                 item['status_fa'] = 'ریسک متوسط (PBCG)'
                 item['status_ar'] = 'مخاطر متوسطة (PBCG)'
